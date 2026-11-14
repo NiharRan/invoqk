@@ -162,6 +162,14 @@ if ( ! function_exists( 'wp_die' ) ) {
 // --- WP Overnight stand-ins for the guard ---
 if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 	function wpo_ips_edi_is_available(): bool { return $GLOBALS['invoqk_edi'] ?? true; }
+	function wpo_ips_edi_send_attachments(): bool { return $GLOBALS['invoqk_edi_send'] ?? true; }
+	function WC() {
+		return new class {
+			public function mailer() {
+				return (object) [ 'emails' => [ 'WC_Email_Customer_Invoice' => new class { public function trigger( $id ) { ( $GLOBALS['invoqk_mailer'] ?? static fn() => null )( $id ); } } ] ];
+			}
+		};
+	}
 	function WPO_WCPDF() {
 		return new class {
 			public $main;
