@@ -424,3 +424,7 @@ msgstr ""
 #: src/Admin/Dashboard.php
 msgid "Enter it in the settings below."
 msgstr ""
+
+#: src/Guard/Guard.php
+msgid "Your invoice will follow in a separate email."
+msgstr ""

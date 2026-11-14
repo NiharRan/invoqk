@@ -424,3 +424,7 @@ msgstr "Es ist noch kein API-Schlüssel hinterlegt."
 #: src/Admin/Dashboard.php
 msgid "Enter it in the settings below."
 msgstr "Geben Sie ihn unten in den Einstellungen ein."
+
+#: src/Guard/Guard.php
+msgid "Your invoice will follow in a separate email."
+msgstr "Ihre Rechnung folgt in einer separaten E-Mail."
