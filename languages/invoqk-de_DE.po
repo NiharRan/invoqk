@@ -452,3 +452,9 @@ msgid "Invoqk: %d invoice needs attention"
 msgid_plural "Invoqk: %d invoices need attention"
 msgstr[0] "Invoqk: %d Rechnung braucht Aufmerksamkeit"
 msgstr[1] "Invoqk: %d Rechnungen brauchen Aufmerksamkeit"
+
+#. translators: %s: user name
+#: src/Guard/Actions.php
+#, php-format
+msgid "Invoice sent despite validation errors by %s."
+msgstr "Rechnung trotz Validierungsfehlern von %s versendet."

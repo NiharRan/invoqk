@@ -11,6 +11,7 @@ final class Plugin {
 			Admin\OrderBox::boot();
 			Admin\Revalidate::boot();
 			Admin\Override::boot();
+			Guard\Actions::boot();
 			Admin\SettingsPage::boot();
 			Onboarding\Wizard::boot();
 		}

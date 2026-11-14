@@ -157,6 +157,7 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
+	function get_userdata( $id ) { return (object) [ 'ID' => $id, 'display_name' => 'T' ]; }
 	function wp_get_current_user() { return (object) [ 'ID' => 1, 'display_name' => 'T' ]; }
 }
 
