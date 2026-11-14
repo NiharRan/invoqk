@@ -59,6 +59,7 @@ final class Override {
 			);
 		}
 		$order->save_meta_data();
+		Readiness::flush();
 		$order->add_order_note( $note );
 		if ( Classifier::isRequired( $order ) ) {
 			Scheduler::enqueue( $orderId ); // detect, which queues validation when a file exists

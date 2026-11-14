@@ -119,6 +119,9 @@ if ( ! function_exists( 'admin_url' ) ) {
 if ( ! function_exists( 'wp_date' ) ) {
 	function wp_date( string $f, ?int $ts = null ): string { return gmdate( $f, $ts ?? 0 ); }
 	function get_locale(): string { return 'de_DE'; }
+	function get_transient( string $k ) { return $GLOBALS['invoqk_transients'][ $k ] ?? false; }
+	function set_transient( string $k, $v, int $ttl = 0 ): bool { $GLOBALS['invoqk_transients'][ $k ] = $v; return true; }
+	function delete_transient( string $k ): bool { unset( $GLOBALS['invoqk_transients'][ $k ] ); return true; }
 	function esc_attr( $s ): string { return esc_html( $s ); }
 	function esc_url( $s ): string { return esc_html( $s ); }
 	function _n( string $s, string $p, int $n, string $d = 'default' ): string { return 1 === $n ? $s : $p; }
