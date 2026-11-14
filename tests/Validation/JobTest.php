@@ -113,10 +113,12 @@ final class JobTest extends TestCase {
 	}
 
 	public function test_force_calls_api_again_with_same_hash(): void {
+		$GLOBALS['invoqk_options']['invoqk_free_slots'] = range( 100, 118 );
 		$this->order();
 		$this->go();
 		$this->go( 1, 1, true );
 		$this->assertSame( 2, $this->calls );
+		$this->assertCount( 20, $GLOBALS['invoqk_options']['invoqk_free_slots'] );
 	}
 
 	public function test_changed_bytes_validate_again(): void {
@@ -156,10 +158,12 @@ final class JobTest extends TestCase {
 	}
 
 	public function test_401_403_422_schedule_no_retry(): void {
-		$this->order();
-		foreach ( [ 401, 403, 422 ] as $c ) {
+		$o = $this->order();
+		foreach ( [ 401 => 'unauthorized', 403 => 'wrong_site', 422 => 'rejected' ] as $c => $code ) {
 			$this->res = [ $c, [], '' ];
 			$this->go();
+			$this->assertSame( 'error', Record::get( $o )['status'] );
+			$this->assertSame( $code, $this->code( $o ) );
 			$this->assertSame( [], $GLOBALS['invoqk_as'], (string) $c );
 		}
 	}

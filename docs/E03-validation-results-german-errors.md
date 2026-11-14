@@ -113,7 +113,7 @@ Behavior:
   1. `Detector::run`, after a hit, when the order has no `_invoqk_validation` or the stored file reference differs from the detected one.
   2. The existing `wpo_wcpdf_save_document` hook (WP Overnight rebuilt the invoice, so the content may have changed).
   3. The manual button (force).
-  4. `Scheduler::sweep`, for recent orders (30 days) with a file and no validation meta, or status `error`; also `limit` when Pro.
+  4. `Scheduler::sweep`, for recent orders (30 days) with a file and no validation meta, or status `error` with code `no_key` or `unreadable`; also `limit` when Pro.
 - Handler steps: load order, return if source is `none` or trashed, read bytes through the adapter, return with status `error` code `unreadable` if bytes are null. Compute sha256. If not forced and the hash equals the stored hash and status is `passed` or `failed`, stop (no API call). Apply the free limit (S6). Call the API. Map the response to the meta array. Save.
 - Retry on the table above using `Scheduler::backoff()`, with `$attempt + 1`. After the last backoff step the status stays `error` and the manual button is the way out. A `429` reschedules once at `Retry-After`.
 - An order with no API key set gets status `error`, code `no_key`, no API call, no retry. The text points at the settings page.
@@ -234,7 +234,7 @@ As a shop owner, I want a clear "could not validate" state, so that I do not mis
 | Layer | What | Count |
 |-------|------|-------|
 | Unit | response to meta mapping (pass, fail, each error code); `IssueText` language choice; `Limit::allow` (Free, Pro, repeat, 21st); `FixMap` keys vs fixture and translations; issue cap at 100; hash dedupe | +10 |
-| Integration | job with `pre_http_request` stub: pass, fail, 500 then 200, 429 reschedule, no key; `wpo_wcpdf_save_document` re-queues; sweep picks up `error` and (Pro) `limit` | +6 |
+| Integration | job with `pre_http_request` stub: pass, fail, 500 then 200, 429 reschedule, no key; `wpo_wcpdf_save_document` re-queues; sweep picks up `error` (`no_key`, `unreadable`) and (Pro) `limit` | +6 |
 | Render | column badge per status; meta box report; escaping of hostile issue text | +3 |
 | Manual | one real order on a site with WP Overnight against the staging API | 1 |
 

@@ -101,27 +101,30 @@ final class SchedulerTest extends TestCase {
 
 	public function test_sweep_queues_validation_for_error_and_missing_record_only(): void {
 		$file = [ 'reference' => 5, 'mime' => 'application/xml' ];
-		$mk = function ( int $id, ?string $status ) use ( $file ) {
+		$mk = function ( int $id, ?string $status, ?string $code = null ) use ( $file ) {
 			$o = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
 			$o->update_meta_data( '_invoqk_source', 'a' );
 			$o->update_meta_data( '_invoqk_file', $file );
 			if ( $status ) {
-				$o->update_meta_data( '_invoqk_validation', [ 'status' => $status ] );
+				$o->update_meta_data( '_invoqk_validation', [ 'status' => $status ] + ( $code ? [ 'error' => [ 'code' => $code ] ] : [] ) );
 			}
 		};
 		$GLOBALS['invoqk_orders'] = [];
 		$mk( 21, 'passed' );
-		$mk( 22, 'error' );
+		$mk( 22, 'error', 'no_key' );
 		$mk( 23, null );
 		$mk( 24, 'limit' );
-		$GLOBALS['invoqk_orders_result'] = [ 21, 22, 23, 24 ];
+		$mk( 25, 'error', 'unauthorized' );
+		$mk( 26, 'error', 'unavailable' );
+		$mk( 27, 'error', 'unreadable' );
+		$GLOBALS['invoqk_orders_result'] = [ 21, 22, 23, 24, 25, 26, 27 ];
 		$GLOBALS['invoqk_filters'] = [];
 		Scheduler::sweep();
-		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
+		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ], [ 27, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
 		$GLOBALS['invoqk_as'] = [];
 		add_filter( 'invoqk_is_pro', fn() => true );
 		Scheduler::sweep();
-		$this->assertSame( [ 22, 23, 24 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+		$this->assertSame( [ 22, 23, 24, 27 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
 		$GLOBALS['invoqk_filters'] = [];
 	}
 

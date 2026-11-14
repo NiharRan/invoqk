@@ -93,7 +93,7 @@ final class Scheduler {
 				$status = Record::status( $order );
 				if ( '' === (string) $order->get_meta( '_invoqk_source' ) ) {
 					self::enqueue( (int) $id );
-				} elseif ( $order->get_meta( Result::FILE ) && ( in_array( $status, [ 'pending', 'error' ], true ) || ( 'limit' === $status && Limit::isPro() ) ) ) {
+				} elseif ( $order->get_meta( Result::FILE ) && ( 'pending' === $status || ( 'error' === $status && in_array( Record::get( $order )['error']['code'] ?? '', [ 'no_key', 'unreadable' ], true ) ) || ( 'limit' === $status && Limit::isPro() ) ) ) {
 					self::enqueueValidate( (int) $id );
 				} else {
 					continue;
