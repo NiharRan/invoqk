@@ -158,3 +158,18 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
 	function wp_get_current_user() { return (object) [ 'ID' => 1, 'display_name' => 'T' ]; }
 }
+
+// --- WP Overnight stand-ins for the guard ---
+if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
+	function wpo_ips_edi_is_available(): bool { return $GLOBALS['invoqk_edi'] ?? true; }
+	function WPO_WCPDF() {
+		return new class {
+			public $main;
+			public function __construct() {
+				$this->main = new class {
+					public function get_documents_for_email( $emailId, $order ) { return $GLOBALS['invoqk_wpo_email_docs'][ $emailId ] ?? []; }
+				};
+			}
+		};
+	}
+}

@@ -5,6 +5,7 @@ final class Plugin {
 	public static function boot(): void {
 		Jobs\Scheduler::boot();
 		Onboarding\FirstReport::boot();
+		Guard\Guard::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();

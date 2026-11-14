@@ -4,8 +4,8 @@ use PHPUnit\Framework\TestCase;
 
 // Stand-ins for WP Overnight's global functions (recorded from PDF Invoices & Packing Slips 5.16.6).
 $GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false ];
-if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
-	function wpo_ips_edi_is_available(): bool { return $GLOBALS['wpo']['edi']; }
+if ( ! function_exists( 'wcpdf_get_document' ) ) {
+	// wpo_ips_edi_is_available() lives in tests/bootstrap.php and reads $GLOBALS['invoqk_edi'].
 	function wpo_ips_edi_get_current_format( bool $full = false ) { return $GLOBALS['wpo']['format']; }
 	function wcpdf_get_document( string $type, $order, bool $init = false ) {
 		$GLOBALS['wpo']['init_called'] = $GLOBALS['wpo']['init_called'] || $init;
@@ -19,6 +19,7 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 final class WpOvernightAdapterTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false ];
+		$GLOBALS['invoqk_edi'] = true;
 	}
 
 	/** @dataProvider formats */
@@ -52,7 +53,7 @@ final class WpOvernightAdapterTest extends TestCase {
 	}
 
 	public function test_is_available_false_when_edi_disabled(): void {
-		$GLOBALS['wpo']['edi'] = false;
+		$GLOBALS['invoqk_edi'] = false;
 		$this->assertFalse( ( new WpOvernightAdapter() )->isAvailable() );
 	}
 
