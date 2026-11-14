@@ -120,6 +120,15 @@ final class DetectorTest extends TestCase {
 		$this->assertNull( Result::fromOrder( $this->order() ) );
 	}
 
+	public function test_hit_without_enqueue_queues_no_validation(): void {
+		$GLOBALS['invoqk_as'] = [];
+		$o = $this->order();
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $this->file( 5 ) ) ) ) )->run( 1, false );
+		$hooks = array_column( $GLOBALS['invoqk_as'], 'hook' );
+		$this->assertNotContains( 'invoqk_validate_order', $hooks );
+		$this->assertSame( 'a', Result::fromOrder( $o )->source );
+	}
+
 	public function test_detector_enqueues_validation_for_new_file_and_changed_ref_but_not_unchanged(): void {
 		$GLOBALS['invoqk_as'] = [];
 		$o = $this->order();
