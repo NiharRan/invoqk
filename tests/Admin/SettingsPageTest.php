@@ -8,6 +8,10 @@ if ( ! function_exists( 'settings_fields' ) ) {
 }
 
 final class SettingsPageTest extends TestCase {
+	protected function setUp(): void {
+		$GLOBALS['invoqk_filters'] = []; // other tests leave adapter filters behind
+	}
+
 	public function test_form_uses_options_flow_and_never_echoes_key(): void {
 		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_live_SECRET123';
 		ob_start();
@@ -52,5 +56,60 @@ final class SettingsPageTest extends TestCase {
 		$this->assertSame( 'old', SettingsPage::keep( '••••••••', 'old' ) );
 		$this->assertSame( 'new', SettingsPage::keep( 'new', 'old' ) );
 		$this->assertSame( '', SettingsPage::keep( '', '' ) );
+	}
+
+	private function reset( string $state ): void {
+		$GLOBALS['invoqk_options'] = [ 'invoqk_onboarding' => $state ];
+		$GLOBALS['invoqk_transients'] = [];
+		$_GET = [];
+	}
+
+	public function test_render_routes_wizard_when_new(): void {
+		$this->reset( 'new' );
+		$_GET['step'] = '2';
+		ob_start();
+		SettingsPage::render();
+		$h = ob_get_clean();
+		$this->assertStringContainsString( 'invoqk_wizard_finish', $h );
+		$this->assertStringNotContainsString( 'invoqk-dash', $h );
+		$this->assertStringContainsString( 'name="invoqk_api_key"', $h );
+		$_GET = [];
+	}
+
+	public function test_render_routes_dashboard_when_done_and_keeps_key_form(): void {
+		$this->reset( 'done' );
+		ob_start();
+		SettingsPage::render();
+		$h = ob_get_clean();
+		$this->assertStringContainsString( 'invoqk-dash', $h );
+		$this->assertStringContainsString( 'name="option_page" value="invoqk"', $h );
+		$this->assertStringContainsString( 'name="invoqk_api_key"', $h );
+		$this->assertGreaterThan( strpos( $h, 'invoqk-dash' ), strpos( $h, 'name="invoqk_api_key"' ) );
+
+		$this->reset( 'done' );
+		$_GET['invoqk_wizard'] = '1';
+		$_GET['step'] = '9';
+		ob_start();
+		SettingsPage::render();
+		$h = ob_get_clean(); // bad step falls back to step 1
+		$this->assertStringContainsString( 'invoqk-wizard', $h );
+		$this->assertStringNotContainsString( 'invoqk_wizard_finish', $h );
+		$_GET = [];
+	}
+
+	public function test_render_shows_progress_when_running(): void {
+		$this->reset( 'running' );
+		$GLOBALS['invoqk_options']['invoqk_first_report'] = [ 'ids' => [ 1 ], 'startedAt' => time() ];
+		ob_start();
+		SettingsPage::render();
+		$this->assertStringContainsString( 'invoqk-progress', ob_get_clean() );
+	}
+
+	public function test_css_enqueued_only_on_plugin_page(): void {
+		$GLOBALS['invoqk_styles'] = [];
+		SettingsPage::enqueue( 'edit.php' );
+		$this->assertSame( [], $GLOBALS['invoqk_styles'] );
+		SettingsPage::enqueue( 'woocommerce_page_invoqk' );
+		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
 	}
 }

@@ -1,6 +1,10 @@
 <?php
 namespace Invoqk\Admin;
 
+use Invoqk\Onboarding\State;
+use Invoqk\Onboarding\Wizard;
+use Invoqk\Validation\Client;
+
 final class SettingsPage {
 	private const MASK = '••••••••';
 
@@ -8,6 +12,7 @@ final class SettingsPage {
 		add_action( 'admin_menu', static function () {
 			add_submenu_page( 'woocommerce', 'Invoqk', 'Invoqk', 'manage_woocommerce', 'invoqk', [ self::class, 'render' ] );
 		} );
+		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue' ] );
 		add_action( 'admin_init', static function () {
 			register_setting( 'invoqk', 'invoqk_api_key', [ 'sanitize_callback' => 'sanitize_text_field', 'autoload' => false ] );
 		} );
@@ -24,10 +29,26 @@ final class SettingsPage {
 		return ( '' === $new || self::MASK === $new ) ? $old : $new;
 	}
 
+	public static function enqueue( string $hook ): void {
+		if ( 'woocommerce_page_invoqk' === $hook ) {
+			wp_enqueue_style( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.css', INVOQK_FILE ), [], INVOQK_VERSION );
+		}
+	}
+
 	public static function render(): void {
-		$set = '' !== (string) get_option( 'invoqk_api_key', '' );
+		$set   = '' !== (string) get_option( 'invoqk_api_key', '' );
+		$state = State::get();
 		echo '<div class="wrap"><h1>Invoqk</h1>';
 		settings_errors();
+		if ( 'new' === $state || isset( $_GET['invoqk_wizard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- read-only routing
+			$step = absint( $_GET['step'] ?? 1 ); // phpcs:ignore WordPress.Security.NonceVerification
+			echo Wizard::render( 2 === $step ? 2 : 1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Wizard
+		} elseif ( 'running' === $state ) {
+			echo Wizard::progress(); // phpcs:ignore WordPress.Security.EscapeOutput
+		} else {
+			echo Dashboard::html( Readiness::get( get_locale() ), State::turnover(), '' !== Client::apiKey() ); // phpcs:ignore WordPress.Security.EscapeOutput
+		}
+		echo '<div class="invoqk-box invoqk-settings"><h2>' . esc_html__( 'Settings', 'invoqk' ) . '</h2>';
 		echo '<div class="notice notice-info inline"><p>'
 			. esc_html__( 'Invoqk is a technical check and not legal or tax advice. Ask your tax advisor what applies to your business.', 'invoqk' )
 			. '</p></div><form method="post" action="options.php">';
@@ -36,6 +57,6 @@ final class SettingsPage {
 			. '<td><input type="password" id="invoqk_api_key" name="invoqk_api_key" value="" autocomplete="off" class="regular-text"'
 			. ( $set ? ' placeholder="' . esc_attr( self::MASK ) . '"' : '' ) . '></td></tr></table>';
 		submit_button();
-		echo '</form></div>';
+		echo '</form></div></div>';
 	}
 }

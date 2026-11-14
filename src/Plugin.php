@@ -11,6 +11,7 @@ final class Plugin {
 			Admin\Revalidate::boot();
 			Admin\Override::boot();
 			Admin\SettingsPage::boot();
+			Onboarding\Wizard::boot();
 		}
 		add_action(
 			'init',

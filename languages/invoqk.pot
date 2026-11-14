@@ -303,3 +303,100 @@ msgstr ""
 #: src/Onboarding/Wizard.php
 msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
 msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Open setup"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "B2B orders with a valid e-invoice · last 30 days"
+msgstr ""
+
+#. translators: 1: valid orders, 2: B2B orders checked
+#: src/Admin/Dashboard.php
+msgid "%1$d of %2$d"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "valid"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "faulty"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "missing"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "not checked yet"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "not needed"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Basis: newest 2,000 orders"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Your obligation starts"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Turnover last year"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Select turnover"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Save"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Most common errors"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Code"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "No B2B invoices found yet"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Does your invoice plugin already create e-invoices? Open its settings."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Stop errors before the invoice goes out"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Dispatch guard"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Archive"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Try Pro for 14 days"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Settings"
+msgstr ""

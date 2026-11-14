@@ -151,6 +151,7 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function is_network_admin(): bool { return $GLOBALS['invoqk_network'] ?? false; }
 	function plugins_url( string $p = '', string $f = '' ): string { return '/plugins/' . $p; }
 	function wp_enqueue_script( string $h, string $src = '', array $deps = [], $ver = false, $foot = false ): void { $GLOBALS['invoqk_scripts'][ $h ] = $src; }
+	function wp_enqueue_style( string $h, string $src = '', array $deps = [], $ver = false ): void { $GLOBALS['invoqk_styles'][ $h ] = $src; }
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
