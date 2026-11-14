@@ -10,6 +10,16 @@ WooCommerce plugin: finds each order's e-invoice and shows its source. Needs Wor
 - Source adapters: see `ADAPTERS.md`.
 - Integration tests against Germanized Pro, German Market and WP Overnight need licensed copies and are not yet written.
 
-## Compatibility matrix (manual, not yet run)
+## Compatibility matrix (checked 2026-11-15 on a dev site: WP, WooCommerce 10.9.4, HPOS on, Action Scheduler 3.9.3)
 
-HPOS on/off, block and classic checkout, multisite network activation, WPML/Polylang, de_DE and en locale: **unchecked**. Run on a real site before release.
+| Check | Result |
+| --- | --- |
+| HPOS on, order list sweep, order meta | Pass |
+| Activation without WooCommerce | Pass: notice only, plugin does not boot, no fatal |
+| German strings (`de_DE`) | Pass |
+| Status change to Action Scheduler job to cached result | Pass (real queue run) |
+| Hourly sweep scheduled | Pass |
+| Block and classic checkout | Neutral by construction: no checkout or front-end hooks; only `cart_checkout_blocks` compatibility is declared. Not exercised with a real checkout |
+| HPOS off (legacy order list) | **Not checked** (needs the site's order storage switched) |
+| Multisite network activation | **Not checked** (no multisite available) |
+| WPML / Polylang | **Not checked** (not installed; plugin stores no translated content) |
