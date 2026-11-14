@@ -16,6 +16,8 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_meta( string $k ) { return $this->meta[ $k ] ?? ''; }
 		public function update_meta_data( string $k, $v ): void { $this->meta[ $k ] = $v; }
 		public function save(): int { return $this->id; }
+		public string $status = 'processing';
+		public function get_status(): string { return $this->status; }
 	}
 }
 
@@ -30,5 +32,38 @@ if ( ! function_exists( 'add_filter' ) ) {
 	}
 	function wc_get_logger() {
 		return new class { public function error( $m, $c = [] ): void {} };
+	}
+}
+
+// --- WooCommerce / Action Scheduler stand-ins for unit tests ---
+$GLOBALS['invoqk_orders']  = [];
+$GLOBALS['invoqk_as']      = [];
+$GLOBALS['invoqk_actions'] = [];
+$GLOBALS['invoqk_files']   = [];
+$GLOBALS['invoqk_orders_args'] = null;
+$GLOBALS['invoqk_orders_result'] = [];
+
+if ( ! function_exists( 'wc_get_order' ) ) {
+	function wc_get_order( $id ) { return $GLOBALS['invoqk_orders'][ $id ] ?? false; }
+	function wc_get_orders( array $args ) {
+		$GLOBALS['invoqk_orders_args'] = $args;
+		return $GLOBALS['invoqk_orders_result'];
+	}
+	function get_attached_file( int $id ) { return $GLOBALS['invoqk_files'][ $id ] ?? false; }
+	function add_action( string $tag, callable $cb, int $prio = 10, int $args = 1 ): void { $GLOBALS['invoqk_actions'][ $tag ][] = [ $cb, $args ]; }
+	function do_action( string $tag, ...$args ): void {
+		foreach ( $GLOBALS['invoqk_actions'][ $tag ] ?? [] as [ $cb, $n ] ) { $cb( ...array_slice( $args, 0, $n ) ); }
+	}
+	function as_has_scheduled_action( string $hook, array $args = [], string $group = '' ): bool {
+		foreach ( $GLOBALS['invoqk_as'] as $a ) {
+			if ( $a['hook'] === $hook && ( $args === [] || $a['args'] === $args ) ) { return true; }
+		}
+		return false;
+	}
+	function as_enqueue_async_action( string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group' ) + [ 'when' => 0, 'every' => 0 ]; return 1; }
+	function as_schedule_single_action( int $when, string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group', 'when' ) + [ 'every' => 0 ]; return 1; }
+	function as_schedule_recurring_action( int $when, int $every, string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group', 'when', 'every' ); return 1; }
+	function as_unschedule_all_actions( string $hook = '', array $args = [], string $group = '' ): void {
+		$GLOBALS['invoqk_as'] = array_values( array_filter( $GLOBALS['invoqk_as'], fn( $a ) => $group !== '' && $a['group'] !== $group ) );
 	}
 }

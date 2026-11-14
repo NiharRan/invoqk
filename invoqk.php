@@ -61,3 +61,9 @@ add_action(
 	},
 	20
 );
+
+register_deactivation_hook( __FILE__, static function () {
+	if ( class_exists( \Invoqk\Jobs\Scheduler::class ) ) {
+		\Invoqk\Jobs\Scheduler::deactivate();
+	}
+} );

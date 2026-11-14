@@ -3,6 +3,7 @@ namespace Invoqk;
 
 final class Plugin {
 	public static function boot(): void {
+		Jobs\Scheduler::boot();
 		add_action(
 			'init',
 			static function () {
