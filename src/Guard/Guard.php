@@ -105,7 +105,7 @@ final class Guard {
 	/** Acts on orders the guard put into waiting; $timeout is true when the wait ran out. */
 	public static function decide( int $id, bool $timeout = false ): void {
 		$order = wc_get_order( $id );
-		if ( ! $order instanceof \WC_Order ) {
+		if ( ! $order instanceof \WC_Order || 'trash' === $order->get_status() ) {
 			Hold::heldIds();
 			return;
 		}
@@ -156,7 +156,7 @@ final class Guard {
 
 	public static function send( int $id, string $state, array $extra = [], ?callable $mailer = null ): bool {
 		$order = wc_get_order( $id );
-		if ( ! $order instanceof \WC_Order || Hold::isFinal( $order ) ) {
+		if ( ! $order instanceof \WC_Order || 'trash' === $order->get_status() || Hold::isFinal( $order ) ) {
 			return false;
 		}
 		// Atomic on a unique option name: a second runner or click for the same order gets false here.

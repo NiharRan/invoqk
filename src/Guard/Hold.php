@@ -38,7 +38,7 @@ final class Hold {
 	/** @return int[] */
 	public static function heldIds(): array {
 		$ids   = self::stored();
-		$clean = array_values( array_filter( $ids, static fn( $id ) => (bool) wc_get_order( $id ) ) );
+		$clean = array_values( array_filter( $ids, static fn( $id ) => ( $o = wc_get_order( $id ) ) && 'trash' !== $o->get_status() ) );
 		if ( $clean !== $ids ) {
 			update_option( 'invoqk_guard_held', $clean, false );
 		}

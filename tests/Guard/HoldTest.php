@@ -46,6 +46,15 @@ final class HoldTest extends TestCase {
 		$this->assertSame( [], $GLOBALS['invoqk_options']['invoqk_guard_held'] );
 	}
 
+	public function test_held_ids_drop_trashed_orders(): void {
+		$o         = $GLOBALS['invoqk_orders'][7] = new \WC_Order( 7 );
+		$o->status = 'trash';
+		$GLOBALS['invoqk_orders'][8] = new \WC_Order( 8 );
+		$GLOBALS['invoqk_options']['invoqk_guard_held'] = [ 7, 8 ];
+		$this->assertSame( [ 8 ], Hold::heldIds() );
+		$this->assertSame( [ 8 ], $GLOBALS['invoqk_options']['invoqk_guard_held'] );
+	}
+
 	public function test_mode_defaults_to_block(): void {
 		$this->assertSame( 'block', Hold::mode() );
 		$GLOBALS['invoqk_options']['invoqk_guard_mode'] = 'x';

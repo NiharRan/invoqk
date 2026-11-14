@@ -138,6 +138,18 @@ final class GuardDecideTest extends TestCase {
 		$this->assertSame( [], $this->sent );
 	}
 
+	public function test_trashed_order_is_treated_as_deleted(): void {
+		$o         = $this->order( 'pending' );
+		$o->status = 'trash';
+		$GLOBALS['invoqk_options']['invoqk_guard_held'] = [ 5 ];
+		$this->decide( 5, true );
+		$this->assertSame( [], $this->sent );
+		$this->assertSame( 'waiting', Hold::get( $o )['state'] );
+		$this->assertSame( [], $GLOBALS['invoqk_options']['invoqk_guard_held'] );
+		$this->assertFalse( Guard::send( 5, 'released', [], fn( int $i ) => $this->sent[] = $i ) );
+		$this->assertSame( [], $this->sent );
+	}
+
 	public function test_mailer_throw_restores_state(): void {
 		$o  = $this->order( 'passed' );
 		$ok = Guard::send( 5, 'sent', [], function () { throw new \RuntimeException( 'SECRET' ); } );
