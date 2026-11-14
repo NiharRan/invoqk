@@ -8,6 +8,9 @@ use PHPUnit\Framework\TestCase;
 
 final class JobTest extends TestCase {
 	private int $calls = 0;
+	public int $reads = 0;
+	public bool $available = true;
+	public bool $throws = false;
 	private ?string $bytes = '<Invoice>INVOICEBYTES</Invoice>';
 	private array $res = [ 200, [ 'verdict' => 'pass' ], '' ];
 
@@ -18,6 +21,9 @@ final class JobTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 		$GLOBALS['invoqk_log'] = [];
 		$this->calls = 0;
+		$this->reads = 0;
+		$this->available = true;
+		$this->throws = false;
 		$this->bytes = '<Invoice>INVOICEBYTES</Invoice>';
 		$this->res   = [ 200, [ 'verdict' => 'pass' ], '' ];
 		$self = $this;
@@ -25,9 +31,9 @@ final class JobTest extends TestCase {
 			public function __construct( private JobTest $t ) {}
 			public function id(): string { return 'rd'; }
 			public function label(): string { return 'RD'; }
-			public function isAvailable(): bool { return true; }
+			public function isAvailable(): bool { return $this->t->available; }
 			public function find( \WC_Order $o ): ?InvoiceFile { return null; }
-			public function read( \WC_Order $o, InvoiceFile $f ): ?string { return $this->t->bytes(); }
+			public function read( \WC_Order $o, InvoiceFile $f ): ?string { ++$this->t->reads; if ( $this->t->throws ) { throw new \Error( 'LEAKY' ); } return $this->t->bytes(); }
 		} ] );
 	}
 
@@ -86,6 +92,43 @@ final class JobTest extends TestCase {
 		$this->assertSame( 'unreadable', $this->code( $o ) );
 		$this->assertSame( 0, $this->calls );
 		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_key_checked_before_adapter_read(): void {
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = '';
+		$this->reads = 0;
+		$this->order();
+		$this->go();
+		$this->assertSame( 0, $this->reads );
+	}
+
+	public function test_unavailable_adapter_is_unreadable_without_http_or_retry(): void {
+		$this->available = false;
+		$o = $this->order();
+		$this->go();
+		$this->assertSame( 'unreadable', $this->code( $o ) );
+		$this->assertSame( 0, $this->calls );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_throwing_adapter_is_unreadable_and_log_has_no_message(): void {
+		$this->throws = true;
+		$o = $this->order();
+		$this->go();
+		$this->assertSame( 'unreadable', $this->code( $o ) );
+		$this->assertSame( 0, $this->calls );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$this->assertStringNotContainsString( 'LEAKY', implode( "\n", $GLOBALS['invoqk_log'] ) );
+	}
+
+	public function test_same_hash_with_changed_reference_updates_ref_without_api_call(): void {
+		$o = $this->order();
+		$this->go();
+		$o->update_meta_data( '_invoqk_file', [ 'reference' => 9, 'mime' => 'application/xml', 'format' => 'ubl' ] );
+		$this->go();
+		$this->assertSame( 1, $this->calls );
+		$this->assertSame( '9', Record::get( $o )['ref'] );
+		$this->assertSame( 'passed', Record::get( $o )['status'] );
 	}
 
 	public function test_pass_writes_passed_record_with_hash_and_ref(): void {

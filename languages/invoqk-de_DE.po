@@ -86,7 +86,7 @@ msgid "Checking"
 msgstr "Wird geprüft"
 
 msgid "Validated"
-msgstr "Validiert am"
+msgstr "Validiert"
 
 msgid "Rule set"
 msgstr "Regelwerk"

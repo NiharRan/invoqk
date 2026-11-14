@@ -20,7 +20,9 @@ final class Report {
 			$out .= '<p>' . esc_html__( 'Validated', 'invoqk' ) . ': ' . esc_html( wp_date( 'Y-m-d H:i', (int) ( $rec['checkedAt'] ?? 0 ) ) ) . '</p>';
 			$rs   = $rec['ruleSet'] ?? [];
 			if ( ! empty( $rs['name'] ) ) {
-				$out .= '<p>' . esc_html__( 'Rule set', 'invoqk' ) . ': ' . esc_html( sprintf( '%s %s (%s)', $rs['name'], $rs['version'] ?? '', $rs['date'] ?? '' ) ) . '</p>';
+				$ver  = trim( $rs['name'] . ' ' . ( $rs['version'] ?? '' ) );
+				$ver .= ! empty( $rs['date'] ) ? ' (' . $rs['date'] . ')' : '';
+				$out .= '<p>' . esc_html__( 'Rule set', 'invoqk' ) . ': ' . esc_html( $ver ) . '</p>';
 			}
 		}
 		if ( 'error' === $status ) {
@@ -94,12 +96,10 @@ final class Report {
 		return $out;
 	}
 
+	/** A link, not a form: this box sits inside the WooCommerce order edit form and browsers drop nested forms. */
 	private static function form( \WC_Order $o ): string {
-		$id = $o->get_id();
-		return '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">'
-			. '<input type="hidden" name="action" value="' . esc_attr( Revalidate::ACTION ) . '">'
-			. '<input type="hidden" name="order_id" value="' . esc_attr( (string) $id ) . '">'
-			. wp_nonce_field( 'invoqk_revalidate_' . $id, '_wpnonce', true, false )
-			. '<button type="submit" class="button">' . esc_html__( 'Validate again', 'invoqk' ) . '</button></form>';
+		$id  = $o->get_id();
+		$url = wp_nonce_url( admin_url( 'admin-post.php?action=' . Revalidate::ACTION . '&order_id=' . $id ), 'invoqk_revalidate_' . $id );
+		return '<a class="button" href="' . esc_url( $url ) . '">' . esc_html__( 'Validate again', 'invoqk' ) . '</a>';
 	}
 }

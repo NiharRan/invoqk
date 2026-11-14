@@ -20,10 +20,24 @@ final class ReportTest extends TestCase {
 		$this->assertStringContainsString( 'BT-10 Käuferreferenz fehlt', $h );
 		$this->assertStringContainsString( 'XRechnung 3.0.2 (2026-08-31)', $h );
 		$this->assertStringContainsString( '1970-01-01 00:00', $h );
-		$this->assertStringContainsString( 'name="action" value="invoqk_revalidate"', $h );
-		$this->assertStringContainsString( 'name="order_id" value="7"', $h );
-		$this->assertStringContainsString( 'data-action="invoqk_revalidate_7"', $h );
+		$this->assertStringContainsString( 'action=invoqk_revalidate', $h );
+		$this->assertStringContainsString( 'order_id=7', $h );
+		$this->assertStringContainsString( '_wpnonce=nonce-invoqk_revalidate_7', $h );
+		$this->assertStringContainsString( 'Validated: 1970-01-01 00:00', $h );
 		$this->assertStringContainsString( '<details>', $h );
+	}
+
+	public function test_report_has_no_nested_form_inside_order_edit_form(): void {
+		$h = Report::html( $this->order( [ 'status' => 'failed', 'issues' => [ $this->issue() ], 'issueCount' => 1 ] ), 'de_DE' );
+		$this->assertStringNotContainsString( '<form', $h );
+		$this->assertStringContainsString( '<a class="button"', $h );
+	}
+
+	public function test_rule_set_line_skips_missing_parts(): void {
+		$mk = fn( array $rs ) => Report::html( $this->order( [ 'status' => 'passed', 'ruleSet' => $rs ] ), 'de_DE' );
+		$this->assertStringContainsString( 'XRechnung 3.0.2</p>', $mk( [ 'name' => 'XRechnung', 'version' => '3.0.2' ] ) );
+		$this->assertStringContainsString( 'XRechnung (2026-08-31)</p>', $mk( [ 'name' => 'XRechnung', 'date' => '2026-08-31' ] ) );
+		$this->assertStringContainsString( 'XRechnung</p>', $mk( [ 'name' => 'XRechnung' ] ) );
 	}
 
 	public function test_passed_with_warnings_shows_count_and_list(): void {

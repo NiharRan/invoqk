@@ -18,6 +18,11 @@ final class RevalidateTest extends TestCase {
 		$this->assertSame( [ 5, 1, true ], $GLOBALS['invoqk_as'][0]['args'] );
 	}
 
+	public function test_order_id_comes_from_the_link_query_arg(): void {
+		$this->assertSame( 5, Revalidate::requestedId( [ 'order_id' => '5' ] ) );
+		$this->assertSame( 0, Revalidate::requestedId( [] ) );
+	}
+
 	public function test_double_click_enqueues_one(): void {
 		Revalidate::handle( 5, true, true );
 		Revalidate::handle( 5, true, true );

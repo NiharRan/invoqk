@@ -21,6 +21,14 @@ final class ClientTest extends TestCase {
 		return [ 'response' => [ 'code' => $code ], 'body' => $body, 'headers' => $headers ];
 	}
 
+	public function test_url_defaults_to_absolute_production_base(): void {
+		foreach ( [ [], [ 'invoqk_api_base' => '' ] ] as $opts ) {
+			$GLOBALS['invoqk_options'] = $opts;
+			$this->assertSame( Client::DEFAULT_BASE . '/api/v1/einvoice/validate', Client::url() );
+		}
+		$this->assertStringStartsWith( 'https://', Client::url() );
+	}
+
 	public function test_sends_raw_bytes_with_content_type_and_key_header(): void {
 		Client::post( '<x/>', 'application/xml', $this->fake( $this->resp( 200, '{}' ) ) );
 		[ $url, $args ] = $this->seen;

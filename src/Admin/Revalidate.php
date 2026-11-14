@@ -11,10 +11,15 @@ final class Revalidate {
 	}
 
 	public static function callback(): void {
-		$id = absint( wp_unslash( $_POST['order_id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification -- checked below
+		$id = self::requestedId( $_REQUEST ); // phpcs:ignore WordPress.Security.NonceVerification -- checked below
 		self::handle( $id, current_user_can( 'manage_woocommerce' ), (bool) check_admin_referer( 'invoqk_revalidate_' . $id ) );
 		wp_safe_redirect( wp_get_referer() ?: admin_url() );
 		exit;
+	}
+
+	/** The button is a link (a nested form would break the order edit form), so the id arrives in the query string. */
+	public static function requestedId( array $req ): int {
+		return absint( wp_unslash( $req['order_id'] ?? 0 ) );
 	}
 
 	/** The Scheduler dedupes identical queued jobs, so a double click queues one. */

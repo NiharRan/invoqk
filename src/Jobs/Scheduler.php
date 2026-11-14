@@ -4,6 +4,7 @@ namespace Invoqk\Jobs;
 use Invoqk\Detection\Detector;
 use Invoqk\Detection\Result;
 use Invoqk\Sources\Registry;
+use Invoqk\Validation\Client;
 use Invoqk\Validation\Job;
 use Invoqk\Validation\Limit;
 use Invoqk\Validation\Record;
@@ -66,13 +67,35 @@ final class Scheduler {
 		}
 	}
 
+	/** Whether the sweep should queue validation for this order (it has a file). */
+	private static function needsValidation( \WC_Order $order, string $status ): bool {
+		if ( 'pending' === $status || ( 'limit' === $status && Limit::isPro() ) ) {
+			return true;
+		}
+		if ( 'error' !== $status ) {
+			return false;
+		}
+		$rec  = Record::get( $order ) ?? [];
+		$code = $rec['error']['code'] ?? '';
+		if ( 'unreadable' === $code ) {
+			return true;
+		}
+		if ( 'no_key' === $code ) {
+			return '' !== Client::apiKey();
+		}
+		// 401/403 retry once, after the key was changed since the check.
+		return in_array( $code, [ 'unauthorized', 'wrong_site' ], true ) && (int) ( $rec['checkedAt'] ?? 0 ) < (int) get_option( 'invoqk_key_changed_at', 0 );
+	}
+
 	/**
-	 * Queue detection for recent orders that were never checked (up to 100 per run, 5 pages scanned).
+	 * Queue detection for recent never-detected orders and validation for ones that need it, each with its own
+	 * cap of 100 per run so neither starves the other (5 pages scanned).
 	 * Filters in PHP: the legacy (non-HPOS) order store silently ignores `meta_query`.
 	 */
 	public static function sweep(): void {
-		$queued = 0;
-		for ( $page = 1; $page <= 5 && $queued < 100; $page++ ) {
+		$detect = 0;
+		$valid  = 0;
+		for ( $page = 1; $page <= 5 && ( $detect < 100 || $valid < 100 ); $page++ ) {
 			$ids = wc_get_orders(
 				[
 					'type'         => 'shop_order',
@@ -90,16 +113,14 @@ final class Scheduler {
 				if ( ! $order instanceof \WC_Order ) {
 					continue;
 				}
-				$status = Record::status( $order );
 				if ( '' === (string) $order->get_meta( '_invoqk_source' ) ) {
-					self::enqueue( (int) $id );
-				} elseif ( $order->get_meta( Result::FILE ) && ( 'pending' === $status || ( 'error' === $status && in_array( Record::get( $order )['error']['code'] ?? '', [ 'no_key', 'unreadable' ], true ) ) || ( 'limit' === $status && Limit::isPro() ) ) ) {
+					if ( $detect < 100 ) {
+						self::enqueue( (int) $id );
+						++$detect;
+					}
+				} elseif ( $valid < 100 && $order->get_meta( Result::FILE ) && self::needsValidation( $order, Record::status( $order ) ) ) {
 					self::enqueueValidate( (int) $id );
-				} else {
-					continue;
-				}
-				if ( ++$queued >= 100 ) {
-					return;
+					++$valid;
 				}
 			}
 		}

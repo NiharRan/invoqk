@@ -6,13 +6,16 @@ final class Client {
 	// Provisional: header scheme pending the API spec (see E3 spec, Open Questions).
 	public const KEY_HEADER = 'Authorization';
 
+	// provisional: confirm production API host before release
+	public const DEFAULT_BASE = 'https://invoqk.com';
+
 	public static function apiKey(): string {
 		return trim( (string) get_option( 'invoqk_api_key', '' ) );
 	}
 
 	public static function url(): string {
 		$base = defined( 'INVOQK_API_BASE' ) ? (string) INVOQK_API_BASE : (string) get_option( 'invoqk_api_base', '' );
-		return rtrim( $base, '/' ) . '/api/v1/einvoice/validate';
+		return rtrim( '' !== $base ? $base : self::DEFAULT_BASE, '/' ) . '/api/v1/einvoice/validate';
 	}
 
 	/** @return array{http:int,body:?array,retryAfter:?string} */

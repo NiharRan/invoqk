@@ -19,7 +19,16 @@ final class Job {
 		$file    = $found->file;
 		$ref     = (string) $file->reference;
 		$adapter = Registry::default()->get( $found->source );
-		$bytes   = $adapter ? $adapter->read( $order, $file ) : null;
+		if ( '' === Client::apiKey() ) { // before read(): reading may build the XML, wasted without a key
+			self::finish( $order, Mapper::error( 'no_key', 0, '', $ref ), $attempt );
+			return;
+		}
+		try {
+			$bytes = $adapter && $adapter->isAvailable() ? $adapter->read( $order, $file ) : null;
+		} catch ( \Throwable $e ) {
+			$bytes = null; // class only: the message may carry invoice data
+			wc_get_logger()->error( "validate #{$orderId} read failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
+		}
 		if ( null === $bytes || '' === $bytes ) {
 			self::finish( $order, Mapper::error( 'unreadable', 0, '', $ref ), $attempt );
 			return;
@@ -27,10 +36,9 @@ final class Job {
 		$hash = hash( 'sha256', $bytes );
 		$old  = Record::get( $order );
 		if ( ! $force && $old && ( $old['hash'] ?? '' ) === $hash && in_array( $old['status'] ?? '', [ 'passed', 'failed' ], true ) ) {
-			return;
-		}
-		if ( '' === Client::apiKey() ) {
-			self::finish( $order, Mapper::error( 'no_key', 0, $hash, $ref ), $attempt );
+			if ( ( $old['ref'] ?? '' ) !== $ref ) { // keep ref current so the Detector stops re-queuing this order
+				Record::put( $order, array_merge( $old, [ 'ref' => $ref ] ) );
+			}
 			return;
 		}
 		if ( ! Limit::allow( $orderId ) ) {
