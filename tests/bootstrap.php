@@ -67,3 +67,8 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 		$GLOBALS['invoqk_as'] = array_values( array_filter( $GLOBALS['invoqk_as'], fn( $a ) => $group !== '' && $a['group'] !== $group ) );
 	}
 }
+
+if ( ! function_exists( 'esc_html' ) ) {
+	function esc_html( $s ): string { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
+	function esc_html__( string $t, string $d = 'default' ): string { return esc_html( $t ); }
+}
