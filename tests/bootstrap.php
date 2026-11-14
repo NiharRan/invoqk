@@ -15,7 +15,10 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_id(): int { return $this->id; }
 		public function get_meta( string $k ) { return $this->meta[ $k ] ?? ''; }
 		public function update_meta_data( string $k, $v ): void { $this->meta[ $k ] = $v; }
-		public function save(): int { return $this->id; }
+		public int $saves = 0;
+		public int $metaSaves = 0;
+		public function save(): int { ++$this->saves; return $this->id; }
+		public function save_meta_data(): void { ++$this->metaSaves; }
 		public string $status = 'processing';
 		public function get_status(): string { return $this->status; }
 	}
@@ -71,4 +74,13 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 if ( ! function_exists( 'esc_html' ) ) {
 	function esc_html( $s ): string { return htmlspecialchars( (string) $s, ENT_QUOTES ); }
 	function esc_html__( string $t, string $d = 'default' ): string { return esc_html( $t ); }
+}
+
+if ( ! defined( 'INVOQK_VERSION' ) ) { define( 'INVOQK_VERSION', '0.1.0' ); }
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) { define( 'HOUR_IN_SECONDS', 3600 ); }
+$GLOBALS['invoqk_options'] = [];
+if ( ! function_exists( 'get_option' ) ) {
+	function get_option( string $k, $d = false ) { return $GLOBALS['invoqk_options'][ $k ] ?? $d; }
+	function update_option( string $k, $v ): bool { $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
+	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }

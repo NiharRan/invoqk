@@ -75,6 +75,37 @@ final class DetectorTest extends TestCase {
 		$this->assertNotEmpty( $o->get_meta( '_invoqk_detected_at' ) );
 	}
 
+	public function test_refund_object_exits_quietly(): void {
+		$GLOBALS['invoqk_orders'][4651] = new stdClass(); // e.g. WC OrderRefund is not a WC_Order
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $this->file() ) ) ) )->run( 4651 );
+		$this->assertTrue( true );
+	}
+
+	public function test_on_demand_cache_cleared_when_adapter_available_but_finds_nothing(): void {
+		$o = $this->order();
+		$od = new InvoiceFile( 'wpo:invoice', 'application/xml', 'ubl', true );
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $od ) ) ) )->run( 1 );
+		( new Detector( new Registry( new FakeAdapter( 'a', true ) ) ) )->run( 1 );
+		$this->assertSame( 'none', Result::fromOrder( $o )->source );
+	}
+
+	public function test_on_demand_cache_kept_when_adapter_unavailable_or_gone(): void {
+		$o = $this->order();
+		$od = new InvoiceFile( 'wpo:invoice', 'application/xml', 'ubl', true );
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $od ) ) ) )->run( 1 );
+		( new Detector( new Registry( new FakeAdapter( 'a', false ) ) ) )->run( 1 );
+		$this->assertSame( 'a', Result::fromOrder( $o )->source );
+		( new Detector( new Registry() ) )->run( 1 );
+		$this->assertSame( 'a', Result::fromOrder( $o )->source );
+	}
+
+	public function test_detection_does_not_fire_full_order_save(): void {
+		$o = $this->order();
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $this->file() ) ) ) )->run( 1 );
+		$this->assertSame( 0, $o->saves );
+		$this->assertSame( 1, $o->metaSaves );
+	}
+
 	public function test_never_checked_order_has_no_result(): void {
 		$this->assertNull( Result::fromOrder( $this->order() ) );
 	}

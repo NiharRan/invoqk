@@ -1,3 +1,4 @@
 /docs
 /.superpowers
 /vendor/
+.phpunit.result.cache

@@ -45,6 +45,33 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( [], $GLOBALS['invoqk_as'] );
 	}
 
+	public function test_sweep_only_asks_for_shop_orders_not_refunds(): void {
+		Scheduler::sweep();
+		$this->assertSame( 'shop_order', $GLOBALS['invoqk_orders_args']['type'] );
+	}
+
+	public function test_sweep_scheduled_once_per_version_without_querying_each_time(): void {
+		$GLOBALS['invoqk_options'] = [];
+		Scheduler::ensureSweep();
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$GLOBALS['invoqk_as'] = [];
+		Scheduler::ensureSweep(); // flag set: must not touch Action Scheduler at all
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_deactivate_clears_sweep_flag(): void {
+		Scheduler::ensureSweep();
+		Scheduler::deactivate();
+		$this->assertFalse( get_option( 'invoqk_sweep_scheduled' ) );
+	}
+
+	public function test_wp_overnight_invoice_save_enqueues_detection(): void {
+		$GLOBALS['invoqk_actions'] = [];
+		Scheduler::boot();
+		do_action( 'wpo_wcpdf_save_document', new stdClass(), new WC_Order( 33 ) );
+		$this->assertSame( [ 33 ], $GLOBALS['invoqk_as'][0]['args'] );
+	}
+
 	public function test_no_remote_http_in_plugin_source(): void {
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( __DIR__, 2 ) . '/src' ) ) as $f ) {
 			if ( $f->isFile() ) {

@@ -14,17 +14,24 @@ final class Scheduler {
 		add_action( 'invoqk_schedule_detect', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( self::DETECT, static fn( $id, $attempt = 1 ) => self::handle( (int) $id, (int) $attempt ), 10, 2 );
 		add_action( self::SWEEP, [ self::class, 'sweep' ] );
-		add_action(
-			'init',
-			static function () {
-				if ( function_exists( 'as_has_scheduled_action' ) && ! as_has_scheduled_action( self::SWEEP, [], self::GROUP ) ) {
-					as_schedule_recurring_action( time() + 60, HOUR_IN_SECONDS, self::SWEEP, [], self::GROUP );
-				}
-			}
-		);
+		// WP Overnight created or saved an invoice document: detect at once instead of waiting for a status change.
+		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueue( $order->get_id() ), 10, 2 );
+		add_action( 'init', [ self::class, 'ensureSweep' ] );
+	}
+
+	/** Schedules the hourly sweep once per plugin version; later requests only read an autoloaded option. */
+	public static function ensureSweep(): void {
+		if ( INVOQK_VERSION === get_option( 'invoqk_sweep_scheduled' ) || ! function_exists( 'as_has_scheduled_action' ) ) {
+			return;
+		}
+		if ( ! as_has_scheduled_action( self::SWEEP, [], self::GROUP ) ) {
+			as_schedule_recurring_action( time() + 60, HOUR_IN_SECONDS, self::SWEEP, [], self::GROUP );
+		}
+		update_option( 'invoqk_sweep_scheduled', INVOQK_VERSION );
 	}
 
 	public static function deactivate(): void {
+		delete_option( 'invoqk_sweep_scheduled' );
 		if ( function_exists( 'as_unschedule_all_actions' ) ) {
 			as_unschedule_all_actions( '', [], self::GROUP );
 		}
@@ -45,6 +52,7 @@ final class Scheduler {
 	public static function sweep(): void {
 		$ids = wc_get_orders(
 			[
+				'type'         => 'shop_order',
 				'limit'        => 100,
 				'return'       => 'ids',
 				'date_created' => '>' . strtotime( '-30 days' ),
