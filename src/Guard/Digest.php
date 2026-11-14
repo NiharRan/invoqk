@@ -44,7 +44,7 @@ final class Digest {
 		update_option( self::OUTBOX, [], false );
 		if ( $lines ) {
 			$mail ??= 'wp_mail';
-			$mail( get_option( 'admin_email' ), sprintf( __( 'Invoqk: %d invoices need attention', 'invoqk' ), count( $lines ) ), implode( "\n", $lines ) );
+			$mail( get_option( 'admin_email' ), sprintf( _n( 'Invoqk: %d invoice needs attention', 'Invoqk: %d invoices need attention', count( $lines ), 'invoqk' ), count( $lines ) ), implode( "\n", $lines ) );
 		}
 	}
 }

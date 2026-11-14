@@ -448,5 +448,7 @@ msgstr ""
 #. translators: %d: number of invoices
 #: src/Guard/Digest.php
 #, php-format
-msgid "Invoqk: %d invoices need attention"
-msgstr ""
+msgid "Invoqk: %d invoice needs attention"
+msgid_plural "Invoqk: %d invoices need attention"
+msgstr[0] ""
+msgstr[1] ""

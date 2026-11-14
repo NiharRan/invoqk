@@ -29,8 +29,8 @@ final class DigestTest extends TestCase {
 		$this->assertCount( 1, $calls );
 		$this->assertSame( 'shop@example.test', $calls[0][0] );
 		$this->assertSame( 'Invoqk: 2 invoices need attention', $calls[0][1] );
-		$this->assertStringContainsString( 'https://shop.test/order/1', $calls[0][2] );
-		$this->assertStringContainsString( 'https://shop.test/order/2', $calls[0][2] );
+		$this->assertStringContainsString( 'id=1', $calls[0][2] );
+		$this->assertStringContainsString( 'id=2', $calls[0][2] );
 		$this->assertSame( [], get_option( 'invoqk_guard_outbox' ) );
 	}
 
@@ -45,7 +45,7 @@ final class DigestTest extends TestCase {
 		Digest::add( 99, 'held' );
 		$body = '';
 		Digest::run( function ( $to, $s, $b ) use ( &$body ) { $body = $b; } );
-		$this->assertStringContainsString( '/order/1', $body );
-		$this->assertStringNotContainsString( '/order/99', $body );
+		$this->assertStringContainsString( 'id=1', $body );
+		$this->assertStringNotContainsString( 'id=99', $body );
 	}
 }

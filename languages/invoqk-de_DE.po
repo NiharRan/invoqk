@@ -448,5 +448,7 @@ msgstr "Rechnung ohne E-Rechnung versendet:"
 #. translators: %d: number of invoices
 #: src/Guard/Digest.php
 #, php-format
-msgid "Invoqk: %d invoices need attention"
-msgstr "Invoqk: %d Rechnungen erfordern Aufmerksamkeit"
+msgid "Invoqk: %d invoice needs attention"
+msgid_plural "Invoqk: %d invoices need attention"
+msgstr[0] "Invoqk: %d Rechnung braucht Aufmerksamkeit"
+msgstr[1] "Invoqk: %d Rechnungen brauchen Aufmerksamkeit"
