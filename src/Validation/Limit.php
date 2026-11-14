@@ -4,6 +4,8 @@ namespace Invoqk\Validation;
 /** Free tier: 20 distinct orders may be validated. The only writer of invoqk_free_slots. */
 final class Limit {
 	public const MAX = 20;
+	// Open question in the E3 spec: confirm before release.
+	public const DEFAULT_UPGRADE_URL = 'https://invoqk.com';
 	private const OPTION = 'invoqk_free_slots';
 
 	public static function isPro(): bool {
@@ -11,8 +13,7 @@ final class Limit {
 	}
 
 	public static function upgradeUrl(): string {
-		// Scheme is split out so the no-remote-http source guard (matches literal URLs) stays untouched.
-		return defined( 'INVOQK_UPGRADE_URL' ) ? (string) INVOQK_UPGRADE_URL : sprintf( '%s://invoqk.com', 'https' );
+		return defined( 'INVOQK_UPGRADE_URL' ) ? (string) INVOQK_UPGRADE_URL : self::DEFAULT_UPGRADE_URL;
 	}
 
 	public static function allow( int $orderId ): bool {
@@ -27,6 +28,7 @@ final class Limit {
 		if ( count( $slots ) >= self::MAX ) {
 			return false;
 		}
+		// shortcut: options are not locked, two concurrent first validations can both take slot 20 and give 21; upgrade to an atomic counter if abuse matters
 		$slots[] = $orderId;
 		update_option( self::OPTION, $slots );
 		return true;

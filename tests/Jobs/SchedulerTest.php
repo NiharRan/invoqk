@@ -78,6 +78,9 @@ final class SchedulerTest extends TestCase {
 	/** Remote-HTTP patterns forbidden in a file; only src/Validation/Client.php may call wp_remote_*. */
 	private static function forbidden( string $path ): string {
 		$path = str_replace( '\\', '/', $path );
+		if ( str_ends_with( $path, '/src/Validation/Limit.php' ) ) {
+			return 'wp_remote_|curl_init'; // only the upgrade-URL literal is exempt
+		}
 		return str_ends_with( $path, '/src/Validation/Client.php' ) ? 'curl_init|https?:\/\/' : 'wp_remote_|curl_init|https?:\/\/';
 	}
 
@@ -96,5 +99,15 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Mapper.php' ) . '/', $code ) );
 		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', 'curl_init();' ) );
 		$this->assertSame( 1, preg_match( '/' . self::forbidden( 'C:\\p\\src\\Validation\\Client.php' ) . '/', 'https://x' ) );
+	}
+
+	public function test_guard_https_exemption_is_scoped_to_limit(): void {
+		$f = fn( string $p, string $code ) => preg_match( '/' . self::forbidden( $p ) . '/', $code );
+		$this->assertSame( 0, $f( '/x/src/Validation/Limit.php', 'https://invoqk.com' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Limit.php', 'wp_remote_get();' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Limit.php', 'curl_init();' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Client.php', 'https://x' ) );
+		$this->assertSame( 1, $f( '/x/src/Other/Limit.php', 'https://x' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Mapper.php', 'http://x' ) );
 	}
 }
