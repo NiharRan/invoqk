@@ -48,19 +48,34 @@ final class Scheduler {
 		}
 	}
 
-	/** Queue detection for recent orders that were never checked. */
+	/**
+	 * Queue detection for recent orders that were never checked (up to 100 per run, 5 pages scanned).
+	 * Filters in PHP: the legacy (non-HPOS) order store silently ignores `meta_query`.
+	 */
 	public static function sweep(): void {
-		$ids = wc_get_orders(
-			[
-				'type'         => 'shop_order',
-				'limit'        => 100,
-				'return'       => 'ids',
-				'date_created' => '>' . strtotime( '-30 days' ),
-				'meta_query'   => [ [ 'key' => '_invoqk_source', 'compare' => 'NOT EXISTS' ] ],
-			]
-		);
-		foreach ( $ids as $id ) {
-			self::enqueue( (int) $id );
+		$queued = 0;
+		for ( $page = 1; $page <= 5 && $queued < 100; $page++ ) {
+			$ids = wc_get_orders(
+				[
+					'type'         => 'shop_order',
+					'limit'        => 100,
+					'paged'        => $page,
+					'return'       => 'ids',
+					'date_created' => '>' . strtotime( '-30 days' ),
+				]
+			);
+			if ( ! $ids ) {
+				return;
+			}
+			foreach ( $ids as $id ) {
+				$order = wc_get_order( $id );
+				if ( $order instanceof \WC_Order && '' === (string) $order->get_meta( '_invoqk_source' ) ) {
+					self::enqueue( (int) $id );
+					if ( ++$queued >= 100 ) {
+						return;
+					}
+				}
+			}
 		}
 	}
 

@@ -20,6 +20,6 @@ WooCommerce plugin: finds each order's e-invoice and shows its source. Needs Wor
 | Status change to Action Scheduler job to cached result | Pass (real queue run) |
 | Hourly sweep scheduled | Pass |
 | Block and classic checkout | Neutral by construction: no checkout or front-end hooks; only `cart_checkout_blocks` compatibility is declared. Not exercised with a real checkout |
-| HPOS off (legacy order list) | **Not checked** (needs the site's order storage switched) |
-| Multisite network activation | **Not checked** (no multisite available) |
-| WPML / Polylang | **Not checked** (not installed; plugin stores no translated content) |
+| HPOS off (legacy post-type orders): detection, order list column, meta box, sweep | Pass, after a fix: `wc_get_orders` ignores `meta_query` on the legacy store, so the sweep now filters in PHP |
+| Multisite network activation (site 1 with WooCommerce, site 2 without) | Pass: site 2 shows the notice only and does not boot; site 1 works and schedules its own sweep |
+| Polylang active | Pass (detection unaffected). WPML not tested; the plugin stores no translated content |

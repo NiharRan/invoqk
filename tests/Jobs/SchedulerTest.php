@@ -24,15 +24,18 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( 'invoqk', $GLOBALS['invoqk_as'][0]['group'] );
 	}
 
-	public function test_sweep_enqueues_orders_without_result_younger_than_30_days(): void {
+	public function test_sweep_enqueues_only_unchecked_recent_orders(): void {
+		$checked = new WC_Order( 12 );
+		$checked->update_meta_data( '_invoqk_source', 'none' );
+		$GLOBALS['invoqk_orders'] = [ 11 => new WC_Order( 11 ), 12 => $checked ];
 		$GLOBALS['invoqk_orders_result'] = [ 11, 12 ];
 		Scheduler::sweep();
 		$args = $GLOBALS['invoqk_orders_args'];
 		$this->assertSame( 'ids', $args['return'] );
 		$this->assertSame( '>' . strtotime( '-30 days' ), $args['date_created'] );
-		$this->assertSame( '_invoqk_source', $args['meta_query'][0]['key'] );
-		$this->assertSame( 'NOT EXISTS', $args['meta_query'][0]['compare'] );
-		$this->assertCount( 2, $GLOBALS['invoqk_as'] );
+		$this->assertArrayNotHasKey( 'meta_query', $args ); // ignored by the legacy (non-HPOS) order store
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$this->assertSame( [ 11 ], $GLOBALS['invoqk_as'][0]['args'] );
 	}
 
 	public function test_failed_job_reschedules_with_backoff_then_gives_up(): void {

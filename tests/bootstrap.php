@@ -50,7 +50,7 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 	function wc_get_order( $id ) { return $GLOBALS['invoqk_orders'][ $id ] ?? false; }
 	function wc_get_orders( array $args ) {
 		$GLOBALS['invoqk_orders_args'] = $args;
-		return $GLOBALS['invoqk_orders_result'];
+		return ( $args['paged'] ?? 1 ) > 1 ? [] : $GLOBALS['invoqk_orders_result'];
 	}
 	function get_attached_file( int $id ) { return $GLOBALS['invoqk_files'][ $id ] ?? false; }
 	function add_action( string $tag, callable $cb, int $prio = 10, int $args = 1 ): void { $GLOBALS['invoqk_actions'][ $tag ][] = [ $cb, $args ]; }
