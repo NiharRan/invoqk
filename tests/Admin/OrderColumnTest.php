@@ -34,4 +34,18 @@ final class OrderColumnTest extends TestCase {
 		$o->update_meta_data( '_invoqk_label', '<script>' );
 		$this->assertStringNotContainsString( '<script>', OrderColumn::render( $o ) );
 	}
+
+	public function test_cell_shows_label_and_badge_for_failed_and_nothing_extra_when_source_none(): void {
+		$o = new WC_Order();
+		$o->update_meta_data( Result::SOURCE, 'germanized_pro' );
+		$o->update_meta_data( '_invoqk_label', 'Germanized Pro' );
+		\Invoqk\Validation\Record::put( $o, [ 'status' => 'failed' ] );
+		$h = OrderColumn::render( $o );
+		$this->assertStringContainsString( 'Germanized Pro', $h );
+		$this->assertStringContainsString( 'status-failed', $h );
+		$n = new WC_Order();
+		$n->update_meta_data( Result::SOURCE, 'none' );
+		\Invoqk\Validation\Record::put( $n, [ 'status' => 'failed' ] );
+		$this->assertStringNotContainsString( 'Invalid', OrderColumn::render( $n ) );
+	}
 }

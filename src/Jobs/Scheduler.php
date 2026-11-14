@@ -2,20 +2,27 @@
 namespace Invoqk\Jobs;
 
 use Invoqk\Detection\Detector;
+use Invoqk\Detection\Result;
 use Invoqk\Sources\Registry;
+use Invoqk\Validation\Client;
+use Invoqk\Validation\Job;
+use Invoqk\Validation\Limit;
+use Invoqk\Validation\Record;
 
 final class Scheduler {
 	public const GROUP  = 'invoqk';
 	public const DETECT = 'invoqk_detect_order';
 	public const SWEEP  = 'invoqk_sweep';
+	public const VALIDATE = 'invoqk_validate_order';
 
 	public static function boot(): void {
 		add_action( 'woocommerce_order_status_changed', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( 'invoqk_schedule_detect', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( self::DETECT, static fn( $id, $attempt = 1 ) => self::handle( (int) $id, (int) $attempt ), 10, 2 );
+		add_action( self::VALIDATE, static fn( $id, $attempt = 1, $force = false ) => Job::handle( (int) $id, (int) $attempt, (bool) $force ), 10, 3 );
 		add_action( self::SWEEP, [ self::class, 'sweep' ] );
 		// WP Overnight created or saved an invoice document: detect at once instead of waiting for a status change.
-		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueue( $order->get_id() ), 10, 2 );
+		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueueBoth( $order->get_id() ), 10, 2 );
 		add_action( 'init', [ self::class, 'ensureSweep' ] );
 	}
 
@@ -48,13 +55,47 @@ final class Scheduler {
 		}
 	}
 
+	private static function enqueueBoth( int $orderId ): void {
+		self::enqueue( $orderId );
+		self::enqueueValidate( $orderId );
+	}
+
+	public static function enqueueValidate( int $orderId, bool $force = false ): void {
+		$args = [ $orderId, 1, $force ];
+		if ( ! as_has_scheduled_action( self::VALIDATE, $args, self::GROUP ) ) {
+			as_enqueue_async_action( self::VALIDATE, $args, self::GROUP );
+		}
+	}
+
+	/** Whether the sweep should queue validation for this order (it has a file). */
+	private static function needsValidation( \WC_Order $order, string $status ): bool {
+		if ( 'pending' === $status || ( 'limit' === $status && Limit::isPro() ) ) {
+			return true;
+		}
+		if ( 'error' !== $status ) {
+			return false;
+		}
+		$rec  = Record::get( $order ) ?? [];
+		$code = $rec['error']['code'] ?? '';
+		if ( 'unreadable' === $code ) {
+			return true;
+		}
+		if ( 'no_key' === $code ) {
+			return '' !== Client::apiKey();
+		}
+		// 401/403 retry once, after the key was changed since the check.
+		return in_array( $code, [ 'unauthorized', 'wrong_site' ], true ) && (int) ( $rec['checkedAt'] ?? 0 ) < (int) get_option( 'invoqk_key_changed_at', 0 );
+	}
+
 	/**
-	 * Queue detection for recent orders that were never checked (up to 100 per run, 5 pages scanned).
+	 * Queue detection for recent never-detected orders and validation for ones that need it, each with its own
+	 * cap of 100 per run so neither starves the other (5 pages scanned).
 	 * Filters in PHP: the legacy (non-HPOS) order store silently ignores `meta_query`.
 	 */
 	public static function sweep(): void {
-		$queued = 0;
-		for ( $page = 1; $page <= 5 && $queued < 100; $page++ ) {
+		$detect = 0;
+		$valid  = 0;
+		for ( $page = 1; $page <= 5 && ( $detect < 100 || $valid < 100 ); $page++ ) {
 			$ids = wc_get_orders(
 				[
 					'type'         => 'shop_order',
@@ -69,11 +110,17 @@ final class Scheduler {
 			}
 			foreach ( $ids as $id ) {
 				$order = wc_get_order( $id );
-				if ( $order instanceof \WC_Order && '' === (string) $order->get_meta( '_invoqk_source' ) ) {
-					self::enqueue( (int) $id );
-					if ( ++$queued >= 100 ) {
-						return;
+				if ( ! $order instanceof \WC_Order ) {
+					continue;
+				}
+				if ( '' === (string) $order->get_meta( '_invoqk_source' ) ) {
+					if ( $detect < 100 ) {
+						self::enqueue( (int) $id );
+						++$detect;
 					}
+				} elseif ( $valid < 100 && $order->get_meta( Result::FILE ) && self::needsValidation( $order, Record::status( $order ) ) ) {
+					self::enqueueValidate( (int) $id );
+					++$valid;
 				}
 			}
 		}

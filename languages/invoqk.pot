@@ -12,6 +12,8 @@ msgstr ""
 "POT-Creation-Date: 2026-11-14T16:51:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: invoqk\n"
 
 #. Plugin Name of the plugin
@@ -67,3 +69,92 @@ msgstr ""
 #, php-format
 msgid "Invoqk needs WooCommerce %s or newer."
 msgstr ""
+
+msgid "Could not check"
+msgstr ""
+
+msgid "Valid"
+msgstr ""
+
+msgid "Invalid"
+msgstr ""
+
+msgid "Limit reached"
+msgstr ""
+
+msgid "Checking"
+msgstr ""
+
+msgid "Validated"
+msgstr ""
+
+msgid "Rule set"
+msgstr ""
+
+msgid "Warning"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Original text (English)"
+msgstr ""
+
+msgid "Validate again"
+msgstr ""
+
+msgid "Upgrade"
+msgstr ""
+
+msgid "and %d more"
+msgstr ""
+
+msgid "Free includes %d invoices. With Pro you check them all."
+msgstr ""
+
+msgid "No API key is set yet. Enter it under WooCommerce > Invoqk."
+msgstr ""
+
+msgid "The API key is invalid or was revoked."
+msgstr ""
+
+msgid "This API key belongs to a different domain."
+msgstr ""
+
+msgid "The check quota is used up. We will try again later."
+msgstr ""
+
+msgid "The check quota is used up. Please click “Validate again” later."
+msgstr ""
+
+msgid "The invoice file could not be read."
+msgstr ""
+
+msgid "The file is not a supported e-invoice format."
+msgstr ""
+
+msgid "The validation service is not reachable right now. We will try again."
+msgstr ""
+
+msgid "The validation service is not reachable right now. Please click “Validate again” later."
+msgstr ""
+
+msgid "Edit the order billing details"
+msgstr ""
+
+msgid "Open WooCommerce store settings"
+msgstr ""
+
+msgid "Open WooCommerce payment settings"
+msgstr ""
+
+msgid "Open the invoice plugin settings"
+msgstr ""
+
+msgid "API key"
+msgstr ""
+
+msgid "%d note"
+msgid_plural "%d notes"
+msgstr[0] ""
+msgstr[1] ""

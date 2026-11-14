@@ -109,4 +109,18 @@ final class DetectorTest extends TestCase {
 	public function test_never_checked_order_has_no_result(): void {
 		$this->assertNull( Result::fromOrder( $this->order() ) );
 	}
+
+	public function test_detector_enqueues_validation_for_new_file_and_changed_ref_but_not_unchanged(): void {
+		$GLOBALS['invoqk_as'] = [];
+		$o = $this->order();
+		$run = fn( int $ref ) => ( new Detector( new Registry( new FakeAdapter( 'a', true, $this->file( $ref ) ) ) ) )->run( 1 );
+		$run( 5 );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$GLOBALS['invoqk_as'] = [];
+		$o->update_meta_data( '_invoqk_validation', [ 'status' => 'passed', 'ref' => '5' ] );
+		$run( 5 );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$run( 6 );
+		$this->assertSame( [ 1, 1, false ], $GLOBALS['invoqk_as'][0]['args'] );
+	}
 }

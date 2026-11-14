@@ -75,11 +75,154 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( [ 33 ], $GLOBALS['invoqk_as'][0]['args'] );
 	}
 
+	public function test_enqueue_validate_dedupes_same_args(): void {
+		Scheduler::enqueueValidate( 7 );
+		Scheduler::enqueueValidate( 7 );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$this->assertSame( Scheduler::VALIDATE, $GLOBALS['invoqk_as'][0]['hook'] );
+		$this->assertSame( [ 7, 1, false ], $GLOBALS['invoqk_as'][0]['args'] );
+	}
+
+	public function test_force_and_non_force_are_distinct_jobs_but_double_click_force_is_one(): void {
+		Scheduler::enqueueValidate( 7 );
+		Scheduler::enqueueValidate( 7, true );
+		Scheduler::enqueueValidate( 7, true );
+		$this->assertCount( 2, $GLOBALS['invoqk_as'] );
+		$this->assertSame( [ 7, 1, true ], $GLOBALS['invoqk_as'][1]['args'] );
+	}
+
+	public function test_wpo_save_document_enqueues_detect_and_validate(): void {
+		Scheduler::boot();
+		do_action( 'wpo_wcpdf_save_document', new stdClass(), new WC_Order( 34 ) );
+		$hooks = array_column( $GLOBALS['invoqk_as'], 'hook' );
+		$this->assertContains( Scheduler::DETECT, $hooks );
+		$this->assertContains( Scheduler::VALIDATE, $hooks );
+	}
+
+	public function test_sweep_queues_validation_for_error_and_missing_record_only(): void {
+		$file = [ 'reference' => 5, 'mime' => 'application/xml' ];
+		$mk = function ( int $id, ?string $status, ?string $code = null ) use ( $file ) {
+			$o = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
+			$o->update_meta_data( '_invoqk_source', 'a' );
+			$o->update_meta_data( '_invoqk_file', $file );
+			if ( $status ) {
+				$o->update_meta_data( '_invoqk_validation', [ 'status' => $status ] + ( $code ? [ 'error' => [ 'code' => $code ] ] : [] ) );
+			}
+		};
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'k';
+		$GLOBALS['invoqk_orders'] = [];
+		$mk( 21, 'passed' );
+		$mk( 22, 'error', 'no_key' );
+		$mk( 23, null );
+		$mk( 24, 'limit' );
+		$mk( 25, 'error', 'unauthorized' );
+		$mk( 26, 'error', 'unavailable' );
+		$mk( 27, 'error', 'unreadable' );
+		$GLOBALS['invoqk_orders_result'] = [ 21, 22, 23, 24, 25, 26, 27 ];
+		$GLOBALS['invoqk_filters'] = [];
+		Scheduler::sweep();
+		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ], [ 27, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
+		$GLOBALS['invoqk_as'] = [];
+		add_filter( 'invoqk_is_pro', fn() => true );
+		Scheduler::sweep();
+		$this->assertSame( [ 22, 23, 24, 27 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+		$GLOBALS['invoqk_filters'] = [];
+	}
+
+	private const NET = 'remote_(get|post|request|head)|WP_Http|fsockopen|stream_socket_client';
+
+	private function fileOrder( int $id, ?array $rec ): WC_Order {
+		$o = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
+		$o->update_meta_data( '_invoqk_source', 'a' );
+		$o->update_meta_data( '_invoqk_file', [ 'reference' => 5, 'mime' => 'application/xml' ] );
+		if ( $rec ) {
+			$o->update_meta_data( '_invoqk_validation', $rec );
+		}
+		return $o;
+	}
+
+	public function test_sweep_skips_no_key_records_while_key_is_missing(): void {
+		$GLOBALS['invoqk_options'] = [];
+		$GLOBALS['invoqk_orders']  = [];
+		$this->fileOrder( 31, [ 'status' => 'error', 'error' => [ 'code' => 'no_key' ] ] );
+		$GLOBALS['invoqk_orders_result'] = [ 31 ];
+		Scheduler::sweep();
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'k';
+		Scheduler::sweep();
+		$this->assertSame( [ [ 31, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
+	}
+
+	public function test_validation_queuing_cannot_starve_detection(): void {
+		$GLOBALS['invoqk_options'] = [ 'invoqk_api_key' => 'k' ];
+		$GLOBALS['invoqk_orders']  = [];
+		$ids = [];
+		for ( $i = 1; $i <= 100; $i++ ) {
+			$this->fileOrder( $i, null ); // pending validation
+			$ids[] = $i;
+		}
+		$this->fileOrder( 500, null )->update_meta_data( '_invoqk_source', '' ); // never detected
+		$ids[] = 500;
+		$GLOBALS['invoqk_orders_result'] = $ids;
+		Scheduler::sweep();
+		$hooks = array_count_values( array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+		$this->assertSame( 100, $hooks[ Scheduler::VALIDATE ] );
+		$this->assertSame( 1, $hooks[ Scheduler::DETECT ] );
+	}
+
+	public function test_key_change_requeues_unauthorized_and_wrong_site_checked_before_it(): void {
+		$GLOBALS['invoqk_options'] = [ 'invoqk_api_key' => 'k', 'invoqk_key_changed_at' => 1000 ];
+		$GLOBALS['invoqk_orders']  = [];
+		$this->fileOrder( 41, [ 'status' => 'error', 'checkedAt' => 500, 'error' => [ 'code' => 'unauthorized' ] ] );
+		$this->fileOrder( 42, [ 'status' => 'error', 'checkedAt' => 500, 'error' => [ 'code' => 'wrong_site' ] ] );
+		$this->fileOrder( 43, [ 'status' => 'error', 'checkedAt' => 2000, 'error' => [ 'code' => 'unauthorized' ] ] );
+		$GLOBALS['invoqk_orders_result'] = [ 41, 42, 43 ];
+		Scheduler::sweep();
+		$this->assertSame( [ 41, 42 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+	}
+
+	/** Remote-HTTP patterns forbidden in a file; only src/Validation/Client.php may call wp_remote_*. */
+	private static function forbidden( string $path ): string {
+		$path = str_replace( '\\', '/', $path );
+		if ( str_ends_with( $path, '/src/Validation/Limit.php' ) ) {
+			return self::NET . '|curl_init'; // only the upgrade-URL literal is exempt
+		}
+		return str_ends_with( $path, '/src/Validation/Client.php' ) ? 'wp_safe_remote_|wp_remote_(get|request|head)|curl_init|WP_Http|fsockopen|stream_socket_client|http:\/\/' : self::NET . '|curl_init|https?:\/\/';
+	}
+
 	public function test_no_remote_http_in_plugin_source(): void {
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( __DIR__, 2 ) . '/src' ) ) as $f ) {
 			if ( $f->isFile() ) {
-				$this->assertDoesNotMatchRegularExpression( '/wp_remote_|curl_init|https?:\/\//', file_get_contents( $f->getPathname() ), $f->getFilename() );
+				$this->assertDoesNotMatchRegularExpression( '/' . self::forbidden( $f->getPathname() ) . '/', file_get_contents( $f->getPathname() ), $f->getPathname() );
 			}
 		}
+	}
+
+	public function test_guard_exemption_is_scoped_to_validation_client(): void {
+		$code = 'wp_remote_post( $u );';
+		$this->assertSame( 0, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Other/Client.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Mapper.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', 'curl_init();' ) );
+		$this->assertSame( 0, preg_match( '/' . self::forbidden( 'C:\\p\\src\\Validation\\Client.php' ) . '/', 'https://x' ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', 'http://x' ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', 'wp_safe_remote_post( $u );' ) );
+	}
+
+	public function test_guard_flags_other_network_apis_outside_client(): void {
+		foreach ( [ 'wp_safe_remote_post( $u );', 'new WP_Http();', 'fsockopen( $h );', 'stream_socket_client( $h );', 'wp_remote_head( $u );' ] as $code ) {
+			$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Other/File.php' ) . '/', $code ), $code );
+			$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Limit.php' ) . '/', $code ), $code );
+		}
+	}
+
+	public function test_guard_https_exemption_is_scoped_to_limit(): void {
+		$f = fn( string $p, string $code ) => preg_match( '/' . self::forbidden( $p ) . '/', $code );
+		$this->assertSame( 0, $f( '/x/src/Validation/Limit.php', 'https://invoqk.com' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Limit.php', 'wp_remote_get();' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Limit.php', 'curl_init();' ) );
+		$this->assertSame( 0, $f( '/x/src/Validation/Client.php', 'https://x' ) );
+		$this->assertSame( 1, $f( '/x/src/Other/Limit.php', 'https://x' ) );
+		$this->assertSame( 1, $f( '/x/src/Validation/Mapper.php', 'http://x' ) );
 	}
 }

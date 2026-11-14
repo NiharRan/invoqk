@@ -12,6 +12,8 @@ msgstr ""
 "POT-Creation-Date: 2026-11-14T16:51:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: invoqk\n"
 
 #. Plugin Name of the plugin
@@ -67,3 +69,92 @@ msgstr "Invoqk benötigt WooCommerce %s oder neuer; WooCommerce ist nicht aktiv.
 #, php-format
 msgid "Invoqk needs WooCommerce %s or newer."
 msgstr "Invoqk benötigt WooCommerce %s oder neuer."
+
+msgid "Could not check"
+msgstr "Nicht geprüft"
+
+msgid "Valid"
+msgstr "Gültig"
+
+msgid "Invalid"
+msgstr "Fehlerhaft"
+
+msgid "Limit reached"
+msgstr "Limit erreicht"
+
+msgid "Checking"
+msgstr "Wird geprüft"
+
+msgid "Validated"
+msgstr "Validiert"
+
+msgid "Rule set"
+msgstr "Regelwerk"
+
+msgid "Warning"
+msgstr "Warnung"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Original text (English)"
+msgstr "Originaltext (Englisch)"
+
+msgid "Validate again"
+msgstr "Erneut prüfen"
+
+msgid "Upgrade"
+msgstr "Upgrade"
+
+msgid "and %d more"
+msgstr "und %d weitere"
+
+msgid "Free includes %d invoices. With Pro you check them all."
+msgstr "Free enthält %d Rechnungen. Mit Pro prüfst du alle."
+
+msgid "No API key is set yet. Enter it under WooCommerce > Invoqk."
+msgstr "Es ist noch kein API-Schlüssel hinterlegt. Trage ihn unter WooCommerce → Invoqk ein."
+
+msgid "The API key is invalid or was revoked."
+msgstr "Der API-Schlüssel ist ungültig oder wurde widerrufen."
+
+msgid "This API key belongs to a different domain."
+msgstr "Dieser API-Schlüssel gehört zu einer anderen Domain."
+
+msgid "The check quota is used up. We will try again later."
+msgstr "Das Prüfkontingent ist aufgebraucht. Wir versuchen es später erneut."
+
+msgid "The check quota is used up. Please click “Validate again” later."
+msgstr "Das Prüfkontingent ist aufgebraucht. Bitte später auf „Erneut prüfen“ klicken."
+
+msgid "The invoice file could not be read."
+msgstr "Die Rechnungsdatei konnte nicht gelesen werden."
+
+msgid "The file is not a supported e-invoice format."
+msgstr "Die Datei ist kein unterstütztes E-Rechnungsformat."
+
+msgid "The validation service is not reachable right now. We will try again."
+msgstr "Der Prüfdienst ist gerade nicht erreichbar. Wir versuchen es erneut."
+
+msgid "The validation service is not reachable right now. Please click “Validate again” later."
+msgstr "Der Prüfdienst ist gerade nicht erreichbar. Bitte später auf „Erneut prüfen“ klicken."
+
+msgid "Edit the order billing details"
+msgstr "Rechnungsdaten der Bestellung bearbeiten"
+
+msgid "Open WooCommerce store settings"
+msgstr "WooCommerce-Shopeinstellungen öffnen"
+
+msgid "Open WooCommerce payment settings"
+msgstr "WooCommerce-Zahlungseinstellungen öffnen"
+
+msgid "Open the invoice plugin settings"
+msgstr "Einstellungen des Rechnungs-Plugins öffnen"
+
+msgid "API key"
+msgstr "API-Schlüssel"
+
+msgid "%d note"
+msgid_plural "%d notes"
+msgstr[0] "%d Hinweis"
+msgstr[1] "%d Hinweise"

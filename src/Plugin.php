@@ -7,6 +7,7 @@ final class Plugin {
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
+			Admin\Revalidate::boot();
 			Admin\SettingsPage::boot();
 		}
 		add_action(

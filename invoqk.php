@@ -62,6 +62,10 @@ add_action(
 	20
 );
 
+register_activation_hook( __FILE__, static function () {
+	add_option( 'invoqk_api_key', '', '', false ); // autoload off: keep the key out of every request's alloptions
+} );
+
 register_deactivation_hook( __FILE__, static function () {
 	if ( class_exists( \Invoqk\Jobs\Scheduler::class ) ) {
 		\Invoqk\Jobs\Scheduler::deactivate();
