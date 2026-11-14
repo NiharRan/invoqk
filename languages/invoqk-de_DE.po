@@ -412,3 +412,15 @@ msgstr "Pro 14 Tage testen"
 #: src/Admin/Dashboard.php
 msgid "Settings"
 msgstr "Einstellungen"
+
+#: src/Onboarding/Wizard.php
+msgid "Go to dashboard"
+msgstr "Zum Dashboard"
+
+#: src/Admin/Dashboard.php
+msgid "No API key is set yet."
+msgstr "Es ist noch kein API-Schlüssel hinterlegt."
+
+#: src/Admin/Dashboard.php
+msgid "Enter it in the settings below."
+msgstr "Geben Sie ihn unten in den Einstellungen ein."

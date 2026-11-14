@@ -412,3 +412,15 @@ msgstr ""
 #: src/Admin/Dashboard.php
 msgid "Settings"
 msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Go to dashboard"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "No API key is set yet."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Enter it in the settings below."
+msgstr ""

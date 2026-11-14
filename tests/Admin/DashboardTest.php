@@ -74,4 +74,10 @@ final class DashboardTest extends TestCase {
 		$this->assertStringNotContainsString( 'invoqk-nokey', Dashboard::html( $this->data(), 'under', true ) );
 		$this->assertStringContainsString( 'invoqk-nokey', Dashboard::html( $this->data(), 'under', false ) );
 	}
+
+	public function test_no_key_notice_links_to_key_field(): void {
+		$h = Dashboard::html( $this->data(), 'under', false );
+		$this->assertStringContainsString( 'href="#invoqk_api_key"', $h );
+		$this->assertStringNotContainsString( 'WooCommerce &gt; Invoqk', $h );
+	}
 }

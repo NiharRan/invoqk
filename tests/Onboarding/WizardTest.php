@@ -185,4 +185,20 @@ final class WizardTest extends TestCase {
 		$GLOBALS['invoqk_can']     = false;
 		$this->assertNull( Wizard::redirectTarget() );
 	}
+
+	public function test_step2_submit_says_go_to_dashboard_once_report_exists(): void {
+		$this->assertStringContainsString( 'Start first check', Wizard::render( 2 ) );
+		update_option( 'invoqk_first_report', [ 'ids' => [], 'startedAt' => 1 ] );
+		$h = Wizard::render( 2 );
+		$this->assertStringContainsString( 'Go to dashboard', $h );
+		$this->assertStringNotContainsString( 'Start first check', $h );
+	}
+
+	public function test_redirect_skipped_during_ajax(): void {
+		set_transient( 'invoqk_activation_redirect', 1 );
+		$GLOBALS['invoqk_ajax'] = true;
+		$this->assertNull( Wizard::redirectTarget() );
+		$GLOBALS['invoqk_ajax'] = false;
+		$this->assertNotNull( Wizard::redirectTarget() ); // not consumed by the ajax request
+	}
 }

@@ -25,7 +25,8 @@ final class Wizard {
 
 	/** One-shot: consumes the activation transient and says where to go, if anywhere. */
 	public static function redirectTarget(): ?string {
-		if ( ! get_transient( 'invoqk_activation_redirect' ) ) {
+		// Ajax runs admin_init too; leave the transient for the next real page load.
+		if ( wp_doing_ajax() || ! get_transient( 'invoqk_activation_redirect' ) ) {
 			return null;
 		}
 		delete_transient( 'invoqk_activation_redirect' );
@@ -147,7 +148,7 @@ final class Wizard {
 		}
 		return $h . '<p class="description">' . esc_html__( 'No legal or tax advice.', 'invoqk' ) . '</p><p>'
 			. '<a href="' . esc_url( admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ) . '">' . esc_html__( 'Back', 'invoqk' ) . '</a> '
-			. '<button type="submit" class="button button-primary">' . esc_html__( 'Start first check', 'invoqk' ) . '</button> ' . self::skipLink()
+			. '<button type="submit" class="button button-primary">' . ( null === get_option( 'invoqk_first_report', null ) ? esc_html__( 'Start first check', 'invoqk' ) : esc_html__( 'Go to dashboard', 'invoqk' ) ) . '</button> ' . self::skipLink()
 			. '</p></form></div>';
 	}
 

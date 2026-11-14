@@ -10,7 +10,7 @@ final class Dashboard {
 			. esc_html__( 'Open setup', 'invoqk' ) . '</a></p>';
 		if ( ! $hasKey ) {
 			$h .= '<div class="notice notice-warning inline invoqk-nokey"><p>'
-				. esc_html__( 'No API key is set yet. Enter it under WooCommerce > Invoqk.', 'invoqk' ) . '</p></div>';
+				. esc_html__( 'No API key is set yet.', 'invoqk' ) . ' <a href="#invoqk_api_key">' . esc_html__( 'Enter it in the settings below.', 'invoqk' ) . '</a></p></div>';
 		}
 		$h .= '<div class="invoqk-grid">' . self::readiness( $d ) . self::deadline( $turnover ) . '</div>';
 		$h .= 0 === (int) $d['required'] ? self::empty() : self::top( $d['top'] );
