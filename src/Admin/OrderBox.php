@@ -18,9 +18,11 @@ final class OrderBox {
 		if ( ! $order ) {
 			return;
 		}
-		echo '<p>' . OrderColumn::render( $order ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in render()
-		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
+				echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
 		$r = Result::fromOrder( $order );
+		if ( $r ) {
+			echo '<p>' . esc_html( $r->label ?? $r->source ) . '</p>';
+		}
 		if ( $r && $r->file ) {
 			printf( '<p>%s: %s</p>', esc_html__( 'Format', 'invoqk' ), esc_html( $r->file->format ) );
 		}

@@ -20,7 +20,9 @@ final class ReportTest extends TestCase {
 		$this->assertStringContainsString( 'BT-10 Käuferreferenz fehlt', $h );
 		$this->assertStringContainsString( 'XRechnung 3.0.2 (2026-08-31)', $h );
 		$this->assertStringContainsString( '1970-01-01 00:00', $h );
-		$this->assertStringContainsString( 'invoqk_revalidate_7', $h . 'invoqk_revalidate_7' );
+		$this->assertStringContainsString( 'name="action" value="invoqk_revalidate"', $h );
+		$this->assertStringContainsString( 'name="order_id" value="7"', $h );
+		$this->assertStringContainsString( 'data-action="invoqk_revalidate_7"', $h );
 		$this->assertStringContainsString( '<details>', $h );
 	}
 
@@ -31,17 +33,28 @@ final class ReportTest extends TestCase {
 		$this->assertSame( 2, substr_count( $h, '<li>' ) );
 	}
 
-	public function test_error_report_shows_german_sentence_per_code(): void {
-		foreach ( [ 'no_key', 'unauthorized', 'wrong_site', 'quota_exceeded', 'unreadable', 'rejected', 'unavailable' ] as $c ) {
-			$h = Report::html( $this->order( [ 'status' => 'error', 'error' => [ 'code' => $c ], 'attempt' => 1 ] ), 'de_DE' );
-			$this->assertStringContainsString( '<p>', $h );
-			$texts[ $c ] = $h;
+	public function test_error_report_shows_sentence_per_code(): void {
+		$exp = [
+			'no_key'         => 'No API key is set yet. Enter it under WooCommerce &gt; Invoqk.',
+			'unauthorized'   => 'The API key is invalid or was revoked.',
+			'wrong_site'     => 'This API key belongs to a different domain.',
+			'unreadable'     => 'The invoice file could not be read.',
+			'rejected'       => 'The file is not a supported e-invoice format.',
+			'quota_exceeded' => 'The check quota is used up. Please click “Validate again” later.',
+			'unavailable'    => 'The validation service is not reachable right now. We will try again.',
+		];
+		foreach ( $exp as $c => $t ) {
+			$this->assertStringContainsString( "<p>$t</p>", Report::html( $this->order( [ 'status' => 'error', 'error' => [ 'code' => $c ] ] ), 'de_DE' ), $c );
 		}
-		$this->assertCount( 7, array_unique( $texts ) );
-		$this->assertStringContainsString( 'We will try again.', $texts['unavailable'] );
-		$late = Report::html( $this->order( [ 'status' => 'error', 'error' => [ 'code' => 'unavailable' ], 'attempt' => 4 ] ), 'de_DE' );
-		$this->assertStringContainsString( 'Validate again" later', html_entity_decode( $late ) );
-		$this->assertStringNotContainsString( 'We will try again.', $late );
+	}
+
+	public function test_retry_sentence_follows_job_policy(): void {
+		$h = fn( string $c, int $n, array $e = [] ) => Report::html( $this->order( [ 'status' => 'error', 'error' => [ 'code' => $c ] + $e, 'attempt' => $n ] ), 'de_DE' );
+		$this->assertStringContainsString( 'We will try again later.', $h( 'quota_exceeded', 1, [ 'retryAfter' => 120 ] ) );
+		$this->assertStringContainsString( 'Validate again', $h( 'quota_exceeded', 1 ) );
+		$this->assertStringContainsString( 'Validate again', $h( 'quota_exceeded', 2, [ 'retryAfter' => 120 ] ) );
+		$this->assertStringContainsString( 'We will try again.', $h( 'unavailable', 1 ) );
+		$this->assertStringContainsString( 'Validate again', $h( 'unavailable', 4 ) );
 	}
 
 	public function test_hostile_text_is_escaped(): void {
@@ -66,7 +79,9 @@ final class ReportTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 		add_filter( 'invoqk_source_adapters', fn() => $this->fail( 'adapter' ) );
 		$GLOBALS['invoqk_as'] = [];
+		$GLOBALS['invoqk_http'] = [];
 		Report::html( $this->order( [ 'status' => 'failed', 'issues' => [ $this->issue() ], 'issueCount' => 1 ] ), 'de_DE' );
 		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$this->assertSame( [], $GLOBALS['invoqk_http'] );
 	}
 }

@@ -45,6 +45,7 @@ final class OrderColumnTest extends TestCase {
 		$this->assertStringContainsString( 'status-failed', $h );
 		$n = new WC_Order();
 		$n->update_meta_data( Result::SOURCE, 'none' );
+		\Invoqk\Validation\Record::put( $n, [ 'status' => 'failed' ] );
 		$this->assertStringNotContainsString( 'Invalid', OrderColumn::render( $n ) );
 	}
 }

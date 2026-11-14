@@ -91,7 +91,7 @@ if ( ! function_exists( 'get_option' ) ) {
 if ( ! class_exists( 'WP_Error' ) ) { class WP_Error {} }
 if ( ! function_exists( 'is_wp_error' ) ) {
 	function is_wp_error( $v ): bool { return $v instanceof WP_Error; }
-	function wp_remote_post( string $url, array $args = [] ) { return new WP_Error(); }
+	function wp_remote_post( string $url, array $args = [] ) { $GLOBALS['invoqk_http'][] = $url; return new WP_Error(); }
 	function wp_remote_retrieve_response_code( $r ) { return $r['response']['code'] ?? ''; }
 	function wp_remote_retrieve_body( $r ) { return $r['body'] ?? ''; }
 	function wp_remote_retrieve_header( $r, string $h ) { return $r['headers'][ strtolower( $h ) ] ?? ''; }
@@ -107,9 +107,11 @@ if ( ! function_exists( 'wp_date' ) ) {
 	function esc_attr( $s ): string { return esc_html( $s ); }
 	function esc_url( $s ): string { return esc_html( $s ); }
 	function _n( string $s, string $p, int $n, string $d = 'default' ): string { return 1 === $n ? $s : $p; }
+	function absint( $v ): int { return abs( (int) $v ); }
+	function wp_unslash( $v ) { return $v; }
 	function current_user_can( string $c ): bool { return true; }
 	function check_admin_referer( $a ) { return true; }
 	function wp_safe_redirect( string $u ): bool { return true; }
 	function wp_get_referer() { return false; }
-	function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) { return '<input type="hidden" name="' . $n . '" value="nonce">'; }
+	function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) { return '<input type="hidden" name="' . $n . '" value="nonce" data-action="' . $a . '">'; }
 }

@@ -1,10 +1,10 @@
 <?php
 namespace Invoqk\Admin;
 
-use Invoqk\Jobs\Scheduler;
 use Invoqk\Validation\FixMap;
 use Invoqk\Validation\IssueText;
 use Invoqk\Validation\Limit;
+use Invoqk\Validation\Mapper;
 use Invoqk\Validation\Record;
 
 /** Meta box body. Cached meta only; every remote value is escaped. */
@@ -12,10 +12,10 @@ final class Report {
 	public static function html( \WC_Order $o, string $locale ): string {
 		$status = Record::status( $o );
 		$rec    = Record::get( $o ) ?? [];
-		$out    = '<p>' . Badge::html( $status ) . '</p>';
 		if ( 'none' === $status ) {
 			return '';
 		}
+		$out = '<p>' . Badge::html( $status ) . '</p>';
 		if ( $rec ) {
 			$out .= '<p>' . esc_html__( 'Validated', 'invoqk' ) . ': ' . esc_html( wp_date( 'Y-m-d H:i', (int) ( $rec['checkedAt'] ?? 0 ) ) ) . '</p>';
 			$rs   = $rec['ruleSet'] ?? [];
@@ -24,7 +24,7 @@ final class Report {
 			}
 		}
 		if ( 'error' === $status ) {
-			$out .= '<p>' . esc_html( self::errorText( $rec['error'] ?? [], (int) ( $rec['attempt'] ?? 1 ) ) ) . '</p>';
+			$out .= '<p>' . esc_html( self::errorText( $rec, (int) ( $rec['attempt'] ?? 1 ) ) ) . '</p>';
 		}
 		if ( 'limit' === $status ) {
 			$out .= '<p>' . esc_html( sprintf( __( 'Free includes %d invoices. With Pro you check them all.', 'invoqk' ), Limit::MAX ) )
@@ -36,10 +36,10 @@ final class Report {
 		return $out . self::form( $o );
 	}
 
-	private static function errorText( array $err, int $attempt ): string {
-		$retry = null !== Scheduler::backoff( $attempt );
-		$more  = $retry ? __( 'We will try again.', 'invoqk' ) : __( 'Please click "Validate again" later.', 'invoqk' );
-		switch ( $err['code'] ?? '' ) {
+	/** Retry wording follows the job's own policy (Mapper::retryDelay), so it never promises a retry nobody queued. */
+	private static function errorText( array $rec, int $attempt ): string {
+		$retry = null !== Mapper::retryDelay( $rec, $attempt );
+		switch ( $rec['error']['code'] ?? '' ) {
 			case 'no_key':
 				return __( 'No API key is set yet. Enter it under WooCommerce > Invoqk.', 'invoqk' );
 			case 'unauthorized':
@@ -47,13 +47,13 @@ final class Report {
 			case 'wrong_site':
 				return __( 'This API key belongs to a different domain.', 'invoqk' );
 			case 'quota_exceeded':
-				return __( 'The check quota is used up.', 'invoqk' ) . ' ' . $more;
+				return $retry ? __( 'The check quota is used up. We will try again later.', 'invoqk' ) : __( 'The check quota is used up. Please click “Validate again” later.', 'invoqk' );
 			case 'unreadable':
 				return __( 'The invoice file could not be read.', 'invoqk' );
 			case 'rejected':
 				return __( 'The file is not a supported e-invoice format.', 'invoqk' );
 			default:
-				return __( 'The validation service is not reachable right now.', 'invoqk' ) . ' ' . $more;
+				return $retry ? __( 'The validation service is not reachable right now. We will try again.', 'invoqk' ) : __( 'The validation service is not reachable right now. Please click “Validate again” later.', 'invoqk' );
 		}
 	}
 

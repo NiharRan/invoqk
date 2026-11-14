@@ -11,7 +11,7 @@ final class Revalidate {
 	}
 
 	public static function callback(): void {
-		$id = (int) ( $_POST['order_id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- checked below
+		$id = absint( wp_unslash( $_POST['order_id'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification -- checked below
 		self::handle( $id, current_user_can( 'manage_woocommerce' ), (bool) check_admin_referer( 'invoqk_revalidate_' . $id ) );
 		wp_safe_redirect( wp_get_referer() ?: admin_url() );
 		exit;
