@@ -64,6 +64,8 @@ add_action(
 
 register_activation_hook( __FILE__, static function () {
 	add_option( 'invoqk_api_key', '', '', false ); // autoload off: keep the key out of every request's alloptions
+	add_option( 'invoqk_activated_at', time(), '', false );
+	set_transient( 'invoqk_activation_redirect', 1, 30 );
 } );
 
 register_deactivation_hook( __FILE__, static function () {
