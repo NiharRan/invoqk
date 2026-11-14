@@ -227,3 +227,79 @@ msgstr "Invoqk: Überschreibung entfernt, automatisches Ergebnis: %s."
 
 msgid "Invoqk: e-invoice set to %1$s by %2$s."
 msgstr "Invoqk: E-Rechnung auf „%1$s“ gesetzt von %2$s."
+
+#: src/Onboarding/Wizard.php
+msgid "Plugin"
+msgstr "Plugin"
+
+#: src/Onboarding/Wizard.php
+msgid "Turnover"
+msgstr "Umsatz"
+
+#: src/Onboarding/Wizard.php
+msgid "Check"
+msgstr "Prüfung"
+
+#: src/Onboarding/Wizard.php
+msgid "Set up later"
+msgstr "Später einrichten"
+
+#: src/Onboarding/Wizard.php
+msgid "Continue"
+msgstr "Weiter"
+
+#: src/Onboarding/Wizard.php
+msgid "We found your invoice plugin"
+msgstr "Wir haben Ihr Rechnungs-Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
+msgstr "E-Rechnungen (XRechnung/ZUGFeRD) werden daraus gelesen."
+
+#: src/Onboarding/Wizard.php
+msgid "No invoice plugin found"
+msgstr "Kein Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "These plugins are supported:"
+msgstr "Diese Plugins werden unterstützt:"
+
+#: src/Onboarding/Wizard.php
+msgid "What was your turnover last year?"
+msgstr "Wie hoch war Ihr Umsatz im Vorjahr?"
+
+#: src/Onboarding/Wizard.php
+msgid "Over €800,000"
+msgstr "Über 800.000 €"
+
+#: src/Onboarding/Wizard.php
+msgid "Up to €800,000"
+msgstr "Bis 800.000 €"
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoice mandatory from %s"
+msgstr "E-Rechnung Pflicht ab %s"
+
+#: src/Onboarding/Wizard.php
+msgid "(only if none is set yet)"
+msgstr "(nur wenn noch keiner gesetzt)"
+
+#: src/Onboarding/Wizard.php
+msgid "No legal or tax advice."
+msgstr "Keine Rechts- oder Steuerberatung."
+
+#: src/Onboarding/Wizard.php
+msgid "Back"
+msgstr "Zurück"
+
+#: src/Onboarding/Wizard.php
+msgid "Start first check"
+msgstr "Erste Prüfung starten"
+
+#: src/Onboarding/Wizard.php
+msgid "We are checking your latest B2B invoices"
+msgstr "Wir prüfen Ihre letzten B2B-Rechnungen"
+
+#: src/Onboarding/Wizard.php
+msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
+msgstr "Sie können die Seite verlassen. Die Prüfung läuft im Hintergrund weiter; das Dashboard öffnet sich, sobald Ergebnisse da sind."

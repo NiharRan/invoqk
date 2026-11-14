@@ -227,3 +227,79 @@ msgstr ""
 
 msgid "Invoqk: e-invoice set to %1$s by %2$s."
 msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Plugin"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Turnover"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Check"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Set up later"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Continue"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "We found your invoice plugin"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "No invoice plugin found"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "These plugins are supported:"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "What was your turnover last year?"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Over €800,000"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Up to €800,000"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoice mandatory from %s"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "(only if none is set yet)"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "No legal or tax advice."
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Back"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Start first check"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "We are checking your latest B2B invoices"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
+msgstr ""
