@@ -158,3 +158,72 @@ msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "Domestic customer with VAT ID, amount over %s €."
+msgstr ""
+
+msgid "Domestic customer with company name, amount over %s €."
+msgstr ""
+
+msgid "No VAT ID, no company name."
+msgstr ""
+
+msgid "Billing country is not Germany."
+msgstr ""
+
+msgid "Total of %s € or less (small amount invoice)."
+msgstr ""
+
+msgid "Order total is 0 €."
+msgstr ""
+
+msgid "No billing country given."
+msgstr ""
+
+msgid "Note: no VAT ID given."
+msgstr ""
+
+msgid "Note: the VAT ID does not have a German format (DE and 9 digits)."
+msgstr ""
+
+msgid "manual"
+msgstr ""
+
+msgid "Not required"
+msgstr ""
+
+msgid "E-invoice required"
+msgstr ""
+
+msgid "E-invoice not required"
+msgstr ""
+
+msgid "Set manually by %1$s on %2$s."
+msgstr ""
+
+msgid "Automatic result: %s"
+msgstr ""
+
+msgid "required"
+msgstr ""
+
+msgid "not required"
+msgstr ""
+
+msgid "Automatic"
+msgstr ""
+
+msgid "Required"
+msgstr ""
+
+msgid "Override"
+msgstr ""
+
+msgid "Not allowed."
+msgstr ""
+
+msgid "Invoqk: override removed, automatic result: %s."
+msgstr ""
+
+msgid "Invoqk: e-invoice set to %1$s by %2$s."
+msgstr ""

@@ -21,6 +21,18 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function save_meta_data(): void { ++$this->metaSaves; }
 		public string $status = 'processing';
 		public function get_status(): string { return $this->status; }
+		// Defaults describe a domestic B2B order over the threshold, so older tests keep "required" orders.
+		public string $country = 'DE';
+		public string $shipCountry = '';
+		public string $company = 'Acme GmbH';
+		public string $total = '500.00';
+		public array $notes = [];
+		public function get_billing_country(): string { return $this->country; }
+		public function get_shipping_country(): string { return $this->shipCountry; }
+		public function get_billing_company(): string { return $this->company; }
+		public function get_total(): string { return $this->total; }
+		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
+		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
 	}
 }
 

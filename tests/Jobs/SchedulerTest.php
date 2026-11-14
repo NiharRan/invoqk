@@ -225,4 +225,27 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( 1, $f( '/x/src/Other/Limit.php', 'https://x' ) );
 		$this->assertSame( 1, $f( '/x/src/Validation/Mapper.php', 'http://x' ) );
 	}
+
+	public function test_sweep_skips_validation_for_not_required_orders(): void {
+		$b2c          = new WC_Order( 21 );
+		$b2c->company = '';
+		$b2c->update_meta_data( '_invoqk_source', 'x' );
+		$b2c->update_meta_data( '_invoqk_file', [ 'reference' => 5, 'mime' => 'application/xml', 'format' => 'ubl' ] );
+		$GLOBALS['invoqk_orders']        = [ 21 => $b2c ];
+		$GLOBALS['invoqk_orders_result'] = [ 21 ];
+		Scheduler::sweep();
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_update_order_enqueues_only_when_classification_changed(): void {
+		$o = new WC_Order( 31 );
+		$GLOBALS['invoqk_orders'] = [ 31 => $o ];
+		\Invoqk\Classification\Classifier::save( $o );
+		Scheduler::reclassifyIfChanged( 31 );
+		$this->assertSame( [], $GLOBALS['invoqk_as'], 'unchanged result: nothing queued' );
+		$o->company = '';
+		Scheduler::reclassifyIfChanged( 31 );
+		Scheduler::reclassifyIfChanged( 31 );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'], 'changed: queued once, deduped' );
+	}
 }

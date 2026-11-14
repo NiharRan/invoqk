@@ -33,4 +33,26 @@ final class FlagTest extends TestCase {
 	public function test_unchecked_returns_pending(): void {
 		$this->assertSame( 'pending', Flag::forOrder( $this->order( null ) ) );
 	}
+
+	public function test_not_required_order_is_not_flagged_even_with_a_file(): void {
+		$o          = $this->order( 'germanized_pro' );
+		$o->company = '';
+		$this->assertSame( 'not_required', Flag::forOrder( $o ) );
+	}
+
+	public function test_override_to_required_flags_missing_invoice(): void {
+		$o          = $this->order( 'none' );
+		$o->company = '';
+		$o->update_meta_data( \Invoqk\Classification\Classifier::OVERRIDE, [ 'required' => true, 'by' => 1, 'at' => 1 ] );
+		$this->assertSame( 'missing', Flag::forOrder( $o ) );
+	}
+
+	public function test_filter_gets_the_classified_value_first(): void {
+		$seen = null;
+		add_filter( 'invoqk_order_requires_einvoice', function ( $v ) use ( &$seen ) { $seen = $v; return $v; } );
+		$o          = $this->order( 'none' );
+		$o->company = '';
+		Flag::forOrder( $o );
+		$this->assertFalse( $seen );
+	}
 }

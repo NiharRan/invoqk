@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Jobs;
 
+use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Detector;
 use Invoqk\Detection\Result;
 use Invoqk\Sources\Registry;
@@ -17,6 +18,7 @@ final class Scheduler {
 
 	public static function boot(): void {
 		add_action( 'woocommerce_order_status_changed', static fn( $id ) => self::enqueue( (int) $id ) );
+		add_action( 'woocommerce_update_order', static fn( $id ) => self::reclassifyIfChanged( (int) $id ) );
 		add_action( 'invoqk_schedule_detect', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( self::DETECT, static fn( $id, $attempt = 1 ) => self::handle( (int) $id, (int) $attempt ), 10, 2 );
 		add_action( self::VALIDATE, static fn( $id, $attempt = 1, $force = false ) => Job::handle( (int) $id, (int) $attempt, (bool) $force ), 10, 3 );
@@ -52,6 +54,19 @@ final class Scheduler {
 	public static function enqueue( int $orderId ): void {
 		if ( ! as_has_scheduled_action( self::DETECT, [ $orderId ], self::GROUP ) ) {
 			as_enqueue_async_action( self::DETECT, [ $orderId ], self::GROUP );
+		}
+	}
+
+	/** Order saved by anyone: queue a detect job only when the classification inputs changed. */
+	public static function reclassifyIfChanged( int $orderId ): void {
+		$order = wc_get_order( $orderId );
+		if ( ! $order instanceof \WC_Order || 'trash' === $order->get_status() ) {
+			return;
+		}
+		$old = Classifier::stored( $order );
+		$new = Classifier::classify( $order );
+		if ( ! $old || $old['required'] !== $new['required'] || $old['reason'] !== $new['reason'] || ( $old['hint'] ?? null ) !== $new['hint'] ) {
+			self::enqueue( $orderId );
 		}
 	}
 
@@ -118,7 +133,7 @@ final class Scheduler {
 						self::enqueue( (int) $id );
 						++$detect;
 					}
-				} elseif ( $valid < 100 && $order->get_meta( Result::FILE ) && self::needsValidation( $order, Record::status( $order ) ) ) {
+				} elseif ( $valid < 100 && $order->get_meta( Result::FILE ) && Classifier::isRequired( $order ) && self::needsValidation( $order, Record::status( $order ) ) ) {
 					self::enqueueValidate( (int) $id );
 					++$valid;
 				}

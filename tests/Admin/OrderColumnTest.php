@@ -48,4 +48,21 @@ final class OrderColumnTest extends TestCase {
 		\Invoqk\Validation\Record::put( $n, [ 'status' => 'failed' ] );
 		$this->assertStringNotContainsString( 'Invalid', OrderColumn::render( $n ) );
 	}
+
+	public function test_not_required_cell_shows_text_and_no_validation_badge(): void {
+		$o          = new WC_Order();
+		$o->company = '';
+		$o->update_meta_data( Result::SOURCE, 'germanized_pro' );
+		\Invoqk\Validation\Record::put( $o, [ 'status' => 'failed' ] );
+		$h = OrderColumn::render( $o );
+		$this->assertStringContainsString( 'Not required', $h );
+		$this->assertStringNotContainsString( 'status-failed', $h );
+	}
+
+	public function test_overridden_order_shows_manual_tag(): void {
+		$o = new WC_Order();
+		$o->update_meta_data( Result::SOURCE, 'none' );
+		$o->update_meta_data( \Invoqk\Classification\Classifier::OVERRIDE, [ 'required' => true, 'by' => 1, 'at' => 1 ] );
+		$this->assertStringContainsString( 'manual', OrderColumn::render( $o ) );
+	}
 }
