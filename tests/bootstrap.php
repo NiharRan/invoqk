@@ -80,7 +80,7 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 		}
 		return false;
 	}
-	function as_enqueue_async_action( string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group' ) + [ 'when' => 0, 'every' => 0 ]; return 1; }
+	function as_enqueue_async_action( string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as_opt'][] = $GLOBALS['invoqk_options']['invoqk_first_report'] ?? null; $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group' ) + [ 'when' => 0, 'every' => 0 ]; return 1; }
 	function as_schedule_single_action( int $when, string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group', 'when' ) + [ 'every' => 0 ]; return 1; }
 	function as_schedule_recurring_action( int $when, int $every, string $hook, array $args = [], string $group = '' ) { $GLOBALS['invoqk_as'][] = compact( 'hook', 'args', 'group', 'when', 'every' ); return 1; }
 	function as_unschedule_all_actions( string $hook = '', array $args = [], string $group = '' ): void {

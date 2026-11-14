@@ -4,6 +4,7 @@ namespace Invoqk;
 final class Plugin {
 	public static function boot(): void {
 		Jobs\Scheduler::boot();
+		Onboarding\FirstReport::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
