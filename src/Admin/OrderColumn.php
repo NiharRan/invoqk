@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Admin;
 
+use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Result;
 use Invoqk\Validation\Record;
 
@@ -26,12 +27,15 @@ final class OrderColumn {
 	}
 
 	public static function render( \WC_Order $order ): string {
+		$tag = Classifier::isOverridden( $order ) ? ' <small>(' . esc_html__( 'manual', 'invoqk' ) . ')</small>' : '';
 		switch ( Flag::forOrder( $order ) ) {
 			case 'source':
 				$r = Result::fromOrder( $order );
-				return esc_html( $r->label ?? $r->source ) . ' ' . Badge::html( Record::status( $order ) );
+				return esc_html( $r->label ?? $r->source ) . ' ' . Badge::html( Record::status( $order ) ) . $tag;
 			case 'missing':
-				return '<mark class="order-status status-failed"><span>' . esc_html__( 'No e-invoice', 'invoqk' ) . '</span></mark>';
+				return '<mark class="order-status status-failed"><span>' . esc_html__( 'No e-invoice', 'invoqk' ) . '</span></mark>' . $tag;
+			case 'not_required':
+				return '<span class="description">' . esc_html__( 'Not required', 'invoqk' ) . '</span>' . $tag;
 			default:
 				return '&ndash;';
 		}

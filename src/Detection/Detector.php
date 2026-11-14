@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Detection;
 
+use Invoqk\Classification\Classifier;
 use Invoqk\Sources\InvoiceFile;
 use Invoqk\Jobs\Scheduler;
 use Invoqk\Sources\Registry;
@@ -14,6 +15,8 @@ final class Detector {
 		if ( ! $order instanceof \WC_Order || 'trash' === $order->get_status() ) {
 			return;
 		}
+
+		Classifier::save( $order ); // own save: the cached-file early return below never reaches the final one
 
 		$hit = $this->registry->detect( $order );
 		if ( $hit ) {

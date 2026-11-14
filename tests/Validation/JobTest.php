@@ -239,4 +239,22 @@ final class JobTest extends TestCase {
 		$this->assertStringNotContainsString( 'INVOICEBYTES', $log );
 		$this->assertStringNotContainsString( 'SECRETKEY123', $log );
 	}
+
+	public function test_not_required_order_is_not_validated_and_takes_no_slot(): void {
+		$o          = $this->order();
+		$o->company = '';
+		$this->go();
+		$this->assertSame( 0, $this->calls );
+		$this->assertSame( 0, $this->reads );
+		$this->assertNull( Record::get( $o ) );
+		$this->assertSame( [], (array) get_option( 'invoqk_free_slots', [] ) );
+	}
+
+	public function test_override_to_required_validates_a_b2c_order(): void {
+		$o          = $this->order();
+		$o->company = '';
+		$o->update_meta_data( \Invoqk\Classification\Classifier::OVERRIDE, [ 'required' => true, 'by' => 1, 'at' => 1 ] );
+		$this->go();
+		$this->assertSame( 1, $this->calls );
+	}
 }

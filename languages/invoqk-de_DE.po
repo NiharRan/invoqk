@@ -158,3 +158,72 @@ msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] "%d Hinweis"
 msgstr[1] "%d Hinweise"
+
+msgid "Domestic customer with VAT ID, amount over %s €."
+msgstr "Inlandskunde mit USt-IdNr., Betrag über %s €."
+
+msgid "Domestic customer with company name, amount over %s €."
+msgstr "Inlandskunde mit Firmenname, Betrag über %s €."
+
+msgid "No VAT ID, no company name."
+msgstr "Keine USt-IdNr., kein Firmenname."
+
+msgid "Billing country is not Germany."
+msgstr "Rechnungsland ist nicht Deutschland."
+
+msgid "Total of %s € or less (small amount invoice)."
+msgstr "Gesamtbetrag %s € oder weniger (Kleinbetragsrechnung)."
+
+msgid "Order total is 0 €."
+msgstr "Bestellwert 0 €."
+
+msgid "No billing country given."
+msgstr "Kein Rechnungsland angegeben."
+
+msgid "Note: no VAT ID given."
+msgstr "Hinweis: Keine USt-IdNr. angegeben."
+
+msgid "Note: the VAT ID does not have a German format (DE and 9 digits)."
+msgstr "Hinweis: Die USt-IdNr. hat kein deutsches Format (DE und 9 Ziffern)."
+
+msgid "manual"
+msgstr "manuell"
+
+msgid "Not required"
+msgstr "Nicht erforderlich"
+
+msgid "E-invoice required"
+msgstr "E-Rechnung erforderlich"
+
+msgid "E-invoice not required"
+msgstr "E-Rechnung nicht erforderlich"
+
+msgid "Set manually by %1$s on %2$s."
+msgstr "Manuell festgelegt von %1$s am %2$s."
+
+msgid "Automatic result: %s"
+msgstr "Automatisches Ergebnis: %s"
+
+msgid "required"
+msgstr "erforderlich"
+
+msgid "not required"
+msgstr "nicht erforderlich"
+
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgid "Required"
+msgstr "Erforderlich"
+
+msgid "Override"
+msgstr "Überschreiben"
+
+msgid "Not allowed."
+msgstr "Nicht erlaubt."
+
+msgid "Invoqk: override removed, automatic result: %s."
+msgstr "Invoqk: Überschreibung entfernt, automatisches Ergebnis: %s."
+
+msgid "Invoqk: e-invoice set to %1$s by %2$s."
+msgstr "Invoqk: E-Rechnung auf „%1$s“ gesetzt von %2$s."

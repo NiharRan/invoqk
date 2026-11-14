@@ -56,6 +56,16 @@ final class I18nTest extends TestCase {
 		foreach ( $exp as $id => $de ) {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
+		$e4 = [
+			'No VAT ID, no company name.'    => 'Keine USt-IdNr., kein Firmenname.',
+			'Billing country is not Germany.' => 'Rechnungsland ist nicht Deutschland.',
+			'Order total is 0 €.'            => 'Bestellwert 0 €.',
+			'Not required'                   => 'Nicht erforderlich',
+			'E-invoice required'             => 'E-Rechnung erforderlich',
+		];
+		foreach ( $e4 as $id => $de ) {
+			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
+		}
 		$this->assertSame( "%d Hinweis\0%d Hinweise", $mo["%d note\0%d notes"] ?? null );
 	}
 }

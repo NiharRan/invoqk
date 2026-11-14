@@ -103,7 +103,17 @@ final class DetectorTest extends TestCase {
 		$o = $this->order();
 		( new Detector( new Registry( new FakeAdapter( 'a', true, $this->file() ) ) ) )->run( 1 );
 		$this->assertSame( 0, $o->saves );
-		$this->assertSame( 1, $o->metaSaves );
+		$this->assertSame( 2, $o->metaSaves ); // classification, then detection
+	}
+
+	public function test_classification_saved_even_on_cached_file_early_return(): void {
+		$o  = $this->order();
+		$od = new InvoiceFile( 'wpo:invoice', 'application/xml', 'ubl', true );
+		( new Detector( new Registry( new FakeAdapter( 'a', true, $od ) ) ) )->run( 1 );
+		$o->company = '';
+		$o->meta[ Invoqk\Classification\Classifier::CLASS_META ] = [ 'required' => true, 'reason' => 'company_only', 'hint' => null, 'at' => 1 ];
+		( new Detector( new Registry( new FakeAdapter( 'a', false ) ) ) )->run( 1 ); // source plugin off: cached-file return
+		$this->assertSame( 'private', $o->get_meta( Invoqk\Classification\Classifier::CLASS_META )['reason'] );
 	}
 
 	public function test_never_checked_order_has_no_result(): void {

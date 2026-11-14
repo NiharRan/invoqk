@@ -8,6 +8,7 @@ final class Plugin {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
 			Admin\Revalidate::boot();
+			Admin\Override::boot();
 			Admin\SettingsPage::boot();
 		}
 		add_action(

@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Validation;
 
+use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Result;
 use Invoqk\Jobs\Scheduler;
 use Invoqk\Sources\Registry;
@@ -14,6 +15,9 @@ final class Job {
 		}
 		$found = Result::fromOrder( $order );
 		if ( ! $found || 'none' === $found->source || ! $found->file ) {
+			return;
+		}
+		if ( ! Classifier::isRequired( $order ) ) { // no API call, no Free slot for orders that need no e-invoice
 			return;
 		}
 		$file    = $found->file;
