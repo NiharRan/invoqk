@@ -83,4 +83,17 @@ final class I18nTest extends TestCase {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
 	}
+
+	public function test_mo_has_german_for_e6_strings(): void {
+		$mo = $this->mo();
+		foreach ( [
+			'Your invoice will follow in a separate email.' => 'Ihre Rechnung folgt in einer separaten E-Mail.',
+			'Held by Invoqk'                                 => 'Von Invoqk zurückgehalten',
+			'Fix and resend'                                 => 'Korrigieren und senden',
+			'Send anyway…'                                   => 'Trotzdem senden…',
+			'Check skipped – invoice sent without validation' => 'Prüfung übersprungen – Rechnung ohne Prüfung gesendet',
+		] as $id => $de ) {
+			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
+		}
+	}
 }
