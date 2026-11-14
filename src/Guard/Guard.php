@@ -26,7 +26,7 @@ final class Guard {
 	public static function boot(): void {
 		add_action( 'wpo_wcpdf_email_attachment', [ self::class, 'record' ], 10, 4 );
 		add_filter( 'woocommerce_email_attachments', [ self::class, 'filterAttachments' ], 999, 4 );
-		add_action( 'invoqk_validated', [ self::class, 'decide' ], 10, 2 );
+		add_action( 'invoqk_validated', static fn( $id ) => self::decide( (int) $id ), 10, 2 );
 		add_action( self::TIMEOUT, static fn( $id ) => self::decide( (int) $id, true ) );
 		add_filter( 'wpo_wcpdf_document_types_for_email', [ self::class, 'addInvoiceToOwnSend' ], 10, 3 );
 		add_filter( 'wpo_wcpdf_reuse_document_attachment', [ self::class, 'noReuseDuringSend' ], 10, 2 );

@@ -50,6 +50,15 @@ final class GuardDecideTest extends TestCase {
 		$this->assertSame( [], $this->notes );
 	}
 
+	public function test_boot_wires_validated_action(): void {
+		$GLOBALS['invoqk_actions'] = [];
+		Guard::boot();
+		$this->order( 'passed' );
+		$GLOBALS['invoqk_mailer'] = function ( int $i ) { $this->sent[] = $i; };
+		do_action( 'invoqk_validated', 5, [ 'status' => 'passed' ] );
+		$this->assertSame( [ 5 ], $this->sent );
+	}
+
 	public function test_timeout_after_result_sends_nothing(): void {
 		$this->order( 'passed', 'sent' );
 		$this->decide( 5, true );
