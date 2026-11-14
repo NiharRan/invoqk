@@ -23,7 +23,7 @@ final class Result {
 		}
 		$f    = $order->get_meta( self::FILE );
 		$file = is_array( $f ) && isset( $f['reference'], $f['mime'] )
-			? new InvoiceFile( $f['reference'], $f['mime'], $f['format'] ?? 'unknown' )
+			? new InvoiceFile( $f['reference'], $f['mime'], $f['format'] ?? 'unknown', ! empty( $f['onDemand'] ) )
 			: null;
 		return new self( $source, 'none' === $source ? null : (string) $order->get_meta( '_invoqk_label' ), $file, (int) $order->get_meta( self::DETECTED ) );
 	}

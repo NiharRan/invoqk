@@ -9,9 +9,10 @@ One class per invoice plugin. If that plugin changes where it keeps its e-invoic
 | `id()` | `string` | Stable machine id stored in order meta, e.g. `germanized_pro` |
 | `label()` | `string` | Name shown to the merchant |
 | `isAvailable()` | `bool` | Source plugin is active. `find()` is not called when false |
-| `find(\WC_Order $order)` | `?InvoiceFile` | The file, or `null`. Read only: never trigger invoice generation. Return `null` if the file is missing on disk |
+| `find(\WC_Order $order)` | `?InvoiceFile` | The file, or `null`. Never create or save anything. Return `null` if the file is missing on disk |
+| `read(\WC_Order $order, InvoiceFile $file)` | `?string` | The file's bytes. Stored-file adapters read the file; on-demand sources (WP Overnight) may build it in memory. Never save, send or attach |
 
-`InvoiceFile(int|string $reference, string $mime, string $format)`: attachment ID or absolute path; `application/xml` or `application/pdf`; one of `ubl|cii|zugferd|facturx|unknown`. ZUGFeRD PDFs are passed as PDF; the API extracts the XML.
+`InvoiceFile(int|string $reference, string $mime, string $format, bool $onDemand = false)`: attachment ID or absolute path (a plain tag when `onDemand`, i.e. the source builds the file on request); `application/xml` or `application/pdf`; one of `ubl|cii|zugferd|facturx|unknown`. ZUGFeRD PDFs are passed as PDF; the API extracts the XML.
 
 ## Register
 

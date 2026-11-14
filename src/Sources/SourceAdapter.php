@@ -14,4 +14,7 @@ interface SourceAdapter {
 
 	/** The order's e-invoice file, or null if this plugin has none for it. */
 	public function find( \WC_Order $order ): ?InvoiceFile;
+
+	/** The file's bytes. May build in memory for on-demand sources; never save, send or attach. */
+	public function read( \WC_Order $order, InvoiceFile $file ): ?string;
 }

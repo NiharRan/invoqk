@@ -15,6 +15,7 @@ final class FakeAdapter implements SourceAdapter {
 	public function id(): string { return $this->id; }
 	public function label(): string { return strtoupper( $this->id ); }
 	public function isAvailable(): bool { return $this->available; }
+	public function read( \WC_Order $order, InvoiceFile $file ): ?string { return null; }
 	public function find( \WC_Order $order ): ?InvoiceFile {
 		++$this->findCalls;
 		if ( $this->throws ) {

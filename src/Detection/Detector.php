@@ -18,7 +18,7 @@ final class Detector {
 			$f = $hit['file'];
 			$order->update_meta_data( Result::SOURCE, $hit['adapter']->id() );
 			$order->update_meta_data( '_invoqk_label', $hit['adapter']->label() );
-			$order->update_meta_data( Result::FILE, [ 'reference' => $f->reference, 'mime' => $f->mime, 'format' => $f->format ] );
+			$order->update_meta_data( Result::FILE, [ 'reference' => $f->reference, 'mime' => $f->mime, 'format' => $f->format, 'onDemand' => $f->onDemand ] );
 		} else {
 			$cached = Result::fromOrder( $order );
 			if ( $cached && $cached->file && self::fileExists( $cached->file ) ) {
@@ -32,6 +32,9 @@ final class Detector {
 	}
 
 	public static function fileExists( InvoiceFile $f ): bool {
+		if ( $f->onDemand ) {
+			return true;
+		}
 		$path = is_int( $f->reference ) ? get_attached_file( $f->reference ) : $f->reference;
 		return is_string( $path ) && file_exists( $path );
 	}
