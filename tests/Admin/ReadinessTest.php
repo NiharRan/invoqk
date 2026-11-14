@@ -10,6 +10,7 @@ final class ReadinessTest extends TestCase {
 		$GLOBALS['invoqk_orders']        = [];
 		$GLOBALS['invoqk_orders_result'] = [];
 		$GLOBALS['invoqk_transients']    = [];
+		$GLOBALS['invoqk_options']       = [];
 	}
 
 	private function order( string $kind, array $issues = [], int $created = 0 ): \WC_Order {
@@ -91,5 +92,15 @@ final class ReadinessTest extends TestCase {
 	public function test_english_locale_uses_english_text(): void {
 		$this->order( 'failed', [ $this->issue( 'BT-10' ) ] );
 		$this->assertSame( 'En BT-10', Readiness::get( 'en_US' )['top'][0]['text'] );
+	}
+
+	public function test_first_report_orders_outside_30_days_are_counted_once(): void {
+		$this->order( 'passed' );
+		$old = $this->order( 'failed', [ $this->issue( 'BT-10' ) ] );
+		$GLOBALS['invoqk_orders_result'] = [ 1 ]; // order 2 is older than 30 days
+		$GLOBALS['invoqk_options']['invoqk_first_report'] = [ 'ids' => [ 1, $old->id, 99 ], 'startedAt' => 1 ]; // 1 dup, 99 deleted
+		$r = Readiness::compute( 'de_DE' );
+		$this->assertSame( [ 1, 1, 2 ], [ $r['passed'], $r['failed'], $r['required'] ] );
+		$this->assertCount( 1, $r['top'] );
 	}
 }

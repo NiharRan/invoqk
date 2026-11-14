@@ -2,11 +2,12 @@
 namespace Invoqk\Admin;
 
 use Invoqk\Classification\Classifier;
+use Invoqk\Onboarding\State;
 use Invoqk\Validation\FixMap;
 use Invoqk\Validation\IssueText;
 use Invoqk\Validation\Record;
 
-/** Readiness numbers for the dashboard: last 30 days, up to 2,000 orders, cached 600 s. */
+/** Readiness numbers for the dashboard: last 30 days (up to 2,000 orders) plus the first-report orders, cached 600 s. */
 final class Readiness {
 	private const CACHE = 'invoqk_readiness';
 	private const PAGES = 20;
@@ -31,6 +32,26 @@ final class Readiness {
 		$n      = [ 'passed' => 0, 'failed' => 0, 'missing' => 0, 'unchecked' => 0, 'notRequired' => 0 ];
 		$groups = [];
 		$capped = false;
+		$seen   = [];
+		$count  = static function ( $id ) use ( &$n, &$groups, &$seen, $locale ): void {
+			$id = (int) $id;
+			$o  = isset( $seen[ $id ] ) ? null : wc_get_order( $id );
+			$seen[ $id ] = true;
+			if ( ! $o ) {
+				return;
+			}
+			if ( ! Classifier::isRequired( $o ) ) {
+				++$n['notRequired'];
+			} elseif ( '' === (string) $o->get_meta( '_invoqk_source' ) ) {
+				++$n['unchecked'];
+			} else {
+				$s = Record::status( $o );
+				++$n[ 'passed' === $s || 'failed' === $s ? $s : ( 'none' === $s ? 'missing' : 'unchecked' ) ];
+				if ( 'failed' === $s ) {
+					self::group( $groups, $o, $locale );
+				}
+			}
+		};
 		for ( $page = 1; $page <= self::PAGES; $page++ ) {
 			$ids = wc_get_orders( [
 				'type'         => 'shop_order',
@@ -39,28 +60,14 @@ final class Readiness {
 				'return'       => 'ids',
 				'date_created' => '>' . strtotime( '-30 days' ),
 			] );
-			foreach ( $ids as $id ) {
-				$o = wc_get_order( $id );
-				if ( ! $o ) {
-					continue;
-				}
-				if ( ! Classifier::isRequired( $o ) ) {
-					++$n['notRequired'];
-				} elseif ( '' === (string) $o->get_meta( '_invoqk_source' ) ) {
-					++$n['unchecked'];
-				} else {
-					$s = Record::status( $o );
-					++$n[ 'passed' === $s || 'failed' === $s ? $s : ( 'none' === $s ? 'missing' : 'unchecked' ) ];
-					if ( 'failed' === $s ) {
-						self::group( $groups, $o, $locale );
-					}
-				}
-			}
+			array_map( $count, $ids );
 			if ( count( $ids ) < self::PER ) {
 				break;
 			}
 			$capped = self::PAGES === $page;
 		}
+		// First-report results stay visible after they age out of the 30-day window.
+		array_map( $count, State::firstReport()['ids'] ?? [] );
 		$required = $n['passed'] + $n['failed'] + $n['missing'] + $n['unchecked'];
 		return $n + [
 			'required' => $required,
