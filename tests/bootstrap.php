@@ -34,7 +34,10 @@ if ( ! function_exists( 'add_filter' ) ) {
 		return $value;
 	}
 	function wc_get_logger() {
-		return new class { public function error( $m, $c = [] ): void {} };
+		return new class {
+			public function error( $m, $c = [] ): void { $GLOBALS['invoqk_log'][] = (string) $m; }
+			public function info( $m, $c = [] ): void { $GLOBALS['invoqk_log'][] = (string) $m; }
+		};
 	}
 }
 

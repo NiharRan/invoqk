@@ -75,6 +75,56 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( [ 33 ], $GLOBALS['invoqk_as'][0]['args'] );
 	}
 
+	public function test_enqueue_validate_dedupes_same_args(): void {
+		Scheduler::enqueueValidate( 7 );
+		Scheduler::enqueueValidate( 7 );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$this->assertSame( Scheduler::VALIDATE, $GLOBALS['invoqk_as'][0]['hook'] );
+		$this->assertSame( [ 7, 1, false ], $GLOBALS['invoqk_as'][0]['args'] );
+	}
+
+	public function test_force_and_non_force_are_distinct_jobs_but_double_click_force_is_one(): void {
+		Scheduler::enqueueValidate( 7 );
+		Scheduler::enqueueValidate( 7, true );
+		Scheduler::enqueueValidate( 7, true );
+		$this->assertCount( 2, $GLOBALS['invoqk_as'] );
+		$this->assertSame( [ 7, 1, true ], $GLOBALS['invoqk_as'][1]['args'] );
+	}
+
+	public function test_wpo_save_document_enqueues_detect_and_validate(): void {
+		Scheduler::boot();
+		do_action( 'wpo_wcpdf_save_document', new stdClass(), new WC_Order( 34 ) );
+		$hooks = array_column( $GLOBALS['invoqk_as'], 'hook' );
+		$this->assertContains( Scheduler::DETECT, $hooks );
+		$this->assertContains( Scheduler::VALIDATE, $hooks );
+	}
+
+	public function test_sweep_queues_validation_for_error_and_missing_record_only(): void {
+		$file = [ 'reference' => 5, 'mime' => 'application/xml' ];
+		$mk = function ( int $id, ?string $status ) use ( $file ) {
+			$o = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
+			$o->update_meta_data( '_invoqk_source', 'a' );
+			$o->update_meta_data( '_invoqk_file', $file );
+			if ( $status ) {
+				$o->update_meta_data( '_invoqk_validation', [ 'status' => $status ] );
+			}
+		};
+		$GLOBALS['invoqk_orders'] = [];
+		$mk( 21, 'passed' );
+		$mk( 22, 'error' );
+		$mk( 23, null );
+		$mk( 24, 'limit' );
+		$GLOBALS['invoqk_orders_result'] = [ 21, 22, 23, 24 ];
+		$GLOBALS['invoqk_filters'] = [];
+		Scheduler::sweep();
+		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
+		$GLOBALS['invoqk_as'] = [];
+		add_filter( 'invoqk_is_pro', fn() => true );
+		Scheduler::sweep();
+		$this->assertSame( [ 22, 23, 24 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+		$GLOBALS['invoqk_filters'] = [];
+	}
+
 	/** Remote-HTTP patterns forbidden in a file; only src/Validation/Client.php may call wp_remote_*. */
 	private static function forbidden( string $path ): string {
 		$path = str_replace( '\\', '/', $path );

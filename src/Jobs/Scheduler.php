@@ -2,20 +2,26 @@
 namespace Invoqk\Jobs;
 
 use Invoqk\Detection\Detector;
+use Invoqk\Detection\Result;
 use Invoqk\Sources\Registry;
+use Invoqk\Validation\Job;
+use Invoqk\Validation\Limit;
+use Invoqk\Validation\Record;
 
 final class Scheduler {
 	public const GROUP  = 'invoqk';
 	public const DETECT = 'invoqk_detect_order';
 	public const SWEEP  = 'invoqk_sweep';
+	public const VALIDATE = 'invoqk_validate_order';
 
 	public static function boot(): void {
 		add_action( 'woocommerce_order_status_changed', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( 'invoqk_schedule_detect', static fn( $id ) => self::enqueue( (int) $id ) );
 		add_action( self::DETECT, static fn( $id, $attempt = 1 ) => self::handle( (int) $id, (int) $attempt ), 10, 2 );
+		add_action( self::VALIDATE, static fn( $id, $attempt = 1, $force = false ) => Job::handle( (int) $id, (int) $attempt, (bool) $force ), 10, 3 );
 		add_action( self::SWEEP, [ self::class, 'sweep' ] );
 		// WP Overnight created or saved an invoice document: detect at once instead of waiting for a status change.
-		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueue( $order->get_id() ), 10, 2 );
+		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueueBoth( $order->get_id() ), 10, 2 );
 		add_action( 'init', [ self::class, 'ensureSweep' ] );
 	}
 
@@ -48,6 +54,18 @@ final class Scheduler {
 		}
 	}
 
+	private static function enqueueBoth( int $orderId ): void {
+		self::enqueue( $orderId );
+		self::enqueueValidate( $orderId );
+	}
+
+	public static function enqueueValidate( int $orderId, bool $force = false ): void {
+		$args = [ $orderId, 1, $force ];
+		if ( ! as_has_scheduled_action( self::VALIDATE, $args, self::GROUP ) ) {
+			as_enqueue_async_action( self::VALIDATE, $args, self::GROUP );
+		}
+	}
+
 	/**
 	 * Queue detection for recent orders that were never checked (up to 100 per run, 5 pages scanned).
 	 * Filters in PHP: the legacy (non-HPOS) order store silently ignores `meta_query`.
@@ -69,11 +87,19 @@ final class Scheduler {
 			}
 			foreach ( $ids as $id ) {
 				$order = wc_get_order( $id );
-				if ( $order instanceof \WC_Order && '' === (string) $order->get_meta( '_invoqk_source' ) ) {
+				if ( ! $order instanceof \WC_Order ) {
+					continue;
+				}
+				$status = Record::status( $order );
+				if ( '' === (string) $order->get_meta( '_invoqk_source' ) ) {
 					self::enqueue( (int) $id );
-					if ( ++$queued >= 100 ) {
-						return;
-					}
+				} elseif ( $order->get_meta( Result::FILE ) && ( in_array( $status, [ 'pending', 'error' ], true ) || ( 'limit' === $status && Limit::isPro() ) ) ) {
+					self::enqueueValidate( (int) $id );
+				} else {
+					continue;
+				}
+				if ( ++$queued >= 100 ) {
+					return;
 				}
 			}
 		}

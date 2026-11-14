@@ -2,7 +2,9 @@
 namespace Invoqk\Detection;
 
 use Invoqk\Sources\InvoiceFile;
+use Invoqk\Jobs\Scheduler;
 use Invoqk\Sources\Registry;
+use Invoqk\Validation\Record;
 
 final class Detector {
 	public function __construct( private Registry $registry ) {}
@@ -29,6 +31,12 @@ final class Detector {
 		}
 		$order->update_meta_data( Result::DETECTED, time() );
 		$order->save_meta_data(); // not save(): that fires woocommerce_update_order and order.updated webhooks
+		if ( $hit ) {
+			$rec = Record::get( $order );
+			if ( ! $rec || ( $rec['ref'] ?? null ) !== (string) $hit['file']->reference ) {
+				Scheduler::enqueueValidate( $orderId );
+			}
+		}
 	}
 
 	/** Stored file: still on disk. On-demand: only trust the cache while its source plugin is off or gone. */
