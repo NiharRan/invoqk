@@ -34,7 +34,7 @@ final class Detector {
 		}
 		$order->update_meta_data( Result::DETECTED, time() );
 		$order->save_meta_data(); // not save(): that fires woocommerce_update_order and order.updated webhooks
-		if ( $enqueue && $hit ) {
+		if ( $enqueue && $hit && Scheduler::autoValidates( $order ) ) {
 			$rec = Record::get( $order );
 			if ( ! $rec || ( $rec['ref'] ?? null ) !== (string) $hit['file']->reference ) {
 				Scheduler::enqueueValidate( $orderId );

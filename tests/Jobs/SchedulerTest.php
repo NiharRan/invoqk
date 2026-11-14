@@ -157,6 +157,59 @@ final class SchedulerTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 	}
 
+	private function preActivationUndetected( int $id ): WC_Order {
+		$GLOBALS['invoqk_options']   = [ 'invoqk_activated_at' => 1000, 'invoqk_api_key' => 'k' ];
+		$GLOBALS['invoqk_orders']    = [];
+		$GLOBALS['invoqk_filters']   = [];
+		$GLOBALS['invoqk_files']     = [ 5 => __FILE__ ];
+		$o                           = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
+		$o->created                  = 500;
+		$GLOBALS['invoqk_orders_result'] = [ $id ];
+		return $o;
+	}
+
+	private function sweepAndDetect( int $id ): void {
+		Scheduler::sweep();
+		$this->assertSame( [ Scheduler::DETECT ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+		$reg = new \Invoqk\Sources\Registry( new \Invoqk\Tests\Sources\FakeAdapter( 'a', true, new \Invoqk\Sources\InvoiceFile( 5, 'application/xml', 'ubl' ) ) );
+		Scheduler::handle( $id, 1, fn() => ( new \Invoqk\Detection\Detector( $reg ) )->run( $id ) );
+	}
+
+	public function test_sweep_detect_of_pre_activation_order_takes_no_free_slot(): void {
+		$this->preActivationUndetected( 41 );
+		$this->sweepAndDetect( 41 );
+		$this->assertNotContains( Scheduler::VALIDATE, array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+	}
+
+	public function test_sweep_detect_of_pre_activation_order_validates_on_pro(): void {
+		$this->preActivationUndetected( 42 );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$this->sweepAndDetect( 42 );
+		$this->assertContains( Scheduler::VALIDATE, array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+		$GLOBALS['invoqk_filters'] = [];
+	}
+
+	public function test_wpo_save_of_pre_activation_order_skips_validate_on_free(): void {
+		$o = $this->preActivationUndetected( 43 );
+		$GLOBALS['invoqk_actions'] = [];
+		Scheduler::boot();
+		do_action( 'wpo_wcpdf_save_document', new stdClass(), $o );
+		$this->assertSame( [ Scheduler::DETECT ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+	}
+
+	public function test_first_report_order_requeued_after_key_entered_despite_activation(): void {
+		$GLOBALS['invoqk_options'] = [ 'invoqk_activated_at' => 1000, 'invoqk_first_report' => [ 'ids' => [ 44 ], 'startedAt' => 900 ] ];
+		$GLOBALS['invoqk_orders']  = [];
+		$GLOBALS['invoqk_filters'] = [];
+		$this->fileOrder( 44, [ 'status' => 'error', 'error' => [ 'code' => 'no_key' ] ] )->created = 500;
+		$GLOBALS['invoqk_orders_result'] = [ 44 ];
+		Scheduler::sweep();
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'k';
+		Scheduler::sweep();
+		$this->assertSame( [ [ 44, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
+	}
+
 	private const NET = 'remote_(get|post|request|head)|WP_Http|fsockopen|stream_socket_client';
 
 	private function fileOrder( int $id, ?array $rec ): WC_Order {

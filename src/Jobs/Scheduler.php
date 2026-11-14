@@ -25,7 +25,7 @@ final class Scheduler {
 		add_action( self::VALIDATE, static fn( $id, $attempt = 1, $force = false ) => Job::handle( (int) $id, (int) $attempt, (bool) $force ), 10, 3 );
 		add_action( self::SWEEP, [ self::class, 'sweep' ] );
 		// WP Overnight created or saved an invoice document: detect at once instead of waiting for a status change.
-		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueueBoth( $order->get_id() ), 10, 2 );
+		add_action( 'wpo_wcpdf_save_document', static fn( $document, $order ) => $order instanceof \WC_Order && self::enqueueBoth( $order ), 10, 2 );
 		add_action( 'init', [ self::class, 'ensureSweep' ] );
 	}
 
@@ -71,9 +71,20 @@ final class Scheduler {
 		}
 	}
 
-	private static function enqueueBoth( int $orderId ): void {
-		self::enqueue( $orderId );
-		self::enqueueValidate( $orderId );
+	private static function enqueueBoth( \WC_Order $order ): void {
+		self::enqueue( $order->get_id() );
+		if ( self::autoValidates( $order ) ) {
+			self::enqueueValidate( $order->get_id() );
+		}
+	}
+
+	/** Automatic validation may spend a free slot: Free skips orders from before activation, except first-report ones (Limit-exempt). */
+	public static function autoValidates( \WC_Order $order ): bool {
+		if ( Limit::isPro() || in_array( $order->get_id(), State::firstReport()['ids'] ?? [], true ) ) {
+			return true;
+		}
+		$created = $order->get_date_created()?->getTimestamp();
+		return ! $created || $created >= State::activatedAt();
 	}
 
 	public static function enqueueValidate( int $orderId, bool $force = false ): void {
@@ -85,8 +96,7 @@ final class Scheduler {
 
 	/** Whether the sweep should queue validation for this order (it has a file). */
 	private static function needsValidation( \WC_Order $order, string $status ): bool {
-		$created = $order->get_date_created()?->getTimestamp();
-		if ( ! Limit::isPro() && $created && $created < State::activatedAt() ) {
+		if ( ! self::autoValidates( $order ) ) {
 			return false;
 		}
 		if ( 'pending' === $status || ( 'limit' === $status && Limit::isPro() ) ) {
