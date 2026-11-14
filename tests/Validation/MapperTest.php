@@ -96,4 +96,26 @@ final class MapperTest extends TestCase {
 			$this->assertNull( Mapper::retryDelay( Mapper::error( $code ), 1 ) );
 		}
 	}
+
+	public function test_remote_fields_are_capped(): void {
+		$long = str_repeat( 'x', 900 );
+		$bt   = array_merge( [ 5, [ 'a' ], null ], array_fill( 0, 30, str_repeat( 'b', 80 ) ) );
+		$r    = Mapper::map( 200, [ 'verdict' => 'fail', 'issues' => [ [ 'id' => $long, 'xpath' => $long, 'fix' => $long, 'bt' => $bt, 'message' => true, 'messageDe' => 1.5 ] ] ], null, '', '' );
+		$i    = $r['issues'][0];
+		$this->assertSame( 100, strlen( $i['id'] ) );
+		$this->assertSame( 500, strlen( $i['xpath'] ) );
+		$this->assertSame( 100, strlen( $i['fix'] ) );
+		$this->assertCount( 20, $i['bt'] );
+		$this->assertSame( 50, strlen( $i['bt'][0] ) );
+		$this->assertSame( '', $i['message'] );
+		$this->assertNull( $i['messageDe'] );
+	}
+
+	public function test_hostile_rule_set_is_whitelisted(): void {
+		$rs = [ 'name' => str_repeat( 'n', 300 ), 'version' => [ [ 'x' ] ], 'date' => 5, 'evil' => 'x' ];
+		$r  = Mapper::map( 200, [ 'verdict' => 'pass', 'ruleSet' => $rs ], null, '', '' );
+		$this->assertSame( [ 'name' => str_repeat( 'n', 100 ) ], $r['ruleSet'] );
+		$r = Mapper::map( 200, [ 'verdict' => 'pass', 'ruleSet' => 'junk' ], null, '', '' );
+		$this->assertSame( [], $r['ruleSet'] );
+	}
 }

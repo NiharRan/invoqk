@@ -19,7 +19,12 @@ final class Mapper {
 					$issues[] = self::issue( $i );
 				}
 			}
-			$rs = is_array( $body['ruleSet'] ?? null ) ? $body['ruleSet'] : [];
+			$rs = [];
+			foreach ( [ 'name', 'version', 'date' ] as $k ) {
+				if ( is_string( $body['ruleSet'][ $k ] ?? null ) ) {
+					$rs[ $k ] = mb_substr( $body['ruleSet'][ $k ], 0, 100 );
+				}
+			}
 			return [
 				'status'     => 'pass' === $verdict ? 'passed' : 'failed',
 				'checkedAt'  => time(),
@@ -75,17 +80,16 @@ final class Mapper {
 	}
 
 	private static function issue( array $i ): array {
-		$s = static fn( $k ) => is_scalar( $i[ $k ] ?? null ) ? (string) $i[ $k ] : null;
-		$m = $s( 'message' ) ?? '';
-		$d = $s( 'messageDe' );
+		$s = static fn( $k, int $max ) => is_string( $i[ $k ] ?? null ) ? mb_substr( $i[ $k ], 0, $max ) : null;
+		$bt = is_array( $i['bt'] ?? null ) ? array_slice( array_values( array_filter( $i['bt'], 'is_string' ) ), 0, 20 ) : [];
 		return [
-			'id'        => $s( 'id' ) ?? '',
-			'bt'        => is_array( $i['bt'] ?? null ) ? array_values( array_filter( $i['bt'], 'is_string' ) ) : [],
+			'id'        => $s( 'id', 100 ) ?? '',
+			'bt'        => array_map( static fn( $b ) => mb_substr( $b, 0, 50 ), $bt ),
 			'severity'  => 'warning' === ( $i['severity'] ?? null ) ? 'warning' : 'error',
-			'xpath'     => $s( 'xpath' ) ?? '',
-			'message'   => mb_substr( $m, 0, self::MAX_MSG ),
-			'messageDe' => null === $d ? null : mb_substr( $d, 0, self::MAX_MSG ),
-			'fix'       => $s( 'fix' ),
+			'xpath'     => $s( 'xpath', 500 ) ?? '',
+			'message'   => $s( 'message', self::MAX_MSG ) ?? '',
+			'messageDe' => $s( 'messageDe', self::MAX_MSG ),
+			'fix'       => $s( 'fix', 100 ),
 		];
 	}
 }
