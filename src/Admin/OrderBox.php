@@ -24,7 +24,9 @@ final class OrderBox {
 		if ( ! Classifier::isRequired( $order ) ) {
 			return; // no validation report, source or format for orders that need no e-invoice
 		}
-		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in x::fromOrder( $order );
+		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
+		echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box()
+		$r = Result::fromOrder( $order );
 		if ( $r ) {
 			echo '<p>' . esc_html( $r->label ?? $r->source ) . '</p>';
 		}
