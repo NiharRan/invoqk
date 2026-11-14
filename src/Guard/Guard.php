@@ -17,7 +17,7 @@ final class Guard {
 
 	public static function boot(): void {
 		add_action( 'wpo_wcpdf_email_attachment', [ self::class, 'record' ], 10, 4 );
-		add_filter( 'woocommerce_email_attachments', [ self::class, 'filterAttachments' ], 999, 3 );
+		add_filter( 'woocommerce_email_attachments', [ self::class, 'filterAttachments' ], 999, 4 );
 		add_action( 'woocommerce_email_after_order_table', static fn( $order, $sentToAdmin, $plain, $email ) => print self::footer( $order, (bool) $sentToAdmin, (bool) $plain, $email ), 10, 4 );
 	}
 
@@ -42,7 +42,13 @@ final class Guard {
 			&& 'passed' !== Record::status( $o );
 	}
 
-	public static function filterAttachments( array $attachments, string $emailId, $object ): array {
+	public static function filterAttachments( array $attachments, string $emailId, $object, $email = null ): array {
+		if ( is_object( $email ) && method_exists( $email, 'is_customer_email' ) && ! $email->is_customer_email() ) {
+			if ( $object instanceof \WC_Order ) {
+				unset( self::$paths[ $object->get_id() ] );
+			}
+			return $attachments;
+		}
 		if ( ! $object instanceof \WC_Order || ! self::covers( $object ) ) {
 			return $attachments;
 		}

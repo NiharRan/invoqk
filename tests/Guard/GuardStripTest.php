@@ -108,4 +108,16 @@ final class GuardStripTest extends TestCase {
 		$this->assertSame( '', Guard::footer( $o, false, false, (object) [ 'id' => 'other' ] ) );
 		$this->assertSame( '', Guard::footer( $o, true, false, $email ) );
 	}
+
+	public function test_admin_email_untouched(): void {
+		$o = $this->order();
+		$this->rec( $o, '/tmp/inv.pdf' );
+		$admin = new class { public function is_customer_email(): bool { return false; } };
+		$in    = [ '/tmp/inv.pdf' ];
+		$this->assertSame( $in, Guard::filterAttachments( $in, 'new_order', $o, $admin ) );
+		$this->assertArrayNotHasKey( Hold::KEY, $o->meta );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		// Paths were forgotten: a later customer email in the same request is not stripped.
+		$this->assertSame( $in, Guard::filterAttachments( $in, 'customer_completed_order', $o ) );
+	}
 }
