@@ -96,3 +96,7 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 	function wp_remote_retrieve_body( $r ) { return $r['body'] ?? ''; }
 	function wp_remote_retrieve_header( $r, string $h ) { return $r['headers'][ strtolower( $h ) ] ?? ''; }
 }
+
+if ( ! function_exists( 'admin_url' ) ) {
+	function admin_url( string $path = '' ): string { return '/wp-admin/' . $path; }
+}
