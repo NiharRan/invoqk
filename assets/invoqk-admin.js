@@ -11,7 +11,7 @@
 		try {
 			const r = await fetch( c.ajaxUrl + '&nonce=' + encodeURIComponent( c.nonce ), { credentials: 'same-origin' } );
 			if ( ! r.ok ) {
-				return;
+				throw new Error( 'status ' + r.status ); // falls through to the reschedule below
 			}
 			const s = await r.json();
 			bar.value = s.total ? Math.round( 100 * s.done / s.total ) : 0;
@@ -20,7 +20,7 @@
 				firstResult = Date.now();
 			}
 			// total 0 while still running means the job has not saved its ids yet
-			if ( ( s.total === 0 && s.state !== 'running' ) || s.done >= s.total || ( s.state === 'done' && s.done > 0 ) || ( firstResult && Date.now() - firstResult >= 90000 ) ) {
+			if ( ( s.total === 0 && s.state !== 'running' ) || ( s.total > 0 && s.done >= s.total ) || ( s.state === 'done' && s.done > 0 ) || ( firstResult && Date.now() - firstResult >= 90000 ) ) {
 				go();
 				return;
 			}
