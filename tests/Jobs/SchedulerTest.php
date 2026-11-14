@@ -77,7 +77,7 @@ final class SchedulerTest extends TestCase {
 
 	public function test_no_remote_http_in_plugin_source(): void {
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( __DIR__, 2 ) . '/src' ) ) as $f ) {
-			if ( $f->isFile() ) {
+			if ( $f->isFile() && 'Client.php' !== $f->getFilename() ) { // E3: the one allowed HTTP caller
 				$this->assertDoesNotMatchRegularExpression( '/wp_remote_|curl_init|https?:\/\//', file_get_contents( $f->getPathname() ), $f->getFilename() );
 			}
 		}
