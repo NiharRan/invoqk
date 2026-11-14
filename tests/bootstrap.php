@@ -84,3 +84,12 @@ if ( ! function_exists( 'get_option' ) ) {
 	function update_option( string $k, $v ): bool { $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
 	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }
+
+if ( ! class_exists( 'WP_Error' ) ) { class WP_Error {} }
+if ( ! function_exists( 'is_wp_error' ) ) {
+	function is_wp_error( $v ): bool { return $v instanceof WP_Error; }
+	function wp_remote_post( string $url, array $args = [] ) { return new WP_Error(); }
+	function wp_remote_retrieve_response_code( $r ) { return $r['response']['code'] ?? ''; }
+	function wp_remote_retrieve_body( $r ) { return $r['body'] ?? ''; }
+	function wp_remote_retrieve_header( $r, string $h ) { return $r['headers'][ strtolower( $h ) ] ?? ''; }
+}
