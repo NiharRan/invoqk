@@ -19,6 +19,8 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public int $metaSaves = 0;
 		public function save(): int { ++$this->saves; return $this->id; }
 		public function save_meta_data(): void { ++$this->metaSaves; }
+		public int $created = 0;
+		public function get_date_created(): ?DateTimeImmutable { return $this->created ? new DateTimeImmutable( '@' . $this->created ) : null; }
 		public string $status = 'processing';
 		public function get_status(): string { return $this->status; }
 		// Defaults describe a domestic B2B order over the threshold, so older tests keep "required" orders.

@@ -129,6 +129,34 @@ final class SchedulerTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 	}
 
+	private function activationSweep(): void {
+		$GLOBALS['invoqk_options']['invoqk_activated_at'] = 1000;
+		$GLOBALS['invoqk_orders'] = [];
+		foreach ( [ 31 => 500, 32 => 2000 ] as $id => $created ) {
+			$o = $GLOBALS['invoqk_orders'][ $id ] = new WC_Order( $id );
+			$o->created = $created;
+			$o->update_meta_data( '_invoqk_source', 'a' );
+			$o->update_meta_data( '_invoqk_file', [ 'reference' => 5, 'mime' => 'application/xml' ] );
+			$o->update_meta_data( '_invoqk_validation', [ 'status' => 'pending' ] );
+		}
+		$GLOBALS['invoqk_orders_result'] = [ 31, 32 ];
+		$GLOBALS['invoqk_filters'] = [];
+	}
+
+	public function test_sweep_skips_orders_older_than_activation_on_free(): void {
+		$this->activationSweep();
+		Scheduler::sweep();
+		$this->assertSame( [ 32 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+	}
+
+	public function test_sweep_validates_old_orders_on_pro(): void {
+		$this->activationSweep();
+		add_filter( 'invoqk_is_pro', fn() => true );
+		Scheduler::sweep();
+		$this->assertSame( [ 31, 32 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
+		$GLOBALS['invoqk_filters'] = [];
+	}
+
 	private const NET = 'remote_(get|post|request|head)|WP_Http|fsockopen|stream_socket_client';
 
 	private function fileOrder( int $id, ?array $rec ): WC_Order {

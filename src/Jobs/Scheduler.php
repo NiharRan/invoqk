@@ -4,6 +4,7 @@ namespace Invoqk\Jobs;
 use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Detector;
 use Invoqk\Detection\Result;
+use Invoqk\Onboarding\State;
 use Invoqk\Sources\Registry;
 use Invoqk\Validation\Client;
 use Invoqk\Validation\Job;
@@ -84,6 +85,10 @@ final class Scheduler {
 
 	/** Whether the sweep should queue validation for this order (it has a file). */
 	private static function needsValidation( \WC_Order $order, string $status ): bool {
+		$created = $order->get_date_created()?->getTimestamp();
+		if ( ! Limit::isPro() && $created && $created < State::activatedAt() ) {
+			return false;
+		}
 		if ( 'pending' === $status || ( 'limit' === $status && Limit::isPro() ) ) {
 			return true;
 		}

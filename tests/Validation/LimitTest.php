@@ -36,6 +36,14 @@ final class LimitTest extends TestCase {
 		$this->assertFalse( Limit::allow( 21 ) );
 	}
 
+	public function test_first_report_ids_bypass_without_slot(): void {
+		$this->fill();
+		$GLOBALS['invoqk_options']['invoqk_first_report'] = [ 'ids' => [ 99 ], 'startedAt' => time() ];
+		$this->assertTrue( Limit::allow( 99 ) );
+		$this->assertFalse( Limit::allow( 100 ) );
+		$this->assertNotContains( 99, $this->slots() );
+	}
+
 	public function test_pro_filter_allows_everything_and_adds_no_slots(): void {
 		add_filter( 'invoqk_is_pro', fn() => true );
 		$this->assertTrue( Limit::isPro() );
