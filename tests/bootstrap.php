@@ -100,3 +100,16 @@ if ( ! function_exists( 'is_wp_error' ) ) {
 if ( ! function_exists( 'admin_url' ) ) {
 	function admin_url( string $path = '' ): string { return '/wp-admin/' . $path; }
 }
+
+if ( ! function_exists( 'wp_date' ) ) {
+	function wp_date( string $f, ?int $ts = null ): string { return gmdate( $f, $ts ?? 0 ); }
+	function get_locale(): string { return 'de_DE'; }
+	function esc_attr( $s ): string { return esc_html( $s ); }
+	function esc_url( $s ): string { return esc_html( $s ); }
+	function _n( string $s, string $p, int $n, string $d = 'default' ): string { return 1 === $n ? $s : $p; }
+	function current_user_can( string $c ): bool { return true; }
+	function check_admin_referer( $a ) { return true; }
+	function wp_safe_redirect( string $u ): bool { return true; }
+	function wp_get_referer() { return false; }
+	function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) { return '<input type="hidden" name="' . $n . '" value="nonce">'; }
+}

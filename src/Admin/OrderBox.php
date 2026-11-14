@@ -7,7 +7,7 @@ final class OrderBox {
 	public static function boot(): void {
 		add_action( 'add_meta_boxes', static function () {
 			foreach ( [ 'woocommerce_page_wc-orders', 'shop_order' ] as $screen ) {
-				add_meta_box( 'invoqk-einvoice', esc_html__( 'E-Rechnung (Invoqk)', 'invoqk' ), [ self::class, 'show' ], $screen, 'side' );
+				add_meta_box( 'invoqk-einvoice', esc_html__( 'E-Rechnung (Invoqk)', 'invoqk' ), [ self::class, 'show' ], $screen, 'normal' );
 			}
 		} );
 	}
@@ -19,6 +19,7 @@ final class OrderBox {
 			return;
 		}
 		echo '<p>' . OrderColumn::render( $order ) . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in render()
+		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
 		$r = Result::fromOrder( $order );
 		if ( $r && $r->file ) {
 			printf( '<p>%s: %s</p>', esc_html__( 'Format', 'invoqk' ), esc_html( $r->file->format ) );

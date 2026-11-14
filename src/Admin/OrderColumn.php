@@ -2,6 +2,7 @@
 namespace Invoqk\Admin;
 
 use Invoqk\Detection\Result;
+use Invoqk\Validation\Record;
 
 /** Reads cached order meta only; never touches adapters. */
 final class OrderColumn {
@@ -27,7 +28,8 @@ final class OrderColumn {
 	public static function render( \WC_Order $order ): string {
 		switch ( Flag::forOrder( $order ) ) {
 			case 'source':
-				return esc_html( Result::fromOrder( $order )->label ?? Result::fromOrder( $order )->source );
+				$r = Result::fromOrder( $order );
+				return esc_html( $r->label ?? $r->source ) . ' ' . Badge::html( Record::status( $order ) );
 			case 'missing':
 				return '<mark class="order-status status-failed"><span>' . esc_html__( 'No e-invoice', 'invoqk' ) . '</span></mark>';
 			default:
