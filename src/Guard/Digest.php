@@ -59,7 +59,8 @@ final class Digest {
 			wc_get_logger()->error( 'guard digest mail failed, will retry', [ 'source' => 'invoqk' ] );
 			$retry = true;
 		}
-		if ( $retry && ! as_has_scheduled_action( self::HOOK, [], Scheduler::GROUP ) ) {
+		// No has-scheduled guard: Action Scheduler counts this running action as scheduled.
+		if ( $retry ) {
 			as_schedule_single_action( time() + self::DELAY, self::HOOK, [], Scheduler::GROUP );
 		}
 	}

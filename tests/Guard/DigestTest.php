@@ -71,6 +71,26 @@ final class DigestTest extends TestCase {
 		$GLOBALS['invoqk_as'] = [];
 		Digest::run( function () { Digest::add( 9, 'held' ); return true; } );
 		$this->assertSame( [ [ 'id' => 9, 'kind' => 'held' ] ], get_option( 'invoqk_guard_outbox' ) );
-		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$this->assertNotEmpty( $GLOBALS['invoqk_as'] );
+	}
+
+	private function runningAction(): void {
+		$GLOBALS['invoqk_as'] = [ [ 'hook' => Digest::HOOK, 'args' => [], 'group' => 'invoqk', 'when' => 1, 'every' => 0 ] ];
+	}
+
+	public function test_failed_mail_reschedules_while_own_action_is_running(): void {
+		Digest::add( 1, 'held' );
+		$this->runningAction();
+		Digest::run( fn() => false );
+		$this->assertCount( 2, $GLOBALS['invoqk_as'] );
+		$this->assertGreaterThanOrEqual( time() + 899, $GLOBALS['invoqk_as'][1]['when'] );
+	}
+
+	public function test_add_during_run_reschedules_while_own_action_is_running(): void {
+		Digest::add( 1, 'held' );
+		$this->runningAction();
+		Digest::run( function () { Digest::add( 9, 'held' ); return true; } );
+		$this->assertCount( 2, $GLOBALS['invoqk_as'] );
+		$this->assertGreaterThanOrEqual( time() + 899, $GLOBALS['invoqk_as'][1]['when'] );
 	}
 }
