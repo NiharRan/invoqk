@@ -48,4 +48,29 @@ final class DigestTest extends TestCase {
 		$this->assertStringContainsString( 'id=1', $body );
 		$this->assertStringNotContainsString( 'id=99', $body );
 	}
+
+	public function test_failed_mail_keeps_outbox_and_reschedules(): void {
+		Digest::add( 1, 'held' );
+		$GLOBALS['invoqk_as'] = [];
+		Digest::run( fn() => false );
+		$this->assertCount( 1, get_option( 'invoqk_guard_outbox' ) );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+		$this->assertSame( Digest::HOOK, $GLOBALS['invoqk_as'][0]['hook'] );
+		$this->assertLessThanOrEqual( time() + 900, $GLOBALS['invoqk_as'][0]['when'] );
+		$this->assertGreaterThanOrEqual( time() + 899, $GLOBALS['invoqk_as'][0]['when'] );
+	}
+
+	public function test_throwing_mail_keeps_outbox(): void {
+		Digest::add( 1, 'held' );
+		Digest::run( function () { throw new \RuntimeException( 'smtp' ); } );
+		$this->assertCount( 1, get_option( 'invoqk_guard_outbox' ) );
+	}
+
+	public function test_add_during_run_survives(): void {
+		Digest::add( 1, 'held' );
+		$GLOBALS['invoqk_as'] = [];
+		Digest::run( function () { Digest::add( 9, 'held' ); return true; } );
+		$this->assertSame( [ [ 'id' => 9, 'kind' => 'held' ] ], get_option( 'invoqk_guard_outbox' ) );
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
+	}
 }

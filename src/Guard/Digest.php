@@ -41,10 +41,26 @@ final class Digest {
 				$lines[] = ( $texts[ $item['kind'] ?? '' ] ?? (string) $item['kind'] ) . ' ' . $order->get_edit_order_url();
 			}
 		}
-		update_option( self::OUTBOX, [], false );
+		$ok = ! $lines;
 		if ( $lines ) {
-			$mail ??= 'wp_mail';
-			$mail( get_option( 'admin_email' ), sprintf( _n( 'Invoqk: %d invoice needs attention', 'Invoqk: %d invoices need attention', count( $lines ), 'invoqk' ), count( $lines ) ), implode( "\n", $lines ) );
+			try {
+				$mail ??= 'wp_mail';
+				$ok     = (bool) $mail( get_option( 'admin_email' ), sprintf( _n( 'Invoqk: %d invoice needs attention', 'Invoqk: %d invoices need attention', count( $lines ), 'invoqk' ), count( $lines ) ), implode( "\n", $lines ) );
+			} catch ( \Throwable $e ) {
+				$ok = false;
+			}
+		}
+		if ( $ok ) {
+			// Re-read: items added while mailing stay queued.
+			$left = array_values( array_filter( (array) get_option( self::OUTBOX, [] ), static fn( $i ) => ! in_array( $i, $box, true ) ) );
+			update_option( self::OUTBOX, $left, false );
+			$retry = (bool) $left;
+		} else {
+			wc_get_logger()->error( 'guard digest mail failed, will retry', [ 'source' => 'invoqk' ] );
+			$retry = true;
+		}
+		if ( $retry && ! as_has_scheduled_action( self::HOOK, [], Scheduler::GROUP ) ) {
+			as_schedule_single_action( time() + self::DELAY, self::HOOK, [], Scheduler::GROUP );
 		}
 	}
 }
