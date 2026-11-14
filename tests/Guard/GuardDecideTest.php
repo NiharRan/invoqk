@@ -147,6 +147,35 @@ final class GuardDecideTest extends TestCase {
 		$this->assertStringNotContainsString( 'SECRET', implode( '', $GLOBALS['invoqk_log'] ) );
 	}
 
+	public function test_send_takes_once_per_order_token(): void {
+		$o = $this->order( 'passed' );
+		$GLOBALS['invoqk_options']['invoqk_guard_sent_5'] = 1; // another runner is mid-send, state not final yet
+		$this->assertFalse( Guard::send( 5, 'sent', [], fn( int $i ) => $this->sent[] = $i ) );
+		$this->assertSame( [], $this->sent );
+		$this->assertSame( 'waiting', Hold::get( $o )['state'] );
+		unset( $GLOBALS['invoqk_options']['invoqk_guard_sent_5'] );
+		$this->decide();
+		$this->assertSame( [ 5 ], $this->sent );
+		$this->assertArrayHasKey( 'invoqk_guard_sent_5', $GLOBALS['invoqk_options'] );
+	}
+
+	public function test_mailer_throw_releases_token(): void {
+		$this->order( 'passed' );
+		Guard::send( 5, 'sent', [], function () { throw new \RuntimeException( 'x' ); } );
+		$this->assertArrayNotHasKey( 'invoqk_guard_sent_5', $GLOBALS['invoqk_options'] );
+	}
+
+	public function test_failed_wp_mail_restores_state_and_token(): void {
+		$o = $this->order( 'passed' );
+		$GLOBALS['invoqk_mailer'] = fn() => false; // WC_Email::send reports false via woocommerce_email_sent
+		$this->assertFalse( Guard::send( 5, 'sent' ) );
+		$this->assertSame( 'waiting', Hold::get( $o )['state'] );
+		$this->assertArrayNotHasKey( 'invoqk_guard_sent_5', $GLOBALS['invoqk_options'] );
+		$this->assertFalse( Guard::sending( 5 ) );
+		$this->assertNotEmpty( $GLOBALS['invoqk_log'] );
+		$this->assertSame( [], $GLOBALS['invoqk_actions']['woocommerce_email_sent'] ?? [] );
+	}
+
 	public function test_send_refuses_final_state(): void {
 		$this->order( 'passed', 'sent' );
 		$this->assertFalse( Guard::send( 5, 'sent', [], fn() => $this->fail( 'mailed' ) ) );

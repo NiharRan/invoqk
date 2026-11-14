@@ -159,22 +159,41 @@ final class Guard {
 		if ( ! $order instanceof \WC_Order || Hold::isFinal( $order ) ) {
 			return false;
 		}
+		// Atomic on a unique option name: a second runner or click for the same order gets false here.
+		$token = "invoqk_guard_sent_{$id}";
+		if ( ! add_option( $token, time(), '', false ) ) {
+			return false;
+		}
 		$old = Hold::get( $order );
 		Hold::set( $order, $state, $extra );
 		self::$sending[ $id ] = true;
+		$mailed = true;
+		// WC_Email::send does not throw when wp_mail fails; it reports through this action.
+		$listen = static function ( $return, $emailId = '' ) use ( &$mailed ): void {
+			if ( 'customer_invoice' === $emailId && ! $return ) {
+				$mailed = false;
+			}
+		};
+		add_action( 'woocommerce_email_sent', $listen, 10, 2 );
 		try {
 			$mailer ??= static fn( int $i ) => WC()->mailer()->emails['WC_Email_Customer_Invoice']->trigger( $i );
 			$mailer( $id );
-			return true;
+			$why = $mailed ? '' : 'mail not sent';
 		} catch ( \Throwable $e ) {
-			if ( $old ) {
-				Hold::set( $order, (string) $old['state'], $old );
-			}
-			wc_get_logger()->error( "guard send #{$id} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
-			return false;
+			$why = get_class( $e );
 		} finally {
+			remove_action( 'woocommerce_email_sent', $listen, 10 );
 			unset( self::$sending[ $id ] );
 		}
+		if ( '' === $why ) {
+			return true;
+		}
+		if ( $old ) {
+			Hold::set( $order, (string) $old['state'], $old );
+		}
+		delete_option( $token );
+		wc_get_logger()->error( "guard send #{$id} failed: {$why}", [ 'source' => 'invoqk' ] );
+		return false;
 	}
 
 	public static function addInvoiceToOwnSend( array $types, string $emailId, $order ): array {

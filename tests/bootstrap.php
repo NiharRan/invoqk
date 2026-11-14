@@ -75,6 +75,10 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 	function do_action( string $tag, ...$args ): void {
 		foreach ( $GLOBALS['invoqk_actions'][ $tag ] ?? [] as [ $cb, $n ] ) { $cb( ...array_slice( $args, 0, $n ) ); }
 	}
+	function remove_action( string $tag, callable $cb, int $prio = 10 ): bool {
+		$GLOBALS['invoqk_actions'][ $tag ] = array_values( array_filter( $GLOBALS['invoqk_actions'][ $tag ] ?? [], fn( $a ) => $a[0] !== $cb ) );
+		return true;
+	}
 	function as_has_scheduled_action( string $hook, array $args = [], string $group = '' ): bool {
 		foreach ( $GLOBALS['invoqk_as'] as $a ) {
 			if ( $a['hook'] === $hook && ( $args === [] || $a['args'] === $args ) ) { return true; }
@@ -169,7 +173,11 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 	function WC() {
 		return new class {
 			public function mailer() {
-				return (object) [ 'emails' => [ 'WC_Email_Customer_Invoice' => new class { public function trigger( $id ) { ( $GLOBALS['invoqk_mailer'] ?? static fn() => null )( $id ); } } ] ];
+				return (object) [ 'emails' => [ 'WC_Email_Customer_Invoice' => new class {
+						public $id = 'customer_invoice';
+						// Like WC_Email::send: a mailer returning false stands for wp_mail failing.
+						public function trigger( $id ) { do_action( 'woocommerce_email_sent', false !== ( $GLOBALS['invoqk_mailer'] ?? static fn() => null )( $id ), $this->id, $this ); }
+					} ] ];
 			}
 		};
 	}
