@@ -75,11 +75,26 @@ final class SchedulerTest extends TestCase {
 		$this->assertSame( [ 33 ], $GLOBALS['invoqk_as'][0]['args'] );
 	}
 
+	/** Remote-HTTP patterns forbidden in a file; only src/Validation/Client.php may call wp_remote_*. */
+	private static function forbidden( string $path ): string {
+		$path = str_replace( '\\', '/', $path );
+		return str_ends_with( $path, '/src/Validation/Client.php' ) ? 'curl_init|https?:\/\/' : 'wp_remote_|curl_init|https?:\/\/';
+	}
+
 	public function test_no_remote_http_in_plugin_source(): void {
 		foreach ( new RecursiveIteratorIterator( new RecursiveDirectoryIterator( dirname( __DIR__, 2 ) . '/src' ) ) as $f ) {
-			if ( $f->isFile() && 'Client.php' !== $f->getFilename() ) { // E3: the one allowed HTTP caller
-				$this->assertDoesNotMatchRegularExpression( '/wp_remote_|curl_init|https?:\/\//', file_get_contents( $f->getPathname() ), $f->getFilename() );
+			if ( $f->isFile() ) {
+				$this->assertDoesNotMatchRegularExpression( '/' . self::forbidden( $f->getPathname() ) . '/', file_get_contents( $f->getPathname() ), $f->getPathname() );
 			}
 		}
+	}
+
+	public function test_guard_exemption_is_scoped_to_validation_client(): void {
+		$code = 'wp_remote_post( $u );';
+		$this->assertSame( 0, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Other/Client.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Mapper.php' ) . '/', $code ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( '/x/src/Validation/Client.php' ) . '/', 'curl_init();' ) );
+		$this->assertSame( 1, preg_match( '/' . self::forbidden( 'C:\\p\\src\\Validation\\Client.php' ) . '/', 'https://x' ) );
 	}
 }
