@@ -18,16 +18,15 @@ final class Guard {
 	/** @var array<int, true> order ids whose held invoice the guard is sending right now */
 	private static array $sending = [];
 
-	/** @var callable (int $id, string $kind): void; Task 4 switches this to [ Digest::class, 'add' ] */
-	public static $notify = [ self::class, 'noop' ];
-
-	public static function noop( int $id, string $kind ): void {}
+	/** @var callable (int $id, string $kind): void */
+	public static $notify = [ Digest::class, 'add' ];
 
 	public static function boot(): void {
 		add_action( 'wpo_wcpdf_email_attachment', [ self::class, 'record' ], 10, 4 );
 		add_filter( 'woocommerce_email_attachments', [ self::class, 'filterAttachments' ], 999, 4 );
 		add_action( 'invoqk_validated', static fn( $id ) => self::decide( (int) $id ), 10, 2 );
 		add_action( self::TIMEOUT, static fn( $id ) => self::decide( (int) $id, true ) );
+		add_action( Digest::HOOK, static fn() => Digest::run() );
 		add_filter( 'wpo_wcpdf_document_types_for_email', [ self::class, 'addInvoiceToOwnSend' ], 10, 3 );
 		add_filter( 'wpo_wcpdf_reuse_document_attachment', [ self::class, 'noReuseDuringSend' ], 10, 2 );
 		add_action( 'woocommerce_email_after_order_table', static fn( $order, $sentToAdmin, $plain, $email ) => print self::footer( $order, (bool) $sentToAdmin, (bool) $plain, $email ), 10, 4 );
@@ -37,7 +36,7 @@ final class Guard {
 	public static function reset(): void {
 		self::$paths   = [];
 		self::$sending = [];
-		self::$notify  = [ self::class, 'noop' ];
+		self::$notify  = [ Digest::class, 'add' ];
 	}
 
 	public static function record( string $path, string $documentType, $document, string $format ): void {

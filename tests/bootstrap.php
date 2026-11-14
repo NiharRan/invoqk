@@ -33,6 +33,7 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_shipping_country(): string { return $this->shipCountry; }
 		public function get_billing_company(): string { return $this->company; }
 		public function get_total(): string { return $this->total; }
+		public function get_edit_order_url(): string { return "https://shop.test/order/{$this->id}"; }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
 	}

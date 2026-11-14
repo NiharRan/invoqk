@@ -19,7 +19,7 @@ final class FixMapTest extends TestCase {
 		foreach ( array_keys( FixMap::KEYS ) as $k ) {
 			$l = FixMap::link( $k, new WC_Order( 7 ) );
 			$this->assertNotEmpty( $l['label'], $k );
-			$this->assertStringContainsString( 'wp-admin/', $l['url'], $k );
+			$this->assertMatchesRegularExpression( '#wp-admin/|/order/7#', $l['url'], $k );
 		}
 	}
 

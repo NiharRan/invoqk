@@ -428,3 +428,25 @@ msgstr "Geben Sie ihn unten in den Einstellungen ein."
 #: src/Guard/Guard.php
 msgid "Your invoice will follow in a separate email."
 msgstr "Ihre Rechnung folgt in einer separaten E-Mail."
+
+#: src/Guard/Digest.php
+msgid "Invoice held back because validation failed:"
+msgstr "Rechnung zurückgehalten, da die Validierung fehlgeschlagen ist:"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent although validation failed:"
+msgstr "Rechnung trotz fehlgeschlagener Validierung versendet:"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without validation (validation unavailable):"
+msgstr "Rechnung ohne Validierung versendet (Validierung nicht verfügbar):"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without an e-invoice:"
+msgstr "Rechnung ohne E-Rechnung versendet:"
+
+#. translators: %d: number of invoices
+#: src/Guard/Digest.php
+#, php-format
+msgid "Invoqk: %d invoices need attention"
+msgstr "Invoqk: %d Rechnungen erfordern Aufmerksamkeit"

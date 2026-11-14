@@ -428,3 +428,25 @@ msgstr ""
 #: src/Guard/Guard.php
 msgid "Your invoice will follow in a separate email."
 msgstr ""
+
+#: src/Guard/Digest.php
+msgid "Invoice held back because validation failed:"
+msgstr ""
+
+#: src/Guard/Digest.php
+msgid "Invoice sent although validation failed:"
+msgstr ""
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without validation (validation unavailable):"
+msgstr ""
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without an e-invoice:"
+msgstr ""
+
+#. translators: %d: number of invoices
+#: src/Guard/Digest.php
+#, php-format
+msgid "Invoqk: %d invoices need attention"
+msgstr ""
