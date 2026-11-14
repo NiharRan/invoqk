@@ -112,4 +112,29 @@ final class SettingsPageTest extends TestCase {
 		SettingsPage::enqueue( 'woocommerce_page_invoqk' );
 		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
 	}
+
+	private function page(): string {
+		ob_start();
+		SettingsPage::render();
+		return ob_get_clean();
+	}
+
+	public function test_mode_radios_only_on_pro(): void {
+		$this->reset( 'done' );
+		$this->assertStringNotContainsString( 'invoqk_guard_mode', $this->page() );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$h = $this->page();
+		$this->assertStringContainsString( 'name="invoqk_guard_mode" value="block" checked', $h );
+		$this->assertStringContainsString( 'Only warn me', $h );
+		$GLOBALS['invoqk_options']['invoqk_guard_mode'] = 'warn';
+		$this->assertStringContainsString( 'value="warn" checked', $this->page() );
+	}
+
+	public function test_intro_notice_shown_once(): void {
+		$this->reset( 'done' );
+		$this->assertStringNotContainsString( 'now held until', $this->page() );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$this->assertStringContainsString( 'Invoices with errors are now held until you fix or release them.', $this->page() );
+		$this->assertStringNotContainsString( 'now held until', $this->page() );
+	}
 }

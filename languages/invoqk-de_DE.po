@@ -458,3 +458,61 @@ msgstr[1] "Invoqk: %d Rechnungen brauchen Aufmerksamkeit"
 #, php-format
 msgid "Invoice sent despite validation errors by %s."
 msgstr "Rechnung trotz Validierungsfehlern von %s versendet."
+
+#: src/Guard/Actions.php
+msgid "Held by Invoqk"
+msgstr "Von Invoqk zurückgehalten"
+
+#: src/Guard/Actions.php
+msgid "Fix and resend"
+msgstr "Korrigieren und senden"
+
+#: src/Guard/Actions.php
+msgid "Send anyway…"
+msgstr "Trotzdem senden…"
+
+#: src/Guard/Actions.php
+msgid "Send this invoice although it failed validation?"
+msgstr "Diese Rechnung senden, obwohl die Validierung fehlgeschlagen ist?"
+
+#. translators: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Invoice sent on %s"
+msgstr "Rechnung gesendet am %s"
+
+#: src/Guard/Actions.php
+msgid "Check skipped – invoice sent without validation"
+msgstr "Prüfung übersprungen – Rechnung ohne Prüfung gesendet"
+
+#. translators: 1: user name, 2: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Sent despite errors by %1$s on %2$s"
+msgstr "Trotz Fehlern von %1$s am %2$s gesendet"
+
+#: src/Guard/Actions.php
+msgid "Waiting for validation"
+msgstr "Warten auf Validierung"
+
+#. translators: number of orders
+#: src/Guard/Actions.php
+#, php-format
+msgid "%d invoices held by Invoqk"
+msgstr "%d Rechnungen von Invoqk zurückgehalten"
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors are now held until you fix or release them."
+msgstr "Rechnungen mit Fehlern werden jetzt zurückgehalten, bis Sie sie korrigieren oder freigeben."
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors"
+msgstr "Rechnungen mit Fehlern"
+
+#: src/Admin/SettingsPage.php
+msgid "Hold invoices with errors"
+msgstr "Rechnungen mit Fehlern zurückhalten"
+
+#: src/Admin/SettingsPage.php
+msgid "Only warn me"
+msgstr "Nur mich warnen"

@@ -9,6 +9,7 @@ final class Badge {
 			'failed'  => [ 'status-failed', __( 'Invalid', 'invoqk' ) ],
 			'error'   => [ 'status-on-hold', __( 'Could not check', 'invoqk' ) ],
 			'limit'   => [ 'status-on-hold', __( 'Limit reached', 'invoqk' ) ],
+			'held'    => [ 'status-failed', __( 'Held by Invoqk', 'invoqk' ) ],
 			'pending' => [ 'status-pending', __( 'Checking', 'invoqk' ) ],
 		];
 		if ( ! isset( $map[ $status ] ) ) {

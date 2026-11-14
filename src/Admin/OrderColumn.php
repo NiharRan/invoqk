@@ -3,6 +3,7 @@ namespace Invoqk\Admin;
 
 use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Result;
+use Invoqk\Guard\Hold;
 use Invoqk\Validation\Record;
 
 /** Reads cached order meta only; never touches adapters. */
@@ -28,6 +29,11 @@ final class OrderColumn {
 
 	public static function render( \WC_Order $order ): string {
 		$tag = Classifier::isOverridden( $order ) ? ' <small>(' . esc_html__( 'manual', 'invoqk' ) . ')</small>' : '';
+		$held = 'held' === ( Hold::get( $order )['state'] ?? '' ) ? Badge::html( 'held' ) . ' ' : '';
+		return $held . self::cell( $order, $tag );
+	}
+
+	private static function cell( \WC_Order $order, string $tag ): string {
 		switch ( Flag::forOrder( $order ) ) {
 			case 'source':
 				$r = Result::fromOrder( $order );

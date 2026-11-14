@@ -3,6 +3,7 @@ namespace Invoqk\Admin;
 
 use Invoqk\Classification\Classifier;
 use Invoqk\Detection\Result;
+use Invoqk\Guard\Actions;
 
 final class OrderBox {
 	public static function boot(): void {
@@ -23,8 +24,7 @@ final class OrderBox {
 		if ( ! Classifier::isRequired( $order ) ) {
 			return; // no validation report, source or format for orders that need no e-invoice
 		}
-		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
-		$r = Result::fromOrder( $order );
+		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in x::fromOrder( $order );
 		if ( $r ) {
 			echo '<p>' . esc_html( $r->label ?? $r->source ) . '</p>';
 		}

@@ -17,6 +17,9 @@ final class Actions {
 	public static function boot(): void {
 		add_action( 'admin_post_' . self::RESEND, [ self::class, 'resendCallback' ] );
 		add_action( 'admin_post_' . self::RELEASE, [ self::class, 'releaseCallback' ] );
+		add_action( 'admin_notices', static function () {
+			echo self::notice(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in notice()
+		} );
 	}
 
 	public static function resendCallback(): void {
@@ -85,5 +88,51 @@ final class Actions {
 			$user ? (string) $user->display_name : (string) $userId
 		) );
 		return true;
+	}
+
+	/** Order box section for the guard state; links, not forms (a nested form would break the order edit form). */
+	public static function box( \WC_Order $o ): string {
+		$h = Hold::get( $o );
+		$id = $o->get_id();
+		switch ( $h['state'] ?? '' ) {
+			case 'held':
+				$link = static fn( string $action ) => esc_url( wp_nonce_url( admin_url( 'admin-post.php?action=' . $action . '&order_id=' . $id ), $action . '_' . $id ) );
+				return '<p><strong>' . esc_html__( 'Held by Invoqk', 'invoqk' ) . '</strong></p><p>'
+					. '<a href="' . $link( self::RESEND ) . '">' . esc_html__( 'Fix and resend', 'invoqk' ) . '</a> | '
+					. '<a href="' . $link( self::RELEASE ) . '" onclick="return confirm(\'' . esc_attr( esc_js( __( 'Send this invoice although it failed validation?', 'invoqk' ) ) ) . '\')">'
+					. esc_html__( 'Send anyway…', 'invoqk' ) . '</a></p>';
+			case 'sent':
+				/* translators: %s: date */
+				return '<p>' . esc_html( sprintf( __( 'Invoice sent on %s', 'invoqk' ), wp_date( 'Y-m-d H:i', (int) ( $h['since'] ?? 0 ) ) ) ) . '</p>';
+			case 'skipped':
+				return '<p>' . esc_html__( 'Check skipped – invoice sent without validation', 'invoqk' ) . '</p>';
+			case 'released':
+				$u = get_userdata( (int) ( $h['by'] ?? 0 ) );
+				/* translators: 1: user name, 2: date */
+				return '<p>' . esc_html( sprintf( __( 'Sent despite errors by %1$s on %2$s', 'invoqk' ), $u ? $u->display_name : '?', wp_date( 'Y-m-d H:i', (int) ( $h['at'] ?? 0 ) ) ) ) . '</p>';
+			case 'waiting':
+				return '<p>' . esc_html__( 'Waiting for validation', 'invoqk' ) . '</p>';
+		}
+		return '';
+	}
+
+	/** Admin notice listing held orders (first 5, then a count). Shown on Free too: held orders stay visible after Pro ends. */
+	public static function notice(): string {
+		$ids = current_user_can( 'manage_woocommerce' ) ? Hold::heldIds() : [];
+		if ( ! $ids ) {
+			return '';
+		}
+		$links = [];
+		foreach ( array_slice( $ids, 0, 5 ) as $id ) {
+			$links[] = '<a href="' . esc_url( wc_get_order( $id )->get_edit_order_url() ) . '">#' . (int) $id . '</a>';
+		}
+		$more = count( $ids ) - 5;
+		return '<div class="notice notice-warning"><p><strong>'
+			/* translators: %d: number of orders */
+			. esc_html( sprintf( __( '%d invoices held by Invoqk', 'invoqk' ), count( $ids ) ) ) . '</strong>: '
+			. implode( ', ', $links )
+			/* translators: %d: number of further orders */
+			. ( $more > 0 ? ' ' . esc_html( sprintf( __( 'and %d more', 'invoqk' ), $more ) ) : '' )
+			. '</p></div>';
 	}
 }

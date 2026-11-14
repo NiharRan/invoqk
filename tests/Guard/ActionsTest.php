@@ -96,4 +96,51 @@ final class ActionsTest extends TestCase {
 			}
 		}
 	}
+
+	public function test_box_held_has_both_links_with_nonces_and_confirm(): void {
+		$h = Actions::box( $this->held() );
+		$this->assertStringContainsString( 'Held by Invoqk', $h );
+		$this->assertStringContainsString( 'action=invoqk_guard_resend&amp;order_id=5&amp;_wpnonce=nonce-invoqk_guard_resend_5', $h );
+		$this->assertStringContainsString( 'action=invoqk_guard_release&amp;order_id=5&amp;_wpnonce=nonce-invoqk_guard_release_5', $h );
+		$this->assertStringContainsString( 'onclick="return confirm(', $h );
+		$this->assertStringContainsString( 'Send this invoice although it failed validation?', $h );
+	}
+
+	public function test_box_states_text(): void {
+		$o = $this->held( 'waiting' );
+		$this->assertStringContainsString( 'Waiting for validation', Actions::box( $o ) );
+		Hold::set( $o, 'sent' );
+		$this->assertStringContainsString( 'Invoice sent on ', Actions::box( $o ) );
+		Hold::set( $o, 'skipped' );
+		$this->assertStringContainsString( 'Check skipped – invoice sent without validation', Actions::box( $o ) );
+		Hold::set( $o, 'released', [ 'by' => 7, 'at' => 0 ] );
+		$this->assertStringContainsString( 'Sent despite errors by T on 1970-01-01 00:00', Actions::box( $o ) );
+		$this->assertSame( '', Actions::box( new \WC_Order( 9 ) ) );
+	}
+
+	public function test_box_escapes_user_name(): void {
+		$o = $this->held( 'released' );
+		$GLOBALS['invoqk_user_name'] = '<b>x</b>';
+		$h = Actions::box( $o );
+		unset( $GLOBALS['invoqk_user_name'] );
+		$this->assertStringNotContainsString( '<b>x', $h );
+		$this->assertStringContainsString( '&lt;b&gt;x', $h );
+	}
+
+	public function test_notice_caps_at_5_and_counts_rest(): void {
+		for ( $i = 1; $i <= 7; $i++ ) {
+			Hold::set( $GLOBALS['invoqk_orders'][ $i ] = new \WC_Order( $i ), 'held' );
+		}
+		$h = Actions::notice();
+		$this->assertStringContainsString( '7 invoices held by Invoqk', $h );
+		$this->assertSame( 5, substr_count( $h, '<a ' ) );
+		$this->assertStringContainsString( 'and 2 more', $h );
+	}
+
+	public function test_notice_empty_without_cap_or_held(): void {
+		$this->assertSame( '', Actions::notice() );
+		Hold::set( $GLOBALS['invoqk_orders'][1] = new \WC_Order( 1 ), 'held' );
+		$GLOBALS['invoqk_can'] = false;
+		$this->assertSame( '', Actions::notice() );
+	}
 }

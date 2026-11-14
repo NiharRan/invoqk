@@ -65,4 +65,11 @@ final class OrderColumnTest extends TestCase {
 		$o->update_meta_data( \Invoqk\Classification\Classifier::OVERRIDE, [ 'required' => true, 'by' => 1, 'at' => 1 ] );
 		$this->assertStringContainsString( 'manual', OrderColumn::render( $o ) );
 	}
+
+	public function test_held_badge(): void {
+		$o = new WC_Order();
+		\Invoqk\Guard\Hold::set( $o, 'held' );
+		$this->assertStringContainsString( 'Held by Invoqk', OrderColumn::render( $o ) );
+		$this->assertStringContainsString( 'status-failed', OrderColumn::render( $o ) );
+	}
 }

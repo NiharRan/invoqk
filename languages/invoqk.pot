@@ -458,3 +458,61 @@ msgstr[1] ""
 #, php-format
 msgid "Invoice sent despite validation errors by %s."
 msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Held by Invoqk"
+msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Fix and resend"
+msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Send anyway…"
+msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Send this invoice although it failed validation?"
+msgstr ""
+
+#. translators: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Invoice sent on %s"
+msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Check skipped – invoice sent without validation"
+msgstr ""
+
+#. translators: 1: user name, 2: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Sent despite errors by %1$s on %2$s"
+msgstr ""
+
+#: src/Guard/Actions.php
+msgid "Waiting for validation"
+msgstr ""
+
+#. translators: number of orders
+#: src/Guard/Actions.php
+#, php-format
+msgid "%d invoices held by Invoqk"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors are now held until you fix or release them."
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Hold invoices with errors"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Only warn me"
+msgstr ""
