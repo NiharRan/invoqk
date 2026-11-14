@@ -12,6 +12,7 @@ final class Record {
 	public static function put( \WC_Order $o, array $record ): void {
 		$o->update_meta_data( self::KEY, $record );
 		$o->save_meta_data();
+		\Invoqk\Admin\Readiness::flush();
 	}
 
 	/** passed|failed|error|limit|pending|none */

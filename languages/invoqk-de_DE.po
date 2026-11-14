@@ -106,9 +106,11 @@ msgstr "Erneut prüfen"
 msgid "Upgrade"
 msgstr "Upgrade"
 
+#, php-format
 msgid "and %d more"
 msgstr "und %d weitere"
 
+#, php-format
 msgid "Free includes %d invoices. With Pro you check them all."
 msgstr "Free enthält %d Rechnungen. Mit Pro prüfst du alle."
 
@@ -154,14 +156,17 @@ msgstr "Einstellungen des Rechnungs-Plugins öffnen"
 msgid "API key"
 msgstr "API-Schlüssel"
 
+#, php-format
 msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] "%d Hinweis"
 msgstr[1] "%d Hinweise"
 
+#, php-format
 msgid "Domestic customer with VAT ID, amount over %s €."
 msgstr "Inlandskunde mit USt-IdNr., Betrag über %s €."
 
+#, php-format
 msgid "Domestic customer with company name, amount over %s €."
 msgstr "Inlandskunde mit Firmenname, Betrag über %s €."
 
@@ -171,6 +176,7 @@ msgstr "Keine USt-IdNr., kein Firmenname."
 msgid "Billing country is not Germany."
 msgstr "Rechnungsland ist nicht Deutschland."
 
+#, php-format
 msgid "Total of %s € or less (small amount invoice)."
 msgstr "Gesamtbetrag %s € oder weniger (Kleinbetragsrechnung)."
 
@@ -198,9 +204,11 @@ msgstr "E-Rechnung erforderlich"
 msgid "E-invoice not required"
 msgstr "E-Rechnung nicht erforderlich"
 
+#, php-format
 msgid "Set manually by %1$s on %2$s."
 msgstr "Manuell festgelegt von %1$s am %2$s."
 
+#, php-format
 msgid "Automatic result: %s"
 msgstr "Automatisches Ergebnis: %s"
 
@@ -222,8 +230,197 @@ msgstr "Überschreiben"
 msgid "Not allowed."
 msgstr "Nicht erlaubt."
 
+#, php-format
 msgid "Invoqk: override removed, automatic result: %s."
 msgstr "Invoqk: Überschreibung entfernt, automatisches Ergebnis: %s."
 
+#, php-format
 msgid "Invoqk: e-invoice set to %1$s by %2$s."
 msgstr "Invoqk: E-Rechnung auf „%1$s“ gesetzt von %2$s."
+
+#: src/Onboarding/Wizard.php
+msgid "Plugin"
+msgstr "Plugin"
+
+#: src/Onboarding/Wizard.php
+msgid "Turnover"
+msgstr "Umsatz"
+
+#: src/Onboarding/Wizard.php
+msgid "Check"
+msgstr "Prüfung"
+
+#: src/Onboarding/Wizard.php
+msgid "Set up later"
+msgstr "Später einrichten"
+
+#: src/Onboarding/Wizard.php
+msgid "Continue"
+msgstr "Weiter"
+
+#: src/Onboarding/Wizard.php
+msgid "We found your invoice plugin"
+msgstr "Wir haben Ihr Rechnungs-Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
+msgstr "E-Rechnungen (XRechnung/ZUGFeRD) werden daraus gelesen."
+
+#: src/Onboarding/Wizard.php
+msgid "No invoice plugin found"
+msgstr "Kein Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "These plugins are supported:"
+msgstr "Diese Plugins werden unterstützt:"
+
+#: src/Onboarding/Wizard.php
+msgid "What was your turnover last year?"
+msgstr "Wie hoch war Ihr Umsatz im Vorjahr?"
+
+#: src/Onboarding/Wizard.php
+msgid "Over €800,000"
+msgstr "Über 800.000 €"
+
+#: src/Onboarding/Wizard.php
+msgid "Up to €800,000"
+msgstr "Bis 800.000 €"
+
+#: src/Onboarding/Wizard.php
+#, php-format
+msgid "E-invoice mandatory from %s"
+msgstr "E-Rechnung Pflicht ab %s"
+
+#: src/Onboarding/Wizard.php
+msgid "(only if none is set yet)"
+msgstr "(nur wenn noch keiner gesetzt)"
+
+#: src/Onboarding/Wizard.php
+msgid "No legal or tax advice."
+msgstr "Keine Rechts- oder Steuerberatung."
+
+#: src/Onboarding/Wizard.php
+msgid "Back"
+msgstr "Zurück"
+
+#: src/Onboarding/Wizard.php
+msgid "Start first check"
+msgstr "Erste Prüfung starten"
+
+#: src/Onboarding/Wizard.php
+msgid "We are checking your latest B2B invoices"
+msgstr "Wir prüfen Ihre letzten B2B-Rechnungen"
+
+#: src/Onboarding/Wizard.php
+msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
+msgstr "Sie können die Seite verlassen. Die Prüfung läuft im Hintergrund weiter; das Dashboard öffnet sich, sobald Ergebnisse da sind."
+
+#: src/Admin/Dashboard.php
+msgid "Open setup"
+msgstr "Einrichtung öffnen"
+
+#: src/Admin/Dashboard.php
+msgid "B2B orders with a valid e-invoice · last 30 days"
+msgstr "B2B-Bestellungen mit gültiger E-Rechnung · letzte 30 Tage"
+
+#. translators: 1: valid orders, 2: B2B orders checked
+#: src/Admin/Dashboard.php
+#, php-format
+msgid "%1$d of %2$d"
+msgstr "%1$d von %2$d"
+
+#: src/Admin/Dashboard.php
+msgid "valid"
+msgstr "gültig"
+
+#: src/Admin/Dashboard.php
+msgid "faulty"
+msgstr "fehlerhaft"
+
+#: src/Admin/Dashboard.php
+msgid "missing"
+msgstr "fehlt"
+
+#: src/Admin/Dashboard.php
+msgid "not checked yet"
+msgstr "noch nicht geprüft"
+
+#: src/Admin/Dashboard.php
+msgid "not needed"
+msgstr "nicht nötig"
+
+#: src/Admin/Dashboard.php
+msgid "Basis: newest 2,000 orders"
+msgstr "Basis: neueste 2.000 Bestellungen"
+
+#: src/Admin/Dashboard.php
+msgid "Your obligation starts"
+msgstr "Ihre Pflicht ab"
+
+#: src/Admin/Dashboard.php
+msgid "Turnover last year"
+msgstr "Umsatz im letzten Jahr"
+
+#: src/Admin/Dashboard.php
+msgid "Select turnover"
+msgstr "Umsatz wählen"
+
+#: src/Admin/Dashboard.php
+msgid "Save"
+msgstr "Speichern"
+
+#: src/Admin/Dashboard.php
+msgid "Most common errors"
+msgstr "Häufigste Fehler"
+
+#: src/Admin/Dashboard.php
+msgid "Code"
+msgstr "Code"
+
+#: src/Admin/Dashboard.php
+msgid "No B2B invoices found yet"
+msgstr "Noch keine B2B-Rechnungen gefunden"
+
+#: src/Admin/Dashboard.php
+msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
+msgstr "Wir prüfen nur Bestellungen, die eine E-Rechnung brauchen: Kunde in Deutschland mit USt-IdNr. oder Firmenname, über 250 €."
+
+#: src/Admin/Dashboard.php
+msgid "Does your invoice plugin already create e-invoices? Open its settings."
+msgstr "Erstellt Ihr Rechnungs-Plugin bereits E-Rechnungen? Einstellungen öffnen."
+
+#: src/Admin/Dashboard.php
+msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
+msgstr "Eine Bestellung ist B2B? In der Bestellung als „E-Rechnung nötig“ markieren."
+
+#: src/Admin/Dashboard.php
+msgid "Stop errors before the invoice goes out"
+msgstr "Fehler stoppen, bevor die Rechnung rausgeht"
+
+#: src/Admin/Dashboard.php
+msgid "Dispatch guard"
+msgstr "Versand-Wächter"
+
+#: src/Admin/Dashboard.php
+msgid "Archive"
+msgstr "Archiv"
+
+#: src/Admin/Dashboard.php
+msgid "Try Pro for 14 days"
+msgstr "Pro 14 Tage testen"
+
+#: src/Admin/Dashboard.php
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/Onboarding/Wizard.php
+msgid "Go to dashboard"
+msgstr "Zum Dashboard"
+
+#: src/Admin/Dashboard.php
+msgid "No API key is set yet."
+msgstr "Es ist noch kein API-Schlüssel hinterlegt."
+
+#: src/Admin/Dashboard.php
+msgid "Enter it in the settings below."
+msgstr "Geben Sie ihn unten in den Einstellungen ein."

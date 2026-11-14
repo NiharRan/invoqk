@@ -63,6 +63,7 @@ final class Classifier {
 		$r = self::classify( $order );
 		$order->update_meta_data( self::CLASS_META, $r );
 		$order->save_meta_data();
+		\Invoqk\Admin\Readiness::flush();
 		return $r;
 	}
 

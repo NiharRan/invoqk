@@ -106,9 +106,11 @@ msgstr ""
 msgid "Upgrade"
 msgstr ""
 
+#, php-format
 msgid "and %d more"
 msgstr ""
 
+#, php-format
 msgid "Free includes %d invoices. With Pro you check them all."
 msgstr ""
 
@@ -154,14 +156,17 @@ msgstr ""
 msgid "API key"
 msgstr ""
 
+#, php-format
 msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] ""
 msgstr[1] ""
 
+#, php-format
 msgid "Domestic customer with VAT ID, amount over %s €."
 msgstr ""
 
+#, php-format
 msgid "Domestic customer with company name, amount over %s €."
 msgstr ""
 
@@ -171,6 +176,7 @@ msgstr ""
 msgid "Billing country is not Germany."
 msgstr ""
 
+#, php-format
 msgid "Total of %s € or less (small amount invoice)."
 msgstr ""
 
@@ -198,9 +204,11 @@ msgstr ""
 msgid "E-invoice not required"
 msgstr ""
 
+#, php-format
 msgid "Set manually by %1$s on %2$s."
 msgstr ""
 
+#, php-format
 msgid "Automatic result: %s"
 msgstr ""
 
@@ -222,8 +230,197 @@ msgstr ""
 msgid "Not allowed."
 msgstr ""
 
+#, php-format
 msgid "Invoqk: override removed, automatic result: %s."
 msgstr ""
 
+#, php-format
 msgid "Invoqk: e-invoice set to %1$s by %2$s."
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Plugin"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Turnover"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Check"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Set up later"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Continue"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "We found your invoice plugin"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "No invoice plugin found"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "These plugins are supported:"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "What was your turnover last year?"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Over €800,000"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Up to €800,000"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+#, php-format
+msgid "E-invoice mandatory from %s"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "(only if none is set yet)"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "No legal or tax advice."
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Back"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Start first check"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "We are checking your latest B2B invoices"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Open setup"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "B2B orders with a valid e-invoice · last 30 days"
+msgstr ""
+
+#. translators: 1: valid orders, 2: B2B orders checked
+#: src/Admin/Dashboard.php
+#, php-format
+msgid "%1$d of %2$d"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "valid"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "faulty"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "missing"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "not checked yet"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "not needed"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Basis: newest 2,000 orders"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Your obligation starts"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Turnover last year"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Select turnover"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Save"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Most common errors"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Code"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "No B2B invoices found yet"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Does your invoice plugin already create e-invoices? Open its settings."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Stop errors before the invoice goes out"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Dispatch guard"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Archive"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Try Pro for 14 days"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Settings"
+msgstr ""
+
+#: src/Onboarding/Wizard.php
+msgid "Go to dashboard"
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "No API key is set yet."
+msgstr ""
+
+#: src/Admin/Dashboard.php
+msgid "Enter it in the settings below."
 msgstr ""

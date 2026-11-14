@@ -1,0 +1,28 @@
+.invoqk-dash{max-width:1100px}
+.invoqk-grid{display:grid;gap:12px;grid-template-columns:1.6fr 1fr;margin-bottom:12px}
+@media(max-width:782px){.invoqk-grid{grid-template-columns:1fr}}
+.invoqk-box{background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:16px;box-shadow:0 1px 1px rgba(0,0,0,.04);margin-bottom:12px}
+.invoqk-grid .invoqk-box{margin-bottom:0}
+.invoqk-muted{color:#646970}
+.invoqk-small{font-size:11px;margin-top:10px}
+.invoqk-score{display:flex;align-items:baseline;gap:10px;margin:8px 0}
+.invoqk-big{font-size:40px;font-weight:600;line-height:1}
+.invoqk-date{font-size:24px;font-weight:600;margin:6px 0}
+.invoqk-bar{height:10px;border-radius:5px;background:#e5e5e5;overflow:hidden;display:flex}
+.invoqk-bar .ok{background:#00a32a}.invoqk-bar .bad{background:#d63638}.invoqk-bar .warn{background:#dba617}
+.invoqk-pills{display:flex;gap:14px;margin-top:10px;flex-wrap:wrap}
+.invoqk-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.invoqk-pill.ok{background:#c6e1c6;color:#2c4700}.invoqk-pill.bad{background:#eba3a3;color:#761919}
+.invoqk-pill.warn{background:#f8dda7;color:#573b00}.invoqk-pill.na{background:#e5e5e5;color:#454545}
+.invoqk-box table{width:100%;border-collapse:collapse}
+.invoqk-box td,.invoqk-box th{text-align:left;padding:7px 6px;border-top:1px solid #f0f0f1;font-size:12.5px}
+.invoqk-box th{color:#646970;font-weight:500;border:0}
+.invoqk-box code{background:#f0f0f1;padding:1px 4px;border-radius:2px;font-size:11.5px}
+.invoqk-lock{font-size:11px;background:#1d2327;color:#fff;padding:1px 6px;border-radius:3px;margin-left:6px}
+.invoqk-pro{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.invoqk-empty{text-align:center}.invoqk-empty p,.invoqk-empty ul{text-align:left}.invoqk-empty ul{padding-left:18px;list-style:disc}
+.invoqk-turnover{margin-top:8px}
+.invoqk-head{text-align:right;margin:0 0 8px}
+.invoqk-wizard{background:#fff;border:1px solid #c3c4c7;border-radius:4px;padding:16px;max-width:640px;margin-bottom:12px}
+.invoqk-steps{display:flex;gap:14px;margin-bottom:12px;color:#646970}
+.invoqk-steps .on{color:#2271b1;font-weight:600}.invoqk-steps .done{color:#00a32a}

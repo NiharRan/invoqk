@@ -1,6 +1,8 @@
 <?php
 namespace Invoqk\Validation;
 
+use Invoqk\Onboarding\State;
+
 /** Free tier: 20 distinct orders may be validated. The only writer of invoqk_free_slots. */
 final class Limit {
 	public const MAX = 20;
@@ -18,6 +20,9 @@ final class Limit {
 
 	public static function allow( int $orderId ): bool {
 		if ( self::isPro() ) {
+			return true;
+		}
+		if ( in_array( $orderId, State::firstReport()['ids'] ?? [], true ) ) {
 			return true;
 		}
 		$raw   = get_option( self::OPTION, [] );
