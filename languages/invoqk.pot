@@ -106,9 +106,11 @@ msgstr ""
 msgid "Upgrade"
 msgstr ""
 
+#, php-format
 msgid "and %d more"
 msgstr ""
 
+#, php-format
 msgid "Free includes %d invoices. With Pro you check them all."
 msgstr ""
 
@@ -154,14 +156,17 @@ msgstr ""
 msgid "API key"
 msgstr ""
 
+#, php-format
 msgid "%d note"
 msgid_plural "%d notes"
 msgstr[0] ""
 msgstr[1] ""
 
+#, php-format
 msgid "Domestic customer with VAT ID, amount over %s €."
 msgstr ""
 
+#, php-format
 msgid "Domestic customer with company name, amount over %s €."
 msgstr ""
 
@@ -171,6 +176,7 @@ msgstr ""
 msgid "Billing country is not Germany."
 msgstr ""
 
+#, php-format
 msgid "Total of %s € or less (small amount invoice)."
 msgstr ""
 
@@ -198,9 +204,11 @@ msgstr ""
 msgid "E-invoice not required"
 msgstr ""
 
+#, php-format
 msgid "Set manually by %1$s on %2$s."
 msgstr ""
 
+#, php-format
 msgid "Automatic result: %s"
 msgstr ""
 
@@ -222,9 +230,11 @@ msgstr ""
 msgid "Not allowed."
 msgstr ""
 
+#, php-format
 msgid "Invoqk: override removed, automatic result: %s."
 msgstr ""
 
+#, php-format
 msgid "Invoqk: e-invoice set to %1$s by %2$s."
 msgstr ""
 
@@ -277,6 +287,7 @@ msgid "Up to €800,000"
 msgstr ""
 
 #: src/Onboarding/Wizard.php
+#, php-format
 msgid "E-invoice mandatory from %s"
 msgstr ""
 
@@ -314,6 +325,7 @@ msgstr ""
 
 #. translators: 1: valid orders, 2: B2B orders checked
 #: src/Admin/Dashboard.php
+#, php-format
 msgid "%1$d of %2$d"
 msgstr ""
 
