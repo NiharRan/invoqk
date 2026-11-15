@@ -120,4 +120,11 @@ final class LocalStorageTest extends TestCase {
 		$this->expectException( \RuntimeException::class );
 		( new LocalStorage( $this->base ) )->put( $this->base . '/missing.pdf', 'pdf', 1700000000 );
 	}
+
+	public function test_exports_dir_is_created_and_guarded(): void {
+		$dir = ( new LocalStorage( $this->base ) )->exports();
+		$this->assertSame( $this->base . '/exports', $dir );
+		$this->assertFileExists( "$dir/.htaccess" );
+		$this->assertFileExists( "$dir/index.php" );
+	}
 }

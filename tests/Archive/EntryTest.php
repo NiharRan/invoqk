@@ -255,6 +255,7 @@ final class EntryTest extends TestCase {
 			public function path( string $k ): ?string { return null; }
 			public function delete( string $k ): void {}
 			public function staging(): string { throw new \RuntimeException( 'x' ); }
+			public function exports(): string { throw new \RuntimeException( 'x' ); }
 		};
 		Entry::sweep( time() );
 		$this->assertSame( [ 'archive sweep failed: RuntimeException' ], $GLOBALS['invoqk_log'] );

@@ -701,3 +701,63 @@ msgid "%d invoice waiting to be archived"
 msgid_plural "%d invoices waiting to be archived"
 msgstr[0] "%d Rechnung wartet auf die Archivierung"
 msgstr[1] "%d Rechnungen warten auf die Archivierung"
+
+#: src/Archive/Page.php
+msgid "Export for Steuerberater"
+msgstr "Export für die Steuerberatung"
+
+#: src/Archive/Page.php
+msgid "The PHP zip extension is missing. Ask your host to enable it."
+msgstr "Die PHP-Erweiterung zip fehlt. Bitten Sie Ihren Hoster, sie zu aktivieren."
+
+#: src/Archive/Page.php
+msgid "Export range"
+msgstr "Zeitraum exportieren"
+
+#: src/Archive/Page.php
+msgid "This month"
+msgstr "Dieser Monat"
+
+#: src/Archive/Page.php
+msgid "Last month"
+msgstr "Letzter Monat"
+
+#: src/Archive/Page.php
+msgid "Export running. Reload this page later."
+msgstr "Export läuft. Laden Sie die Seite später neu."
+
+#. translators: 1: invoice count, 2: first date, 3: last date
+#: src/Archive/Page.php
+#, php-format
+msgid "%1$d invoice, %2$s to %3$s"
+msgid_plural "%1$d invoices, %2$s to %3$s"
+msgstr[0] "%1$d Rechnung, %2$s bis %3$s"
+msgstr[1] "%1$d Rechnungen, %2$s bis %3$s"
+
+#: src/Archive/Page.php
+msgid "Export failed. Check the archive check, then try again."
+msgstr "Export fehlgeschlagen. Prüfen Sie das Archiv und versuchen Sie es erneut."
+
+#: src/Archive/Page.php
+msgid "Export started. It runs in the background."
+msgstr "Export gestartet. Er läuft im Hintergrund."
+
+#: src/Archive/Page.php
+msgid "An export is already running."
+msgstr "Es läuft bereits ein Export."
+
+#: src/Archive/Page.php
+msgid "Choose a valid date range."
+msgstr "Bitte wählen Sie einen gültigen Zeitraum."
+
+#: src/Archive/Page.php
+msgid "The PHP zip extension is missing."
+msgstr "Die PHP-Erweiterung zip fehlt."
+
+#: src/Archive/Export.php
+msgid "Invoqk: your export is ready"
+msgstr "Invoqk: Ihr Export ist fertig"
+
+#: src/Archive/Export.php
+msgid "Your Steuerberater export is ready for download:"
+msgstr "Ihr Export für die Steuerberatung steht zum Download bereit:"
