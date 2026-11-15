@@ -690,3 +690,14 @@ msgstr ""
 msgid "Archiving continues; consider your storage plan."
 msgstr ""
 
+#: src/Archive/Page.php:117
+msgid "Delete the selected archive entries? This cannot be undone."
+msgstr ""
+
+#. translators: %d: count
+#: src/Archive/Page.php:104
+#, php-format
+msgid "%d invoice waiting to be archived"
+msgid_plural "%d invoices waiting to be archived"
+msgstr[0] ""
+msgstr[1] ""

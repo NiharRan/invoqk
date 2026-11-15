@@ -690,3 +690,14 @@ msgstr "Das Invoqk-Archiv belegt %s."
 msgid "Archiving continues; consider your storage plan."
 msgstr "Die Archivierung läuft weiter; prüfen Sie Ihren Speicherplatz."
 
+#: src/Archive/Page.php:117
+msgid "Delete the selected archive entries? This cannot be undone."
+msgstr "Ausgewählte Archiveinträge löschen? Dies kann nicht rückgängig gemacht werden."
+
+#. translators: %d: count
+#: src/Archive/Page.php:104
+#, php-format
+msgid "%d invoice waiting to be archived"
+msgid_plural "%d invoices waiting to be archived"
+msgstr[0] "%d Rechnung wartet auf die Archivierung"
+msgstr[1] "%d Rechnungen warten auf die Archivierung"

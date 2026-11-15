@@ -202,6 +202,64 @@ final class EntryTest extends TestCase {
 		$this->assertFileDoesNotExist( "$dir/manifest.json.tmp" );
 	}
 
+	public function test_long_fields_truncated_before_hashing(): void {
+		$this->order()->company = str_repeat( 'ä', 300 );
+		$dir = $this->set( 'aa' );
+		$m   = json_decode( file_get_contents( "$dir/manifest.json" ), true );
+		$m['email_id'] = str_repeat( 'e', 80 );
+		file_put_contents( "$dir/manifest.json", json_encode( $m ) );
+		Entry::handle( 'aa', fn( $o ) => [ 'invoice_number' => str_repeat( 'N', 70 ), 'invoice_date' => '2026-01-02' ] );
+		$r = Archive::index()->find( 1 );
+		$this->assertSame( str_repeat( 'ä', 255 ), $r['customer'] );
+		$this->assertSame( str_repeat( 'N', 64 ), $r['invoice_number'] );
+		$this->assertSame( str_repeat( 'e', 64 ), $r['email_id'] );
+		$this->assertSame( Chain::hash( $r ), $r['hash'] );
+	}
+
+	public function test_failure_reason_logged_once_per_set(): void {
+		$GLOBALS['invoqk_log'] = [];
+		$this->order();
+		$this->set( 'aa' );
+		Archive::$index = new class extends MemoryIndex {
+			public function append( array $row, callable $hash ): array { throw new \RuntimeException( 'RE-secret' ); }
+		};
+		Entry::handle( 'aa', $this->meta() );
+		Entry::handle( 'aa', $this->meta() );
+		$this->assertSame( [ 'archive entry aa failed at append: RuntimeException' ], $GLOBALS['invoqk_log'] );
+	}
+
+	public function test_missing_file_reason_is_file(): void {
+		$GLOBALS['invoqk_log'] = [];
+		$dir = $this->set( 'aa' );
+		unlink( "$dir/invoice-1.xml" );
+		Entry::handle( 'aa', $this->meta() );
+		$this->assertSame( [ 'archive entry aa failed at file: RuntimeException' ], $GLOBALS['invoqk_log'] );
+	}
+
+	public function test_stuck_counts_sets_past_three_attempts(): void {
+		$this->assertSame( 0, Entry::stuck() );
+		foreach ( [ 'aa' => 4, 'bb' => 3, 'cc' => 9 ] as $id => $n ) {
+			$dir = $this->set( $id );
+			$m   = json_decode( file_get_contents( "$dir/manifest.json" ), true );
+			$m['attempt'] = $n;
+			file_put_contents( "$dir/manifest.json", json_encode( $m ) );
+		}
+		$this->set( 'dd', 'p', null, true, false );
+		$this->assertSame( 2, Entry::stuck() );
+	}
+
+	public function test_sweep_never_throws(): void {
+		$GLOBALS['invoqk_log'] = [];
+		Archive::$storage = new class implements \Invoqk\Archive\Storage {
+			public function put( string $p, string $e, int $t ): string { return ''; }
+			public function path( string $k ): ?string { return null; }
+			public function delete( string $k ): void {}
+			public function staging(): string { throw new \RuntimeException( 'x' ); }
+		};
+		Entry::sweep( time() );
+		$this->assertSame( [ 'archive sweep failed: RuntimeException' ], $GLOBALS['invoqk_log'] );
+	}
+
 	public function test_validated_updates_status(): void {
 		$this->order();
 		$this->set( 'aa' );

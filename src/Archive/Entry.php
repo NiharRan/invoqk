@@ -28,6 +28,7 @@ final class Entry {
 			return;
 		}
 		$attempt = max( 1, (int) ( $m['attempt'] ?? 1 ) );
+		$stage   = 'meta';
 		try {
 			$orderId = (int) ( $m['order_id'] ?? 0 );
 			$order   = wc_get_order( $orderId );
@@ -36,12 +37,12 @@ final class Entry {
 			$index   = Archive::index();
 			$row     = [
 				'order_id'          => $orderId,
-				'invoice_number'    => (string) ( $info['invoice_number'] ?? '' ),
+				'invoice_number'    => mb_substr( (string) ( $info['invoice_number'] ?? '' ), 0, 64 ), // column widths: truncate before hashing
 				'invoice_date'      => '' !== (string) ( $info['invoice_date'] ?? '' ) ? (string) $info['invoice_date'] : null, // NULL, not '': a DATE column would read '' back as 0000-00-00
-				'customer'          => $order ? ( '' !== (string) $order->get_billing_company() ? (string) $order->get_billing_company() : trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ) ) : '',
+				'customer'          => mb_substr( $order ? ( '' !== (string) $order->get_billing_company() ? (string) $order->get_billing_company() : trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ) ) : '', 0, 255 ),
 				'currency'          => $order ? (string) $order->get_currency() : '',
 				'validation_status' => $order ? Record::status( $order ) : 'none',
-				'email_id'          => (string) ( $m['email_id'] ?? '' ),
+				'email_id'          => mb_substr( (string) ( $m['email_id'] ?? '' ), 0, 64 ),
 				'sent_at'           => (int) ( $m['sent_at'] ?? $m['created'] ?? 0 ),
 				'sent_confirmed'    => true === ( $m['sent'] ?? null ) ? 1 : 0,
 			];
@@ -50,7 +51,8 @@ final class Entry {
 			$row['gross'] = $gross;
 			$row['vat']   = $vat;
 			$row['net']   = $gross - $vat;
-			$keys = [];
+			$keys  = [];
+			$stage = 'file';
 			foreach ( (array) ( $m['files'] ?? [] ) as $f ) {
 				$fmt  = (string) ( $f['format'] ?? '' );
 				$path = "$dir/" . basename( (string) ( $f['file'] ?? '' ) );
@@ -62,10 +64,15 @@ final class Entry {
 				$row[ "{$fmt}_size" ] = filesize( $path );
 				$row[ "{$fmt}_key" ]  = $keys[ $hash ] ??= $index->keyForHash( $hash ) ?? Archive::storage()->put( $path, $fmt, time() );
 			}
+			$stage          = 'append';
 			$row['version'] = $index->maxVersion( $orderId ) + 1;
 			$index->append( $row, [ Chain::class, 'hash' ] );
 		} catch ( \Throwable $e ) {
-			wc_get_logger()->error( "archive entry {$setId} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
+			$reason = $stage . ': ' . get_class( $e ); // stage code + class only: messages may carry invoice data
+			if ( ( $m['reason'] ?? '' ) !== $reason ) {
+				wc_get_logger()->error( "archive entry {$setId} failed at {$reason}", [ 'source' => 'invoqk' ] );
+			}
+			$m['reason']  = $reason;
 			$m['attempt'] = $attempt + 1; // args stay [ setId ] so the sweep sees the pending retry
 			Capture::writeManifest( $dir, $m );
 			as_schedule_single_action( time() + ( Scheduler::backoff( $attempt ) ?? HOUR_IN_SECONDS ), self::HOOK, [ $setId ], Scheduler::GROUP );
@@ -83,19 +90,33 @@ final class Entry {
 	}
 
 	public static function sweep( int $now ): void {
-		foreach ( glob( Archive::storage()->staging() . '/*', GLOB_ONLYDIR ) ?: [] as $dir ) {
-			$setId = basename( $dir );
-			$m     = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
-			$when  = is_array( $m ) ? (int) ( $m['created'] ?? 0 ) : (int) filemtime( $dir );
-			if ( $now - $when < HOUR_IN_SECONDS || as_has_scheduled_action( self::HOOK, [ $setId ], Scheduler::GROUP ) ) {
-				continue;
+		try { // shares Scheduler::SWEEP with other callbacks: never let them fail with us
+			foreach ( glob( Archive::storage()->staging() . '/*', GLOB_ONLYDIR ) ?: [] as $dir ) {
+				$setId = basename( $dir );
+				$m     = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
+				$when  = is_array( $m ) ? (int) ( $m['created'] ?? 0 ) : (int) filemtime( $dir );
+				if ( $now - $when < HOUR_IN_SECONDS || as_has_scheduled_action( self::HOOK, [ $setId ], Scheduler::GROUP ) ) {
+					continue;
+				}
+				if ( ! is_array( $m ) ) {
+					wc_get_logger()->error( "archive staging {$setId} has no manifest", [ 'source' => 'invoqk' ] );
+					continue;
+				}
+				as_enqueue_async_action( self::HOOK, [ $setId ], Scheduler::GROUP );
 			}
-			if ( ! is_array( $m ) ) {
-				wc_get_logger()->error( "archive staging {$setId} has no manifest", [ 'source' => 'invoqk' ] );
-				continue;
-			}
-			as_enqueue_async_action( self::HOOK, [ $setId ], Scheduler::GROUP );
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( 'archive sweep failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
 		}
+	}
+
+	/** Staged sets that failed more than three times: they keep retrying hourly, the page shows the count. */
+	public static function stuck(): int {
+		$n = 0;
+		foreach ( glob( Archive::storage()->staging() . '/*/manifest.json' ) ?: [] as $f ) {
+			$m  = json_decode( (string) @file_get_contents( $f ), true );
+			$n += is_array( $m ) && (int) ( $m['attempt'] ?? 1 ) > 3 ? 1 : 0;
+		}
+		return $n;
 	}
 
 	public static function onValidated( int $orderId, array $record ): void {

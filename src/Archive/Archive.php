@@ -11,7 +11,16 @@ final class Archive {
 	public static ?Storage $storage = null;
 
 	public static function storage(): Storage {
-		return self::$storage ??= new LocalStorage( defined( 'INVOQK_ARCHIVE_DIR' ) ? INVOQK_ARCHIVE_DIR : wp_upload_dir()['basedir'] . '/invoqk-archive' );
+		return self::$storage ??= new LocalStorage( self::dir( defined( 'INVOQK_ARCHIVE_DIR' ) ? INVOQK_ARCHIVE_DIR : null ) ?? wp_upload_dir()['basedir'] . '/invoqk-archive' );
+	}
+
+	/** The configured directory when it is a non-empty absolute path, else null (uploads default). */
+	public static function dir( $d ): ?string {
+		if ( ! is_string( $d ) || '' === $d ) {
+			return null;
+		}
+		$abs = function_exists( 'path_is_absolute' ) ? path_is_absolute( $d ) : ( str_starts_with( $d, '/' ) || 1 === preg_match( '#^[A-Za-z]:[\\\\/]#', $d ) );
+		return $abs ? $d : null;
 	}
 
 	public static function reset(): void {

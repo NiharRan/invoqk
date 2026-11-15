@@ -17,7 +17,7 @@ final class Dashboard {
 		$h .= '<div class="invoqk-grid">' . self::readiness( $d ) . self::deadline( $turnover ) . '</div>';
 		$h .= 0 === (int) $d['required'] ? self::empty() : self::top( $d['top'] );
 		if ( Limit::isPro() ) {
-			$h .= '<p class="invoqk-muted">' . esc_html( sprintf( __( 'Archive: %s', 'invoqk' ), Usage::label( Archive::index()->usage() ) ) ) . '</p>';
+			$h .= '<p class="invoqk-muted">' . esc_html( sprintf( __( 'Archive: %s', 'invoqk' ), Usage::label( Usage::used() ) ) ) . '</p>';
 		}
 		return $h . self::pro() . '</div>';
 	}

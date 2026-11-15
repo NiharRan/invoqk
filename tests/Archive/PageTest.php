@@ -14,6 +14,7 @@ final class PageTest extends TestCase {
 
 	protected function tearDown(): void {
 		unset( $GLOBALS['invoqk_user_name'] );
+		$GLOBALS['invoqk_orders'] = [];
 	}
 
 	private function row( array $o = [] ): array {
@@ -60,6 +61,22 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( 'name="confirm"', $h );
 		$this->assertStringContainsString( 'name="reason"', $h );
 		$this->assertStringContainsString( 'type DELETE and give a reason', $h );
+	}
+
+	public function test_delete_button_confirms(): void {
+		$this->assertStringContainsString( 'onclick="return confirm(\'Delete the selected archive entries? This cannot be undone.\')"', Page::deleteControls() );
+	}
+
+	public function test_number_links_to_order_when_it_exists(): void {
+		$this->assertSame( 'RE-5', Page::cells( $this->row( [ 'order_id' => 7 ] ), self::NOW )['number'] );
+		$GLOBALS['invoqk_orders'][7] = new \WC_Order( 7 );
+		$this->assertSame( '<a href="/wp-admin/admin.php?page=wc-orders&amp;action=edit&amp;id=7">RE-&lt;5</a>', Page::cells( $this->row( [ 'order_id' => 7, 'invoice_number' => 'RE-<5' ] ), self::NOW )['number'] );
+	}
+
+	public function test_header_shows_stuck_sets(): void {
+		$this->assertStringNotContainsString( 'waiting', Page::header( [], 0 ) );
+		$this->assertStringContainsString( '1 invoice waiting to be archived', Page::header( [], 0, 1 ) );
+		$this->assertStringContainsString( '3 invoices waiting to be archived', Page::header( [], 0, 3 ) );
 	}
 
 	public function test_notice_counts_and_escapes(): void {

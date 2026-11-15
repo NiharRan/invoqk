@@ -72,7 +72,9 @@ final class Page {
 		$money = static fn( $k ) => isset( $row[ $k ] ) ? esc_html( number_format( (float) $row[ $k ], 2, ',', '.' ) ) : '';
 		return [
 			'cb'       => self::checkbox( $row ),
-			'number'   => esc_html( (string) ( $row['invoice_number'] ?? '' ) ),
+			'number'   => ( $o = wc_get_order( (int) ( $row['order_id'] ?? 0 ) ) ) instanceof \WC_Order
+				? '<a href="' . esc_url( $o->get_edit_order_url() ) . '">' . esc_html( (string) ( $row['invoice_number'] ?? '' ) ) . '</a>'
+				: esc_html( (string) ( $row['invoice_number'] ?? '' ) ),
 			'date'     => ( $dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date ) ) ? esc_html( $dt->format( 'd.m.Y' ) ) : '',
 			'customer' => esc_html( (string) ( $row['customer'] ?? '' ) ),
 			'net'      => $money( 'net' ),
@@ -84,7 +86,7 @@ final class Page {
 		];
 	}
 
-	public static function header( array $verify, int $used ): string {
+	public static function header( array $verify, int $used, int $stuck = 0 ): string {
 		$state = (string) ( $verify['state'] ?? 'none' );
 		$at    = wp_date( 'd.m.Y', (int) ( $verify['at'] ?? 0 ) );
 		$msg   = [
@@ -98,7 +100,9 @@ final class Page {
 		$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_archive_verify">'
 			. wp_nonce_field( 'invoqk_archive_verify', '_wpnonce', true, false )
 			. '<button class="button">' . esc_html__( 'Check archive', 'invoqk' ) . '</button></form>';
-		return '<div class="invoqk-archive-head"><p>' . esc_html( $meter ) . '</p>' . $form . '<p>' . esc_html( $msg ) . '</p></div>';
+		/* translators: %d: count */
+		$wait = $stuck > 0 ? '<p>' . esc_html( sprintf( _n( '%d invoice waiting to be archived', '%d invoices waiting to be archived', $stuck, 'invoqk' ), $stuck ) ) . '</p>' : '';
+		return '<div class="invoqk-archive-head"><p>' . esc_html( $meter ) . '</p>' . $wait . $form . '<p>' . esc_html( $msg ) . '</p></div>';
 	}
 
 	public static function checkbox( array $row ): string {
@@ -110,7 +114,7 @@ final class Page {
 		return '<input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', 'invoqk_delete_nonce', false, false )
 			. '<p><input type="text" name="confirm" placeholder="' . esc_attr( $word ) . '"> '
 			. '<input type="text" name="reason" placeholder="' . esc_attr( __( 'Reason', 'invoqk' ) ) . '"> '
-			. '<button class="button" type="submit">' . esc_html__( 'Delete selected', 'invoqk' ) . '</button></p>'
+			. '<button class="button" type="submit" onclick="return confirm(\'' . esc_attr( esc_js( __( 'Delete the selected archive entries? This cannot be undone.', 'invoqk' ) ) ) . '\')">' . esc_html__( 'Delete selected', 'invoqk' ) . '</button></p>'
 			/* translators: %s: confirm word */
 			. '<p class="description">' . esc_html( sprintf( __( 'Entries before the retention date are only deleted when you type %s and give a reason.', 'invoqk' ), $word ) ) . '</p>';
 	}
@@ -146,7 +150,7 @@ final class Page {
 			return;
 		}
 		echo self::notice( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- counts only, escaped in notice()
-		echo self::header( Verify::result(), $ix->usage() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
+		echo self::header( Verify::result(), Usage::used(), Entry::stuck() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
 		echo '<form method="get"><input type="hidden" name="page" value="invoqk-archive">'
 			. '<input type="search" name="s" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
 			. '<input type="date" name="from" value="' . esc_attr( $f['from'] ?? '' ) . '"> <input type="date" name="to" value="' . esc_attr( $f['to'] ?? '' ) . '"> '

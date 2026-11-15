@@ -29,6 +29,9 @@ final class Actions {
 		if ( ! $d ) {
 			wp_die( esc_html__( 'File not found.', 'invoqk' ), '', [ 'response' => 404 ] );
 		}
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
 		nocache_headers();
 		header( 'Content-Type: ' . $d['mime'] );
 		header( 'Content-Disposition: attachment; filename="' . $d['name'] . '"' );
@@ -93,6 +96,9 @@ final class Actions {
 					wc_get_logger()->info( "archive delete #{$id} file kept: " . get_class( $e ), [ 'source' => 'invoqk' ] );
 				}
 			}
+		}
+		if ( $out['deleted'] ) {
+			delete_transient( Usage::CACHE );
 		}
 		return $out;
 	}

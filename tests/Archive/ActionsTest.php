@@ -198,11 +198,22 @@ final class ActionsTest extends TestCase {
 
 	public function test_delete_callback_uses_own_nonce_field(): void {
 		$GLOBALS['invoqk_nonce_args'] = [];
-		$_POST = [];
+		$GLOBALS['invoqk_nonce_ok']   = false;
+		$_POST                        = [];
 		try {
 			Actions::callback();
-		} catch ( \Throwable $e ) { // exit ends the callback; only the nonce args matter
+			$this->fail( 'expected die' );
+		} catch ( \InvoqkTestDie $e ) {
+			$this->assertSame( 403, $e->getCode() );
 		}
 		$this->assertSame( 'invoqk_delete_nonce', $GLOBALS['invoqk_nonce_args']['invoqk_archive_delete'] ?? null );
+		unset( $GLOBALS['invoqk_nonce_ok'], $GLOBALS['invoqk_nonce_args'] );
+	}
+
+	public function test_delete_drops_usage_cache(): void {
+		$r = $this->add( 1, $this->old() );
+		$GLOBALS['invoqk_transients'] = [ 'invoqk_archive_usage' => 123 ];
+		Actions::delete( [ $r['id'] ], 7, '', '', self::NOW );
+		$this->assertArrayNotHasKey( 'invoqk_archive_usage', $GLOBALS['invoqk_transients'] );
 	}
 }

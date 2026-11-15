@@ -5,6 +5,19 @@ namespace Invoqk\Archive;
 final class Usage {
 	public const LIMIT  = 5 * 1024 ** 3;
 	public const OPTION = 'invoqk_archive_warned';
+	public const CACHE  = 'invoqk_archive_usage';
+
+	/** Cached bytes in use; check() refreshes after each append, Actions::delete drops it. */
+	public static function used(): int {
+		$v = get_transient( self::CACHE );
+		return false !== $v ? (int) $v : self::refresh();
+	}
+
+	private static function refresh(): int {
+		$used = Archive::index()->usage();
+		set_transient( self::CACHE, $used, HOUR_IN_SECONDS );
+		return $used;
+	}
 
 	public static function level( int $used ): int {
 		return $used >= self::LIMIT ? 100 : ( $used >= 0.8 * self::LIMIT ? 80 : 0 );
@@ -16,7 +29,7 @@ final class Usage {
 	}
 
 	public static function check( ?callable $mail = null ): void {
-		$used   = Archive::index()->usage();
+		$used   = self::refresh();
 		$level  = self::level( $used );
 		$stored = (int) get_option( self::OPTION, 0 );
 		if ( $level > $stored ) {
@@ -45,7 +58,7 @@ final class Usage {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			return '';
 		}
-		$used  = Archive::index()->usage();
+		$used  = self::used();
 		$level = self::level( $used );
 		if ( 0 === $level ) {
 			return '';

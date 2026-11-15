@@ -105,6 +105,13 @@ final class VerifyTest extends TestCase {
 		$this->assertSame( [ 3, 'missing' ], [ Verify::result()['brokenId'], Verify::result()['kind'] ] );
 	}
 
+	public function test_hash_without_key_is_missing(): void {
+		$this->add( 1 );
+		$this->ix->append( [ 'order_id' => 2, 'version' => 1, 'pdf_hash' => hash( 'sha256', 'p' ), 'sent_at' => 102 ], [ Chain::class, 'hash' ] );
+		$this->drain();
+		$this->assertSame( [ 2, 'missing' ], [ Verify::result()['brokenId'], Verify::result()['kind'] ] );
+	}
+
 	public function test_tombstone_without_files_ok(): void {
 		$this->three();
 		unlink( "{$this->dir}/x2.xml" );

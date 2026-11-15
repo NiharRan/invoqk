@@ -10,6 +10,7 @@ final class UsageTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['invoqk_options'] = [];
 		$GLOBALS['invoqk_can']     = true;
+		$GLOBALS['invoqk_transients'] = [];
 		$this->mails               = [];
 		Archive::reset();
 		Archive::$index = new MemoryIndex();
@@ -17,10 +18,12 @@ final class UsageTest extends TestCase {
 
 	protected function tearDown(): void {
 		unset( $GLOBALS['invoqk_can'] );
+		$GLOBALS['invoqk_transients'] = [];
 		Archive::reset();
 	}
 
 	private function fill( int $bytes ): void {
+		$GLOBALS['invoqk_transients'] = [];
 		Archive::$index = new MemoryIndex();
 		Archive::$index->append( [ 'order_id' => 1, 'pdf_key' => 'k' . $bytes, 'pdf_size' => $bytes ], fn() => 'h' );
 	}
@@ -88,5 +91,21 @@ final class UsageTest extends TestCase {
 		$this->assertStringNotContainsString( 'Archiving continues', $h );
 		$GLOBALS['invoqk_can'] = false;
 		$this->assertSame( '', Usage::notice() );
+	}
+
+	public function test_used_is_cached_and_check_refreshes(): void {
+		$ix = Archive::$index = new class extends MemoryIndex {
+			public int $calls = 0;
+			public function usage(): int { ++$this->calls; return parent::usage(); }
+		};
+		$ix->append( [ 'order_id' => 1, 'pdf_key' => 'a', 'pdf_size' => 10 ], fn() => 'h' );
+		$this->assertSame( 10, Usage::used() );
+		$this->assertSame( 10, Usage::used() );
+		$this->assertSame( 1, $ix->calls );
+		$ix->append( [ 'order_id' => 2, 'pdf_key' => 'b', 'pdf_size' => 5 ], fn() => 'h' );
+		Usage::check( $this->mail() );
+		$this->assertSame( 2, $ix->calls );
+		$this->assertSame( 15, Usage::used() );
+		$this->assertSame( 2, $ix->calls );
 	}
 }

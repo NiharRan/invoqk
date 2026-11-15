@@ -65,6 +65,9 @@ final class Verify {
 		foreach ( [ 'xml', 'pdf' ] as $t ) {
 			$key = $row[ $t . '_key' ] ?? null;
 			if ( ! $key ) {
+				if ( ! empty( $row[ $t . '_hash' ] ) ) {
+					return 'missing';
+				}
 				continue;
 			}
 			$path = Archive::storage()->path( $key );
