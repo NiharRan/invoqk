@@ -67,8 +67,7 @@ final class Entry {
 		} catch ( \Throwable $e ) {
 			wc_get_logger()->error( "archive entry {$setId} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
 			$m['attempt'] = $attempt + 1; // args stay [ setId ] so the sweep sees the pending retry
-			$json         = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
-			@file_put_contents( "$dir/manifest.json", $json );
+			Capture::writeManifest( $dir, $m );
 			as_schedule_single_action( time() + ( Scheduler::backoff( $attempt ) ?? HOUR_IN_SECONDS ), self::HOOK, [ $setId ], Scheduler::GROUP );
 			return;
 		}

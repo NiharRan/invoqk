@@ -1,5 +1,6 @@
 <?php
 use Invoqk\Archive\Archive;
+use Invoqk\Archive\Capture;
 use Invoqk\Archive\Chain;
 use Invoqk\Archive\Entry;
 use Invoqk\Archive\LocalStorage;
@@ -73,7 +74,7 @@ final class EntryTest extends TestCase {
 		$this->assertSame( 'customer_invoice', $r['email_id'] );
 		$this->assertSame( hash( 'sha256', 'pdf-body' ), $r['pdf_hash'] );
 		$this->assertSame( hash( 'sha256', '<x/>' ), $r['xml_hash'] );
-		$this->assertSame( 8, $r['pdf_size'] + 0 - 0 );
+		$this->assertSame( 8, $r['pdf_size'] );
 		$this->assertNotNull( Archive::storage()->path( $r['pdf_key'] ) );
 		$this->assertSame( Chain::hash( $r ), $r['hash'] );
 		$this->assertDirectoryDoesNotExist( $dir );
@@ -184,8 +185,21 @@ final class EntryTest extends TestCase {
 	}
 
 	public function test_validated_ignores_bad_record(): void {
+		$this->order();
+		$this->set( 'aa' );
+		Entry::handle( 'aa', $this->meta() );
 		Entry::onValidated( 5, [] );
-		$this->assertTrue( true );
+		Entry::onValidated( 5, [ 'status' => '' ] );
+		Entry::onValidated( 5, [ 'status' => 3 ] );
+		$this->assertSame( 'none', Archive::index()->find( 1 )['validation_status'] );
+	}
+
+	public function test_failed_encode_keeps_manifest(): void {
+		$dir = $this->set( 'aa' );
+		$old = file_get_contents( "$dir/manifest.json" );
+		$this->assertFalse( Capture::writeManifest( $dir, [ 'bad' => "\xff" ] ) );
+		$this->assertSame( $old, file_get_contents( "$dir/manifest.json" ) );
+		$this->assertFileDoesNotExist( "$dir/manifest.json.tmp" );
 	}
 
 	public function test_validated_updates_status(): void {

@@ -72,8 +72,7 @@ final class Capture {
 				$list[] = [ 'format' => $r['format'], 'file' => $name ];
 			}
 			$manifest = [ 'order_id' => $id, 'email_id' => (string) $emailId, 'files' => $list, 'created' => time(), 'sent' => null, 'sent_at' => null ];
-			$json     = function_exists( 'wp_json_encode' ) ? wp_json_encode( $manifest ) : json_encode( $manifest );
-			if ( false === file_put_contents( "$dir/manifest.json", $json ) ) {
+			if ( ! self::writeManifest( $dir, $manifest ) ) {
 				throw new \RuntimeException( 'manifest' );
 			}
 			self::$sets[ spl_object_id( $email ) ] = $setId;
@@ -104,8 +103,7 @@ final class Capture {
 			}
 			$m['sent']    = true;
 			$m['sent_at'] = time();
-			$json         = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
-			if ( false === @file_put_contents( "$dir/manifest.json", $json ) ) {
+			if ( ! self::writeManifest( $dir, $m ) ) {
 				wc_get_logger()->error( "archive capture #{$m['order_id']} manifest write failed", [ 'source' => 'invoqk' ] );
 			}
 			// Queue even if the rewrite failed: the entry job treats an unconfirmed set as sent_confirmed 0, better than a gap.
@@ -113,6 +111,19 @@ final class Capture {
 		} catch ( \Throwable $e ) {
 			wc_get_logger()->error( 'archive capture sent failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
 		}
+	}
+
+	/** Atomic: an existing manifest survives a failed encode or write. */
+	public static function writeManifest( string $dir, array $m ): bool {
+		$json = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
+		if ( ! is_string( $json ) || false === @file_put_contents( "$dir/manifest.json.tmp", $json ) ) {
+			return false;
+		}
+		if ( ! @rename( "$dir/manifest.json.tmp", "$dir/manifest.json" ) ) {
+			@unlink( "$dir/manifest.json.tmp" );
+			return false;
+		}
+		return true;
 	}
 
 	private static function remove( string $dir ): void {
