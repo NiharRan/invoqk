@@ -64,6 +64,10 @@ if ( ! function_exists( 'add_filter' ) ) {
 	}
 }
 
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
+}
+
 // --- WooCommerce / Action Scheduler stand-ins for unit tests ---
 $GLOBALS['invoqk_orders']  = [];
 $GLOBALS['invoqk_as']      = [];

@@ -149,4 +149,20 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'Invoices with errors are now held until you fix or release them.', $this->page() );
 		$this->assertStringNotContainsString( 'now held until', $this->page() );
 	}
+
+	public function test_retention_field_note_and_registration(): void {
+		$this->reset( 'done' );
+		$h = $this->page();
+		$this->assertStringContainsString( 'name="invoqk_archive_retention_years"', $h );
+		$this->assertStringContainsString( 'min="1" max="30"', $h );
+		$this->assertStringContainsString( 'This is not tax advice. Check the retention period with your tax advisor.', $h );
+		$this->assertStringNotContainsString( 'ignores .htaccess', $h );
+		$_SERVER['SERVER_SOFTWARE'] = 'nginx/1.25';
+		$this->assertStringContainsString( 'Your server ignores .htaccess.', $this->page() );
+		unset( $_SERVER['SERVER_SOFTWARE'] );
+		$GLOBALS['invoqk_actions'] = [];
+		SettingsPage::boot();
+		do_action( 'admin_init' );
+		$this->assertFalse( $GLOBALS['invoqk_settings']['invoqk_archive_retention_years']['autoload'] ?? null );
+	}
 }
