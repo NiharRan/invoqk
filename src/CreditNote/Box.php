@@ -13,11 +13,13 @@ final class Box {
 			return '';
 		}
 		$index  = Archive::index();
-		$parent = $index->latestForOrder( $o->get_id() )['invoice_number'] ?? '';
+		$latest = $index->latestForOrder( $o->get_id() )['invoice_number'] ?? '';
 		$out    = '';
 		foreach ( $all as $refundId => $e ) {
 			$row   = ! empty( $e['archived'] ) ? $index->find( (int) $e['archived'] ) : null;
-			$line  = esc_html( sprintf(
+			$pid    = (int) ( $row['parent_id'] ?? 0 );
+			$parent = ( $pid ? ( $index->find( $pid )['invoice_number'] ?? null ) : null ) ?? $latest; // the version it was archived against, else the latest
+			$line   = esc_html( sprintf(
 				/* translators: 1: refund id, 2: credit note number */
 				__( 'Refund #%1$d: credit note %2$s', 'invoqk' ),
 				(int) $refundId,

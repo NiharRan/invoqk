@@ -38,6 +38,24 @@ final class BoxTest extends TestCase {
 		$this->assertStringContainsString( 'Valid', $h );
 	}
 
+	public function test_refers_to_the_invoice_version_the_credit_note_was_archived_against(): void {
+		$o  = new \WC_Order( 7 );
+		$v1 = $this->ix->append( [ 'order_id' => 7, 'version' => 1, 'invoice_number' => 'RE-V1' ], [ Chain::class, 'hash' ] );
+		$cn = $this->ix->append( [ 'order_id' => 11, 'version' => 1, 'kind' => 'credit_note', 'parent_id' => $v1['id'], 'invoice_number' => 'GS-1' ], [ Chain::class, 'hash' ] );
+		$this->ix->append( [ 'order_id' => 7, 'version' => 2, 'invoice_number' => 'RE-V2' ], [ Chain::class, 'hash' ] );
+		Store::put( $o, 11, $this->entry( [ 'archived' => $cn['id'] ] ) );
+		$h = Box::html( $o );
+		$this->assertStringContainsString( 'RE-V1', $h );
+		$this->assertStringNotContainsString( 'RE-V2', $h );
+	}
+
+	public function test_falls_back_to_latest_invoice_when_not_archived(): void {
+		$o = new \WC_Order( 7 );
+		$this->ix->append( [ 'order_id' => 7, 'version' => 1, 'invoice_number' => 'RE-7' ], [ Chain::class, 'hash' ] );
+		Store::put( $o, 11, $this->entry() );
+		$this->assertStringContainsString( 'RE-7', Box::html( $o ) );
+	}
+
 	public function test_empty_without_credit_notes(): void {
 		$this->assertSame( '', Box::html( new \WC_Order( 7 ) ) );
 	}
