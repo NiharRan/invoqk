@@ -838,6 +838,11 @@ msgstr "Der Block-Checkout zeigt das Feld immer an. Nur der klassische Checkout 
 
 #: src/B2g/Delivery.php
 #, php-format
+msgid "%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht in das eingestellte E-Rechnungsformat schreiben. Wenn der Käufer eine Leitweg-ID braucht, stelle das E-Rechnungsformat in %1$s vor dem Versand auf UBL oder PEPPOL BIS um."
+
+#: src/B2g/Delivery.php
+#, php-format
 msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
 msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem Versand der E-Rechnung in %1$s als Käuferreferenz eingetragen werden."
 

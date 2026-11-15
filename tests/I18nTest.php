@@ -113,4 +113,8 @@ final class I18nTest extends TestCase {
 		$this->assertSame( '%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem Versand der E-Rechnung in %1$s als Käuferreferenz eingetragen werden.', $mo['%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent.'] ?? null );
 		$this->assertSame( 'Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden.', $mo['No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent.'] ?? null );
 	}
+
+	public function test_mo_has_german_for_the_format_notice(): void {
+		$this->assertSame( '%1$s kann die Leitweg-ID nicht in das eingestellte E-Rechnungsformat schreiben. Wenn der Käufer eine Leitweg-ID braucht, stelle das E-Rechnungsformat in %1$s vor dem Versand auf UBL oder PEPPOL BIS um.', $this->mo()['%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent.'] ?? null );
+	}
 }

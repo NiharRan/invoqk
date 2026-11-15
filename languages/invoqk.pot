@@ -839,6 +839,12 @@ msgstr ""
 #: src/B2g/Delivery.php
 #. translators: %1$s: invoice plugin name
 #, php-format
+msgid "%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent."
+msgstr ""
+
+#: src/B2g/Delivery.php
+#. translators: %1$s: invoice plugin name
+#, php-format
 msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
 msgstr ""
 
