@@ -22,6 +22,7 @@ final class OrderBox {
 		}
 		echo self::classification( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in classification()
 		if ( ! Classifier::isRequired( $order ) ) {
+			echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box(); a held order reclassified later still needs its links
 			return; // no validation report, source or format for orders that need no e-invoice
 		}
 		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report

@@ -118,6 +118,17 @@ final class ActionsTest extends TestCase {
 		$this->assertStringContainsString( 'Send this invoice although it failed validation?', $h );
 	}
 
+	public function test_order_box_shows_links_for_held_order_reclassified_not_required(): void {
+		$o          = $this->held();
+		$o->company = ''; // B2C now: not required
+		ob_start();
+		\Invoqk\Admin\OrderBox::show( $o );
+		$h = ob_get_clean();
+		$this->assertStringContainsString( 'E-invoice not required', $h );
+		$this->assertStringContainsString( 'Fix and resend', $h );
+		$this->assertStringContainsString( 'action=invoqk_guard_release', $h );
+	}
+
 	public function test_box_states_text(): void {
 		$o = $this->held( 'waiting' );
 		$this->assertStringContainsString( 'Waiting for validation', Actions::box( $o ) );
