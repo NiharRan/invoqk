@@ -37,13 +37,49 @@ final class ActionsTest extends TestCase {
 		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
 	}
 
-	public function test_trial_saves_license_and_site_key(): void {
-		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+	public function test_trial_request_only_remembers_the_email(): void {
+		$this->reply( 202, [ 'status' => 'check_email' ] );
 		$r = Actions::trial( 'a@b.de', 1000, $this->t() );
+		$this->assertTrue( $r['ok'] );
+		$this->assertSame( 'a@b.de', $GLOBALS['invoqk_options']['invoqk_trial_pending'] );
+		$this->assertSame( 'free', License::get()['plan'] );
+		$this->assertStringEndsWith( '/license/trial', $this->calls[0][0] );
+	}
+
+	public function test_trial_confirm_saves_license_and_site_key_and_clears_pending(): void {
+		$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
+		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		$r = Actions::trialConfirm( '123456', 1000, $this->t() );
 		$this->assertTrue( $r['ok'] );
 		$this->assertSame( 'trial', License::get()['plan'] );
 		$this->assertSame( 'sk_new', $GLOBALS['invoqk_options']['invoqk_api_key'] );
-		$this->assertStringEndsWith( '/license/trial', $this->calls[0][0] );
+		$this->assertArrayNotHasKey( 'invoqk_trial_pending', $GLOBALS['invoqk_options'] );
+		$this->assertStringEndsWith( '/license/trial/confirm', $this->calls[0][0] );
+		$this->assertSame( '{"email":"a@b.de","domain":"shop.example","code":"123456"}', $this->calls[0][1]['body'] );
+	}
+
+	public function test_trial_confirm_wrong_code_keeps_pending_and_changes_nothing(): void {
+		$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
+		$this->reply( 400, [ 'error' => 'invalid_code' ] );
+		$this->assertSame( 'invalid_code', Actions::trialConfirm( '000000', 1000, $this->t() )['error'] );
+		$this->assertSame( 'a@b.de', $GLOBALS['invoqk_options']['invoqk_trial_pending'] );
+		$this->assertSame( 'free', License::get()['plan'] );
+	}
+
+	public function test_trial_confirm_needs_pending_email_and_six_digits(): void {
+		$this->assertSame( 'no_pending', Actions::trialConfirm( '123456', 1000, $this->t() )['error'] );
+		$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
+		$this->assertSame( 'invalid_code', Actions::trialConfirm( '12', 1000, $this->t() )['error'] );
+		$this->assertSame( [], $this->calls );
+	}
+
+	public function test_trial_confirm_final_errors_drop_pending(): void {
+		foreach ( [ 'trial_used', 'account_exists' ] as $err ) {
+			$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
+			$this->reply( 409, [ 'error' => $err ] );
+			$this->assertSame( $err, Actions::trialConfirm( '123456', 1000, $this->t() )['error'] );
+			$this->assertArrayNotHasKey( 'invoqk_trial_pending', $GLOBALS['invoqk_options'] );
+		}
 	}
 
 	public function test_trial_used_changes_nothing(): void {
@@ -207,8 +243,12 @@ final class ActionsTest extends TestCase {
 	}
 
 	public function test_handle_trial_redirects_to_settings_with_ok(): void {
-		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		$this->reply( 202, [ 'status' => 'check_email' ] );
 		$url = Actions::handle( [ 'license_action' => 'trial', 'email' => 'a@b.de' ], 1000, $this->t() );
+		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=check_email', $url );
+		$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
+		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		$url = Actions::handle( [ 'license_action' => 'trial_confirm', 'code' => ' 123456 ' ], 1000, $this->t() );
 		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=ok', $url );
 	}
 
@@ -239,7 +279,7 @@ final class ActionsTest extends TestCase {
 	}
 
 	public function test_trial_sends_email_and_domain_and_needs_a_valid_email(): void {
-		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		$this->reply( 202, [ 'status' => 'check_email' ] );
 		Actions::trial( ' Owner@Shop.de ', 1000, $this->t() );
 		$this->assertSame( '{"email":"owner@shop.de","domain":"shop.example"}', $this->calls[0][1]['body'] );
 		$this->calls = [];

@@ -58,4 +58,19 @@ final class BoxTest extends TestCase {
 		$this->assertStringContainsString( 'account', Box::html( $this->lic(), 1, 'account_exists' ) );
 		$this->assertStringNotContainsString( 'notice-error', Box::html( $this->lic(), 1, 'ok' ) );
 	}
+
+	public function test_pending_trial_shows_code_form_with_escaped_email(): void {
+		$h = Box::html( $this->lic(), 1000, 'check_email', 'a<b>@x.de' );
+		$this->assertStringContainsString( 'name="code"', $h );
+		$this->assertStringContainsString( 'value="trial_confirm"', $h );
+		$this->assertStringContainsString( 'a&lt;b&gt;@x.de', $h );
+		$this->assertStringNotContainsString( 'notice-error', $h );
+		$this->assertStringNotContainsString( 'name="code"', Box::html( $this->lic(), 1000 ) );
+	}
+
+	public function test_code_flash_and_no_code_form_for_active_license(): void {
+		$this->assertStringContainsString( 'code', Box::html( $this->lic(), 1, 'invalid_code' ) );
+		$active = $this->lic( [ 'plan' => 'pro', 'valid_until' => 9999 ] );
+		$this->assertStringNotContainsString( 'name="code"', Box::html( $active, 1, '', 'a@x.de' ) );
+	}
 }

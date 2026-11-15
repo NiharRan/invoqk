@@ -3,13 +3,18 @@ namespace Invoqk\Licensing;
 
 /** The licensing box on the settings page. Pure: takes the stored license and the time, returns escaped HTML. Never prints the key. */
 final class Box {
-	public static function html( array $l, int $now, string $flash = '' ): string {
+	public static function html( array $l, int $now, string $flash = '', string $pendingEmail = '' ): string {
 		$active = License::activeAt( $l, $now );
 		$h      = '<div class="invoqk-box invoqk-license"><h2>' . esc_html__( 'License', 'invoqk' ) . '</h2>' . self::flash( $flash )
 			. '<p>' . esc_html( self::status( $l, $now, $active ) ) . '</p>';
 		if ( $active ) {
 			$h .= self::form( 'deactivate', __( 'Deactivate this site', 'invoqk' ) );
 		} else {
+			if ( '' !== $pendingEmail ) {
+				/* translators: %s: email address */
+				$h .= '<p>' . esc_html( sprintf( __( 'We sent a 6-digit code to %s. Enter it to start your trial.', 'invoqk' ), $pendingEmail ) ) . '</p>'
+					. self::form( 'trial_confirm', __( 'Confirm trial', 'invoqk' ), '<label>' . esc_html__( 'Code', 'invoqk' ) . ' <input name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required autocomplete="one-time-code" class="small-text"></label> ' );
+			}
 			if ( ! $l['trial_used'] ) {
 				$h .= self::form( 'trial', __( 'Start 14-day trial', 'invoqk' ), '<label>' . esc_html__( 'Email', 'invoqk' ) . ' <input name="email" type="email" required autocomplete="email" class="regular-text"></label> ' );
 			}
@@ -64,12 +69,17 @@ final class Box {
 		if ( '' === $code || 'ok' === $code ) {
 			return '';
 		}
+		if ( 'check_email' === $code ) {
+			return '<div class="notice notice-info inline"><p>' . esc_html__( 'Check your email for the trial code.', 'invoqk' ) . '</p></div>';
+		}
 		$texts = [
 			'invalid_key' => __( 'This license key was not found.', 'invoqk' ),
 			'seats_full'  => __( 'All seats of this license are in use. Deactivate another site first.', 'invoqk' ),
 			'trial_used'  => __( 'The trial was already used for this site.', 'invoqk' ),
 			'unreachable' => __( 'The Invoqk server could not be reached. Try again later.', 'invoqk' ),
 			'no_key'      => __( 'Enter your API key in the settings below first.', 'invoqk' ),
+			'invalid_code' => __( 'That code is not right or has expired. Request a new one.', 'invoqk' ),
+			'no_pending'  => __( 'Enter your email first to get a code.', 'invoqk' ),
 			'invalid_email' => __( 'Enter a valid email address.', 'invoqk' ),
 			'account_exists' => __( 'An invoqk.com account with this email exists. Create an API key in your account and enter it below.', 'invoqk' ),
 			'no_license'  => __( 'The key is saved, but this account has no active plan. Buy a plan below.', 'invoqk' ),

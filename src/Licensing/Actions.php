@@ -6,7 +6,8 @@ use Invoqk\Validation\Client;
 
 /** Every license change the plugin makes, each one a call to the license API. A failed call never wipes a working license. */
 final class Actions {
-	public const PENDING = 'invoqk_checkout_pending';
+	public const PENDING       = 'invoqk_checkout_pending';
+	public const TRIAL_PENDING = 'invoqk_trial_pending';
 	private const PLANS  = [ 'pro', 'pro3', 'agency' ];
 	private const POLL   = 300;
 	private const POLL_FOR = 3 * 86400;
@@ -34,6 +35,9 @@ final class Actions {
 			case 'trial':
 				$r = self::trial( sanitize_text_field( wp_unslash( (string) ( $post['email'] ?? '' ) ) ), $now, $transport );
 				break;
+			case 'trial_confirm':
+				$r = self::trialConfirm( sanitize_text_field( wp_unslash( (string) ( $post['code'] ?? '' ) ) ), $now, $transport );
+				break;
 			case 'activate':
 				$r = self::activate( sanitize_text_field( wp_unslash( (string) ( $post['key'] ?? '' ) ) ), $now, $transport );
 				break;
@@ -49,7 +53,8 @@ final class Actions {
 			default:
 				$r = self::fail( 'unknown' );
 		}
-		return admin_url( 'admin.php?page=invoqk' ) . '&invoqk_license=' . ( $r['ok'] ? 'ok' : (string) $r['error'] );
+		$flash = $r['ok'] ? ( 'trial' === $act ? 'check_email' : 'ok' ) : (string) $r['error'];
+		return admin_url( 'admin.php?page=invoqk' ) . '&invoqk_license=' . $flash;
 	}
 
 	/** @return array{ok:bool,error:?string} */
@@ -58,7 +63,31 @@ final class Actions {
 		if ( false === filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
 			return self::fail( 'invalid_email' );
 		}
-		return self::install( Api::call( 'trial', [ 'email' => $email, 'domain' => Api::domain() ], false, $transport ), $now );
+		$res = Api::call( 'trial', [ 'email' => $email, 'domain' => Api::domain() ], false, $transport );
+		if ( 202 !== $res['http'] ) {
+			return self::fail( Api::error( $res ) );
+		}
+		update_option( self::TRIAL_PENDING, $email, false ); // the code arrives by email; trialConfirm finishes it
+		return [ 'ok' => true, 'error' => null ];
+	}
+
+	/** @return array{ok:bool,error:?string} */
+	public static function trialConfirm( string $code, int $now, ?callable $transport = null ): array {
+		$email = (string) get_option( self::TRIAL_PENDING, '' );
+		if ( '' === $email ) {
+			return self::fail( 'no_pending' );
+		}
+		$code = trim( $code );
+		if ( 1 !== preg_match( '/^\d{6}$/', $code ) ) {
+			return self::fail( 'invalid_code' );
+		}
+		$res = Api::call( 'trial/confirm', [ 'email' => $email, 'domain' => Api::domain(), 'code' => $code ], false, $transport );
+		$out = self::install( $res, $now );
+		// A wrong code can be retried; any other answer ends this attempt.
+		if ( $out['ok'] || ! in_array( $out['error'], [ 'invalid_code', 'unreachable', 'unknown', 'rate_limited' ], true ) ) {
+			delete_option( self::TRIAL_PENDING );
+		}
+		return $out;
 	}
 
 	/** @return array{ok:bool,error:?string} */
