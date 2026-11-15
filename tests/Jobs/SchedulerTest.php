@@ -268,7 +268,7 @@ final class SchedulerTest extends TestCase {
 		if ( str_ends_with( $path, '/src/Validation/Limit.php' ) ) {
 			return self::NET . '|curl_init'; // only the upgrade-URL literal is exempt
 		}
-		return str_ends_with( $path, '/src/Validation/Client.php' ) ? 'wp_safe_remote_|wp_remote_(get|request|head)|curl_init|WP_Http|fsockopen|stream_socket_client|http:\/\/' : self::NET . '|curl_init|https?:\/\/';
+		return str_ends_with( $path, '/src/Validation/Client.php' ) || str_ends_with( $path, '/src/Licensing/Api.php' ) ? 'wp_safe_remote_|wp_remote_(get|request|head)|curl_init|WP_Http|fsockopen|stream_socket_client|http:\/\/' : self::NET . '|curl_init|https?:\/\/';
 	}
 
 	public function test_no_remote_http_in_plugin_source(): void {

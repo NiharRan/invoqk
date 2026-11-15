@@ -13,9 +13,13 @@ final class Client {
 		return trim( (string) get_option( 'invoqk_api_key', '' ) );
 	}
 
-	public static function url(): string {
+	public static function base(): string {
 		$base = defined( 'INVOQK_API_BASE' ) ? (string) INVOQK_API_BASE : (string) get_option( 'invoqk_api_base', '' );
-		return rtrim( '' !== $base ? $base : self::DEFAULT_BASE, '/' ) . '/api/v1/einvoice/validate';
+		return rtrim( '' !== $base ? $base : self::DEFAULT_BASE, '/' );
+	}
+
+	public static function url(): string {
+		return self::base() . '/api/v1/einvoice/validate';
 	}
 
 	/** @return array{http:int,body:?array,retryAfter:?string} */
