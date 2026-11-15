@@ -135,6 +135,24 @@ final class CreditNoteEntryTest extends TestCase {
 		Archive::index()->append( [ 'order_id' => 11, 'version' => 1, 'kind' => 'credit_note' ], [ Chain::class, 'hash' ] );
 		$this->assertNull( $this->go() );
 		$this->assertSame( 1, Archive::index()->count() );
+		$this->assertSame( [], $this->storedFiles(), 'a skipped append stores no file' );
+	}
+
+	private function storedFiles(): array {
+		return glob( $this->base . '/[0-9]*/*/*.xml' ) ?: [];
+	}
+
+	public function test_bytes_changed_since_validation_are_not_archived(): void {
+		$o = $this->order();
+		$r = CreditNoteEntry::handle( 5, 11, [ 'status' => 'passed', 'hash' => hash( 'sha256', '<CreditNote>OLD</CreditNote>' ) ], $this->meta() );
+		$this->assertNull( $r );
+		$this->assertSame( 0, Archive::index()->count() );
+		$this->assertNull( Store::get( $o )[11]['archived'] );
+		$this->assertSame( [], $this->storedFiles() );
+		$this->assertStringContainsString( 'mismatch', implode( ' ', $GLOBALS['invoqk_log'] ) );
+		$r = CreditNoteEntry::handle( 5, 11, [ 'status' => 'passed', 'hash' => hash( 'sha256', $this->bytes ) ], $this->meta() );
+		$this->assertNotNull( $r );
+		$this->assertSame( $r['id'], Store::get( $o )[11]['archived'] );
 	}
 
 	public function test_failed_store_put_after_append_does_not_duplicate_on_retry(): void {

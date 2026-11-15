@@ -33,6 +33,16 @@ final class CreditNoteEntry {
 			if ( null === $bytes || '' === $bytes ) {
 				throw new \RuntimeException( 'read' );
 			}
+			$hash = hash( 'sha256', $bytes );
+			if ( isset( $record['hash'] ) && '' !== $record['hash'] && $record['hash'] !== $hash ) {
+				// Changed since it was checked: archive nothing; the sweep validates it again and then archives.
+				wc_get_logger()->error( "credit note archive #{$orderId}/{$refundId} skipped at mismatch", [ 'source' => 'invoqk' ] );
+				return null;
+			}
+			$index = Archive::index();
+			if ( $index->maxVersion( $refundId ) > 0 ) { // a row exists (any kind, tombstoned too) but `archived` was never stored; checked before any file is stored
+				return null;
+			}
 			$stage  = 'meta';
 			$info   = ( $meta ?? [ self::class, 'defaultMeta' ] )( $order, $refundId );
 			$refund = null;
@@ -43,7 +53,6 @@ final class CreditNoteEntry {
 			}
 			$gross = $refund ? (float) $refund->get_total() : 0.0; // refund totals are negative: keep the sign
 			$vat   = $refund ? (float) $refund->get_total_tax() : 0.0;
-			$index = Archive::index();
 			$row   = [
 				'order_id'          => $refundId,
 				'version'           => 1,
@@ -67,15 +76,11 @@ final class CreditNoteEntry {
 			if ( false === $tmp || false === file_put_contents( $tmp, $bytes ) ) {
 				throw new \RuntimeException( 'tmp' );
 			}
-			$hash                = hash( 'sha256', $bytes );
 			$row[ "{$fmt}_hash" ] = $hash;
 			$row[ "{$fmt}_size" ] = strlen( $bytes );
 			$row[ "{$fmt}_key" ]  = $index->keyForHash( $hash ) ?? Archive::storage()->put( $tmp, $fmt, time() );
 			$stage = 'append';
-			if ( $index->maxVersion( $refundId ) > 0 ) { // a row exists (any kind, tombstoned too) but `archived` was never stored
-				return null;
-			}
-			// shortcut: no lock between this check and append, so two overlapping runs can still double-append; upgrade with a unique key on (order_id, kind, version).
+			// Two overlapping runs can pass the maxVersion check; the table's UNIQUE KEY order_version (order_id, version) rejects the second insert (MemoryIndex in tests has no such key).
 			$saved = $index->append( $row, [ Chain::class, 'hash' ] );
 			$stage = 'store';
 			$entry['archived'] = (int) $saved['id'];

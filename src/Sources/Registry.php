@@ -70,7 +70,7 @@ final class Registry {
 				}
 				$files = $adapter->findCreditNotes( $order );
 			} catch ( \Throwable $e ) {
-				wc_get_logger()->error( $adapter->id() . ': ' . $e->getMessage(), [ 'source' => 'invoqk' ] );
+				wc_get_logger()->error( $adapter->id() . ' credit notes: ' . get_class( $e ), [ 'source' => 'invoqk' ] ); // class only: the message may carry credit note data
 				continue;
 			}
 			if ( $files ) {

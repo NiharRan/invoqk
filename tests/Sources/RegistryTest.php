@@ -67,7 +67,10 @@ final class RegistryTest extends TestCase {
 	public function test_credit_notes_skip_a_throwing_adapter(): void {
 		$a = new FakeAdapter( 'a', true, null, true );
 		$b = new FakeAdapter( 'b', true, null, false, [ 8 => $this->file( 8 ) ] );
+		$GLOBALS['invoqk_log'] = [];
 		$this->assertSame( 'b', ( new Registry( $a, $b ) )->creditNotes( new WC_Order() )['adapter']->id() );
+		$this->assertStringContainsString( 'RuntimeException', implode( ' ', $GLOBALS['invoqk_log'] ) );
+		$this->assertStringNotContainsString( 'boom', implode( ' ', $GLOBALS['invoqk_log'] ), 'class only, never the message' );
 	}
 
 	public function test_credit_notes_returns_null_when_none_found(): void {
