@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Invoqk E-Rechnung QA
+ * Plugin Name:       Invoqk – E-Rechnung Check & Archiv for WooCommerce
  * Description:       Finds and checks the e-invoice of every WooCommerce order. Not legal or tax advice.
  * Version:           0.1.0
  * Requires at least: 6.5

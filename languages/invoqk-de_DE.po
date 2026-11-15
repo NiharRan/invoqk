@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Invoqk E-Rechnung QA 0.1.0\n"
+"Project-Id-Version: Invoqk – E-Rechnung Check & Archiv for WooCommerce 0.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/invoqk\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: invoqk.php
-msgid "Invoqk E-Rechnung QA"
-msgstr "Invoqk E-Rechnung QA"
+msgid "Invoqk – E-Rechnung Check & Archiv for WooCommerce"
+msgstr "Invoqk – E-Rechnung Check & Archiv für WooCommerce"
 
 #. Description of the plugin
 #: invoqk.php
