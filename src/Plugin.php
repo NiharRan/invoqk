@@ -8,6 +8,7 @@ final class Plugin {
 		Guard\Guard::boot();
 		Archive\Hooks::boot();
 		Refund\Open::boot();
+		CreditNote\Detect::boot();
 		Licensing\Actions::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
