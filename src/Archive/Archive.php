@@ -8,8 +8,16 @@ final class Archive {
 		return self::$index ??= new WpdbIndex();
 	}
 
+	public static ?Storage $storage = null;
+
+	/** Task 3 makes LocalStorage the production default. */
+	public static function storage(): Storage {
+		return self::$storage ?? throw new \LogicException( 'Archive storage not configured.' );
+	}
+
 	public static function reset(): void {
-		self::$index = null;
+		self::$index   = null;
+		self::$storage = null;
 	}
 
 	/** One row shape for both indexes: ints as int, money as "12.50", null kept. */
