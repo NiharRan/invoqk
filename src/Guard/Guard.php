@@ -55,6 +55,11 @@ final class Guard {
 			&& 'passed' !== Record::status( $o );
 	}
 
+	/** A held invoice stays off customer emails even when the guard no longer covers the order (Pro ended, passed, reclassified). */
+	private static function guards( \WC_Order $o ): bool {
+		return ( 'held' === ( Hold::get( $o )['state'] ?? '' ) && ! self::sending( $o->get_id() ) ) || self::covers( $o );
+	}
+
 	public static function filterAttachments( array $attachments, string $emailId, $object, $email = null ): array {
 		if ( is_object( $email ) && method_exists( $email, 'is_customer_email' ) && ! $email->is_customer_email() ) {
 			if ( $object instanceof \WC_Order ) {
@@ -62,7 +67,7 @@ final class Guard {
 			}
 			return $attachments;
 		}
-		if ( ! $object instanceof \WC_Order || ! self::covers( $object ) ) {
+		if ( ! $object instanceof \WC_Order || ! self::guards( $object ) ) {
 			return $attachments;
 		}
 		$id    = $object->get_id();
@@ -83,7 +88,7 @@ final class Guard {
 	}
 
 	public static function footer( $order, bool $sentToAdmin, bool $plain, $email ): string {
-		if ( $sentToAdmin || ! $order instanceof \WC_Order || ! self::covers( $order ) ) {
+		if ( $sentToAdmin || ! $order instanceof \WC_Order || ! self::guards( $order ) ) {
 			return '';
 		}
 		$docs = \WPO_WCPDF()->main->get_documents_for_email( $email->id ?? '', $order );
@@ -117,6 +122,10 @@ final class Guard {
 		if ( 'skipped' === $hold['state'] && 'failed' === $status && empty( $hold['warned'] ) ) {
 			( self::$notify )( $id, 'warn' );
 			Hold::set( $order, 'skipped', [ 'warned' => true ] );
+			return;
+		}
+		if ( 'held' === $hold['state'] && 'passed' === $status ) {
+			self::send( $id, 'sent' );
 			return;
 		}
 		if ( 'waiting' !== $hold['state'] ) {

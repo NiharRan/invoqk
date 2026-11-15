@@ -43,6 +43,18 @@ final class ActionsTest extends TestCase {
 		$this->assertSame( 'sent', Hold::get( $o )['state'] );
 	}
 
+	public function test_resend_returns_sent_when_validation_already_sent_it(): void {
+		$o = $this->held();
+		$GLOBALS['invoqk_mailer'] = fn( int $i ) => $this->sent[] = $i;
+		$validate = function ( int $id ) {
+			$this->validate( 'passed' )( $id );
+			Guard::decide( $id ); // what the invoqk_validated hook does inside Job::handle
+		};
+		$this->assertSame( 'sent', Actions::resend( 5, $validate, Actions::$mailer ) );
+		$this->assertSame( [ 5 ], $this->sent );
+		$this->assertSame( 'sent', Hold::get( $o )['state'] );
+	}
+
 	public function test_resend_still_failing_stays_held_with_new_reason(): void {
 		$o = $this->held();
 		$issues = [ [ 'id' => 'BR-CO-9', 'severity' => 'error' ] ];

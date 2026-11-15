@@ -59,6 +59,25 @@ final class GuardDecideTest extends TestCase {
 		$this->assertSame( [ 5 ], $this->sent );
 	}
 
+	public function test_held_order_that_now_passes_sends_once(): void {
+		$GLOBALS['invoqk_actions'] = [];
+		Guard::boot();
+		$o = $this->order( 'passed', 'held' );
+		$GLOBALS['invoqk_mailer'] = function ( int $i ) { $this->sent[] = $i; };
+		do_action( 'invoqk_validated', 5, [ 'status' => 'passed' ] );
+		do_action( 'invoqk_validated', 5, [ 'status' => 'passed' ] );
+		$this->assertSame( [ 5 ], $this->sent );
+		$this->assertSame( 'sent', Hold::get( $o )['state'] );
+		$this->assertNotContains( 5, $GLOBALS['invoqk_options']['invoqk_guard_held'] );
+	}
+
+	public function test_held_order_still_failing_stays_held(): void {
+		$o = $this->order( 'failed', 'held' );
+		$this->decide( 5, true );
+		$this->assertSame( [], $this->sent );
+		$this->assertSame( 'held', Hold::get( $o )['state'] );
+	}
+
 	public function test_timeout_after_result_sends_nothing(): void {
 		$this->order( 'passed', 'sent' );
 		$this->decide( 5, true );

@@ -60,7 +60,10 @@ final class Actions {
 			Job::handle( $i, 1, true );
 		};
 		$validate( $id );
-		$order  = wc_get_order( $id );
+		$order = wc_get_order( $id );
+		if ( 'sent' === ( Hold::get( $order )['state'] ?? '' ) ) {
+			return 'sent'; // the invoqk_validated hook inside validation already sent it
+		}
 		$status = Record::status( $order );
 		if ( 'passed' === $status ) {
 			return Guard::send( $id, 'sent', [], $mailer ) ? 'sent' : 'noop';

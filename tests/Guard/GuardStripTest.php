@@ -92,6 +92,27 @@ final class GuardStripTest extends TestCase {
 		$this->assertSame( 'held', Hold::get( $o )['state'] );
 	}
 
+	public function test_held_invoice_stays_stripped_when_guard_no_longer_covers(): void {
+		$GLOBALS['invoqk_wpo_email_docs']['customer_completed_order'] = [ 'pdf' => [ 'invoice' ] ];
+		$email = (object) [ 'id' => 'customer_completed_order' ];
+		$free  = $this->order( 1 );
+		$pass  = $this->order( 2 );
+		$pass->meta['_invoqk_validation'] = [ 'status' => 'passed' ];
+		$b2c          = $this->order( 3 );
+		$b2c->company = '';
+		$GLOBALS['invoqk_filters']['invoqk_is_pro'] = [];
+		foreach ( [ $free, $pass, $b2c ] as $o ) {
+			Hold::set( $o, 'held' );
+			$this->rec( $o, '/tmp/a.pdf' );
+			$this->assertSame( [ '/tmp/t.pdf' ], Guard::filterAttachments( [ '/tmp/t.pdf', '/tmp/a.pdf' ], 'customer_completed_order', $o ), (string) $o->get_id() );
+			$this->assertSame( 'held', Hold::get( $o )['state'] );
+			$this->assertStringContainsString( 'will follow', Guard::footer( $o, false, false, $email ) );
+		}
+		$admin = new class { public function is_customer_email(): bool { return false; } };
+		$this->rec( $free, '/tmp/a.pdf' );
+		$this->assertSame( [ '/tmp/a.pdf' ], Guard::filterAttachments( [ '/tmp/a.pdf' ], 'new_order', $free, $admin ) );
+	}
+
 	public function test_final_state_lets_attachment_through(): void {
 		$o = $this->order();
 		Hold::set( $o, 'sent' );
