@@ -39,9 +39,10 @@ final class Guard {
 		self::$notify  = [ Digest::class, 'add' ];
 	}
 
-	public static function record( string $path, string $documentType, $document, string $format ): void {
-		$order = $document->order ?? null;
-		if ( 'invoice' === $documentType && $order instanceof \WC_Order ) {
+	// Hook callbacks below take untyped parameters: another plugin on these shared hooks may pass anything.
+	public static function record( $path, $documentType, $document, $format = '' ): void {
+		$order = is_object( $document ) ? ( $document->order ?? null ) : null;
+		if ( is_string( $path ) && 'invoice' === $documentType && $order instanceof \WC_Order ) {
 			self::$paths[ $order->get_id() ][] = $path;
 		}
 	}
@@ -60,7 +61,10 @@ final class Guard {
 		return ( 'held' === ( Hold::get( $o )['state'] ?? '' ) && ! self::sending( $o->get_id() ) ) || self::covers( $o );
 	}
 
-	public static function filterAttachments( array $attachments, string $emailId, $object, $email = null ): array {
+	public static function filterAttachments( $attachments, $emailId, $object, $email = null ) {
+		if ( ! is_array( $attachments ) ) {
+			return $attachments;
+		}
 		if ( is_object( $email ) && method_exists( $email, 'is_customer_email' ) && ! $email->is_customer_email() ) {
 			if ( $object instanceof \WC_Order ) {
 				unset( self::$paths[ $object->get_id() ] );
@@ -78,7 +82,7 @@ final class Guard {
 		unset( self::$paths[ $id ] );
 
 		$hold   = Hold::get( $object ) ?? [];
-		$emails = array_values( array_unique( array_merge( $hold['emails'] ?? [], [ $emailId ] ) ) );
+		$emails = array_values( array_unique( array_merge( $hold['emails'] ?? [], [ (string) $emailId ] ) ) );
 		Hold::set( $object, 'held' === ( $hold['state'] ?? '' ) ? 'held' : 'waiting', [ 'emails' => $emails ] );
 		Scheduler::enqueue( $id );
 		if ( ! as_has_scheduled_action( self::TIMEOUT, [ $id ], Scheduler::GROUP ) ) {
@@ -87,7 +91,7 @@ final class Guard {
 		return array_values( array_diff( $attachments, $paths ) );
 	}
 
-	public static function footer( $order, bool $sentToAdmin, bool $plain, $email ): string {
+	public static function footer( $order, $sentToAdmin, $plain, $email ): string {
 		if ( $sentToAdmin || ! $order instanceof \WC_Order || ! self::guards( $order ) ) {
 			return '';
 		}
@@ -205,8 +209,8 @@ final class Guard {
 		return false;
 	}
 
-	public static function addInvoiceToOwnSend( array $types, string $emailId, $order ): array {
-		if ( 'customer_invoice' !== $emailId || ! $order instanceof \WC_Order || ! self::sending( $order->get_id() ) ) {
+	public static function addInvoiceToOwnSend( $types, $emailId, $order ) {
+		if ( ! is_array( $types ) || 'customer_invoice' !== $emailId || ! $order instanceof \WC_Order || ! self::sending( $order->get_id() ) ) {
 			return $types;
 		}
 		$types['pdf'] = array_values( array_unique( array_merge( (array) ( $types['pdf'] ?? [] ), [ 'invoice' ] ) ) );
@@ -216,8 +220,8 @@ final class Guard {
 		return $types;
 	}
 
-	public static function noReuseDuringSend( bool $reuse, $document ): bool {
-		$order = $document->order ?? null;
+	public static function noReuseDuringSend( $reuse, $document ) {
+		$order = is_object( $document ) ? ( $document->order ?? null ) : null;
 		return $order instanceof \WC_Order && self::sending( $order->get_id() ) ? false : $reuse;
 	}
 }

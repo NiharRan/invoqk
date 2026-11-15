@@ -130,6 +130,19 @@ final class GuardStripTest extends TestCase {
 		$this->assertSame( '', Guard::footer( $o, true, false, $email ) );
 	}
 
+	public function test_hook_callbacks_pass_unexpected_input_through(): void {
+		$o = $this->order();
+		$this->rec( $o, '/tmp/a.pdf' );
+		$this->assertNull( Guard::filterAttachments( null, 'x', $o ) );
+		$this->assertSame( 'str', Guard::filterAttachments( 'str', null, $o ) );
+		Guard::record( null, null, null, null );
+		Guard::record( [ 'x' ], 'invoice', (object) [ 'order' => $o ], null );
+		$this->assertNull( Guard::addInvoiceToOwnSend( null, null, $o ) );
+		$this->assertSame( 1, Guard::noReuseDuringSend( 1, null ) );
+		$this->assertSame( '', Guard::footer( $o, null, null, null ) );
+		$this->assertArrayNotHasKey( Hold::KEY, $o->meta );
+	}
+
 	public function test_admin_email_untouched(): void {
 		$o = $this->order();
 		$this->rec( $o, '/tmp/inv.pdf' );
