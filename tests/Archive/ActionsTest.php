@@ -123,4 +123,27 @@ final class ActionsTest extends TestCase {
 		$this->assertNotEmpty( $GLOBALS['invoqk_actions']['admin_post_invoqk_archive_delete'] ?? [] );
 		$this->assertCount( 1, $GLOBALS['invoqk_actions'] );
 	}
+
+	public function test_unlink_failure_still_tombstones_and_continues(): void {
+		$a = $this->add( 1, $this->old() );
+		$b = $this->add( 2, $this->old() );
+		Archive::$storage = new class( Archive::storage() ) implements \Invoqk\Archive\Storage {
+			public function __construct( private \Invoqk\Archive\Storage $s ) {}
+			public function put( string $p, string $e, int $t ): string { return $this->s->put( $p, $e, $t ); }
+			public function path( string $k ): ?string { return $this->s->path( $k ); }
+			public function delete( string $k ): void { throw new \RuntimeException( 'x' ); }
+			public function staging(): string { return $this->s->staging(); }
+		};
+		$this->assertSame( 2, Actions::delete( [ $a['id'], $b['id'] ], 7, '', '', self::NOW )['deleted'] );
+		$this->assertNotEmpty( $this->ix->find( $a['id'] )['deleted_at'] );
+		$this->assertNotEmpty( $this->ix->find( $b['id'] )['deleted_at'] );
+		$this->assertContains( "archive delete #{$a['id']} file kept: RuntimeException", $GLOBALS['invoqk_log'] );
+	}
+
+	public function test_shared_key_both_ids_one_call(): void {
+		$a = $this->add( 1, $this->old() );
+		$b = $this->add( 2, $this->old(), $a['xml_key'] );
+		$this->assertSame( 2, Actions::delete( [ $a['id'], $b['id'] ], 7, '', '', self::NOW )['deleted'] );
+		$this->assertNull( Archive::storage()->path( $a['xml_key'] ) );
+	}
 }

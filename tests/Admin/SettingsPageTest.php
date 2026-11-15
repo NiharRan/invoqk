@@ -163,6 +163,10 @@ final class SettingsPageTest extends TestCase {
 		$GLOBALS['invoqk_actions'] = [];
 		SettingsPage::boot();
 		do_action( 'admin_init' );
-		$this->assertFalse( $GLOBALS['invoqk_settings']['invoqk_archive_retention_years']['autoload'] ?? null );
+		$this->assertArrayHasKey( 'invoqk_archive_retention_years', $GLOBALS['invoqk_settings'] );
+		$this->assertSame( 8, $GLOBALS['invoqk_options']['invoqk_archive_retention_years'] );
+		$GLOBALS['invoqk_options']['invoqk_archive_retention_years'] = 5;
+		do_action( 'admin_init' );
+		$this->assertSame( 5, $GLOBALS['invoqk_options']['invoqk_archive_retention_years'] );
 	}
 }

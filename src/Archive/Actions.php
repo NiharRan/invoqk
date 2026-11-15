@@ -13,7 +13,7 @@ final class Actions {
 		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_delete' ) ) {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
-		$ids     = array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? [] ) ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above
+		$ids     = array_map( 'absint', array_filter( (array) wp_unslash( $_POST['ids'] ?? [] ), 'is_scalar' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above
 		$confirm = sanitize_text_field( wp_unslash( $_POST['confirm'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$reason  = sanitize_text_field( wp_unslash( $_POST['reason'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$r       = self::delete( $ids, get_current_user_id(), $confirm, $reason, time() );
@@ -25,24 +25,29 @@ final class Actions {
 	public static function delete( array $ids, int $userId, string $confirm, string $reason, int $now ): array {
 		$ix  = Archive::index();
 		$out = [ 'deleted' => 0, 'refused' => 0 ];
+		$reason = trim( $reason );
 		foreach ( array_unique( array_map( 'intval', $ids ) ) as $id ) {
 			$row = $ix->find( $id );
 			if ( ! $row || ! empty( $row['deleted_at'] ) ) {
 				continue;
 			}
-			$reason = trim( $reason );
 			if ( ! self::deletable( $row, $now ) && ( __( 'DELETE', 'invoqk' ) !== $confirm || '' === $reason ) ) {
 				++$out['refused'];
 				continue;
 			}
-			foreach ( [ 'xml_key', 'pdf_key' ] as $k ) {
-				if ( ! empty( $row[ $k ] ) && 0 === $ix->liveRefs( $row[ $k ], $id ) ) {
-					Archive::storage()->delete( $row[ $k ] );
-				}
-			}
 			$ix->tombstone( $id, $userId, $reason, $now );
 			wc_get_logger()->info( "archive delete #{$id} by user {$userId}", [ 'source' => 'invoqk' ] );
 			++$out['deleted'];
+			// Tombstone first: a failed unlink leaves an orphan file, never a live row without a record.
+			foreach ( array_unique( array_filter( [ $row['xml_key'] ?? null, $row['pdf_key'] ?? null ] ) ) as $key ) {
+				try {
+					if ( 0 === $ix->liveRefs( $key, $id ) ) {
+						Archive::storage()->delete( $key );
+					}
+				} catch ( \Throwable $e ) {
+					wc_get_logger()->info( "archive delete #{$id} file kept: " . get_class( $e ), [ 'source' => 'invoqk' ] );
+				}
+			}
 		}
 		return $out;
 	}

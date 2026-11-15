@@ -18,7 +18,8 @@ final class SettingsPage {
 		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue' ] );
 		add_action( 'admin_init', static function () {
 			register_setting( 'invoqk', 'invoqk_api_key', [ 'sanitize_callback' => 'sanitize_text_field', 'autoload' => false ] );
-			register_setting( 'invoqk', Actions::RETENTION_OPTION, [ 'sanitize_callback' => [ Actions::class, 'sanitizeYears' ], 'autoload' => false ] );
+			register_setting( 'invoqk', Actions::RETENTION_OPTION, [ 'sanitize_callback' => [ Actions::class, 'sanitizeYears' ] ] );
+			add_option( Actions::RETENTION_OPTION, 8, '', false ); // register_setting has no autoload argument; no-op when it exists
 			if ( Limit::isPro() ) {
 				register_setting( 'invoqk', 'invoqk_guard_mode', [ 'sanitize_callback' => [ Hold::class, 'sanitizeMode' ], 'autoload' => false ] );
 			}
