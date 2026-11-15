@@ -9,6 +9,65 @@ final class Export {
 	public const OPT   = 'invoqk_archive_export';
 	public const BATCH = 200;
 
+	public static function boot(): void {
+		add_action( self::HOOK, static fn( $id, $after ) => self::run( (string) $id, (int) $after ), 10, 2 );
+		add_action( 'admin_post_invoqk_archive_export', [ self::class, 'startCallback' ] );
+		add_action( 'admin_post_invoqk_archive_export_download', [ self::class, 'downloadCallback' ] );
+		add_action( Scheduler::SWEEP, static fn() => self::cleanup( time() ) );
+	}
+
+	/** @return string One of nozip|range|busy|started. */
+	public static function begin( array $post, int $userId, int $now ): string {
+		if ( ! self::available() ) {
+			return 'nozip';
+		}
+		$range = $post['range'] ?? '';
+		if ( 'this_month' === $range || 'last_month' === $range ) {
+			$first = new \DateTimeImmutable( wp_date( 'Y-m-01', $now ), new \DateTimeZone( 'UTC' ) );
+			if ( 'last_month' === $range ) {
+				$first = $first->modify( '-1 month' );
+			}
+			$post = [ 'from' => $first->format( 'Y-m-d' ), 'to' => $first->format( 'Y-m-t' ) ];
+		}
+		$f = Page::filters( $post, $now );
+		if ( ! isset( $f['from'], $f['to'] ) || $f['from'] > $f['to'] ) {
+			return 'range';
+		}
+		return self::start( $f['from'], $f['to'], $userId, $now ) ? 'started' : 'busy';
+	}
+
+	public static function startCallback(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_export' ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+		$code = self::begin( $_POST, get_current_user_id(), time() ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above
+		wp_safe_redirect( admin_url( 'admin.php?page=invoqk-archive&export=' . $code ) );
+		exit;
+	}
+
+	public static function downloadCallback(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_export_download' ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+		$s    = self::state();
+		$path = '';
+		if ( 'ready' === $s['state'] ) {
+			$path = Archive::storage()->exports() . '/' . basename( (string) ( $s['file'] ?? '' ) );
+		}
+		if ( ! is_file( $path ) ) {
+			wp_die( esc_html__( 'File not found.', 'invoqk' ), '', [ 'response' => 404 ] );
+		}
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
+		nocache_headers();
+		header( 'Content-Type: application/zip' );
+		header( 'Content-Disposition: attachment; filename="invoqk-export-' . $s['from'] . '-' . $s['to'] . '.zip"' );
+		header( 'Content-Length: ' . filesize( $path ) );
+		readfile( $path );
+		exit;
+	}
+
 	public static function available(): bool {
 		return class_exists( \ZipArchive::class );
 	}

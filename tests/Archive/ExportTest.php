@@ -225,4 +225,58 @@ final class ExportTest extends TestCase {
 		$this->assertSame( 'ready', Export::state()['state'] );
 		$this->assertSame( 200, Export::state()['count'] );
 	}
+
+	public function test_begin_rejects_bad_range(): void {
+		foreach ( [ [ '2024-02-01', '2024-01-01' ], [ '', '' ], [ '2026-02-30', '2026-03-01' ] ] as [ $f, $t ] ) {
+			$this->assertSame( 'range', Export::begin( [ 'from' => $f, 'to' => $t ], 5, time() ) );
+		}
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$this->assertSame( 'none', Export::state()['state'] );
+	}
+
+	public function test_begin_this_month_and_last_month(): void {
+		$now = gmmktime( 12, 0, 0, 3, 15, 2026 );
+		$this->assertSame( 'started', Export::begin( [ 'range' => 'this_month' ], 5, $now ) );
+		$this->assertSame( [ '2026-03-01', '2026-03-31' ], [ Export::state()['from'], Export::state()['to'] ] );
+		$GLOBALS['invoqk_options'] = [];
+		$this->assertSame( 'started', Export::begin( [ 'range' => 'last_month', 'from' => 'junk' ], 5, $now ) );
+		$this->assertSame( [ '2026-02-01', '2026-02-28' ], [ Export::state()['from'], Export::state()['to'] ] );
+	}
+
+	public function test_second_start_is_busy_unless_stale(): void {
+		$now = time();
+		$this->assertSame( 'started', Export::begin( [ 'from' => '2024-01-01', 'to' => '2024-02-01' ], 5, $now ) );
+		$this->assertSame( 'busy', Export::begin( [ 'from' => '2024-01-01', 'to' => '2024-02-01' ], 5, $now ) );
+		$s       = Export::state();
+		$s['at'] = $now - 2 * HOUR_IN_SECONDS;
+		update_option( Export::OPT, $s, false );
+		$this->assertSame( 'started', Export::begin( [ 'from' => '2024-01-01', 'to' => '2024-02-01' ], 5, $now ) );
+	}
+
+	public function test_callbacks_need_cap_and_nonce(): void {
+		foreach ( [ 'invoqk_can', 'invoqk_nonce_ok' ] as $g ) {
+			foreach ( [ 'startCallback', 'downloadCallback' ] as $cb ) {
+				$GLOBALS['invoqk_can'] = $GLOBALS['invoqk_nonce_ok'] = true;
+				$GLOBALS[ $g ]         = false;
+				try {
+					Export::$cb();
+					$this->fail( 'expected die' );
+				} catch ( \InvoqkTestDie $e ) {
+					$this->assertSame( 403, $e->getCode() );
+				}
+			}
+		}
+		unset( $GLOBALS['invoqk_can'], $GLOBALS['invoqk_nonce_ok'] );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_download_refuses_when_not_ready(): void {
+		$this->begin();
+		try {
+			Export::downloadCallback();
+			$this->fail( 'expected die' );
+		} catch ( \InvoqkTestDie $e ) {
+			$this->assertSame( 404, $e->getCode() );
+		}
+	}
 }
