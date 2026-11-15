@@ -498,8 +498,10 @@ msgstr ""
 #. translators: number of orders
 #: src/Guard/Actions.php
 #, php-format
-msgid "%d invoices held by Invoqk"
-msgstr ""
+msgid "%d invoice held by Invoqk"
+msgid_plural "%d invoices held by Invoqk"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Admin/SettingsPage.php
 msgid "Invoices with errors are now held until you fix or release them."

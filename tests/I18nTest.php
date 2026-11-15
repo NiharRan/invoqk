@@ -67,6 +67,7 @@ final class I18nTest extends TestCase {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
 		$this->assertSame( "%d Hinweis\0%d Hinweise", $mo["%d note\0%d notes"] ?? null );
+		$this->assertSame( "%d Rechnung von Invoqk zurückgehalten\0%d Rechnungen von Invoqk zurückgehalten", $mo["%d invoice held by Invoqk\0%d invoices held by Invoqk"] ?? null );
 	}
 
 	public function test_mo_has_german_for_e5_strings(): void {

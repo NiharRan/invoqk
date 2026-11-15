@@ -498,8 +498,10 @@ msgstr "Warten auf Validierung"
 #. translators: number of orders
 #: src/Guard/Actions.php
 #, php-format
-msgid "%d invoices held by Invoqk"
-msgstr "%d Rechnungen von Invoqk zurückgehalten"
+msgid "%d invoice held by Invoqk"
+msgid_plural "%d invoices held by Invoqk"
+msgstr[0] "%d Rechnung von Invoqk zurückgehalten"
+msgstr[1] "%d Rechnungen von Invoqk zurückgehalten"
 
 #: src/Admin/SettingsPage.php
 msgid "Invoices with errors are now held until you fix or release them."

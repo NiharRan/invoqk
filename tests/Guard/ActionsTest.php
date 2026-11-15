@@ -160,6 +160,11 @@ final class ActionsTest extends TestCase {
 		$this->assertStringContainsString( 'and 2 more', $h );
 	}
 
+	public function test_notice_singular_for_one_held(): void {
+		Hold::set( $GLOBALS['invoqk_orders'][1] = new \WC_Order( 1 ), 'held' );
+		$this->assertStringContainsString( '1 invoice held by Invoqk', Actions::notice() );
+	}
+
 	public function test_notice_empty_without_cap_or_held(): void {
 		$this->assertSame( '', Actions::notice() );
 		Hold::set( $GLOBALS['invoqk_orders'][1] = new \WC_Order( 1 ), 'held' );

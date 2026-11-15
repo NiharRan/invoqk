@@ -132,7 +132,7 @@ final class Actions {
 		$more = count( $ids ) - 5;
 		return '<div class="notice notice-warning"><p><strong>'
 			/* translators: %d: number of orders */
-			. esc_html( sprintf( __( '%d invoices held by Invoqk', 'invoqk' ), count( $ids ) ) ) . '</strong>: '
+			. esc_html( sprintf( _n( '%d invoice held by Invoqk', '%d invoices held by Invoqk', count( $ids ), 'invoqk' ), count( $ids ) ) ) . '</strong>: '
 			. implode( ', ', $links )
 			/* translators: %d: number of further orders */
 			. ( $more > 0 ? ' ' . esc_html( sprintf( __( 'and %d more', 'invoqk' ), $more ) ) : '' )
