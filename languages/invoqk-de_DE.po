@@ -795,3 +795,15 @@ msgstr "Erstattung #%1$d: Gutschrift %2$s"
 #: src/CreditNote/Box.php
 msgid "refers to invoice %s"
 msgstr "bezieht sich auf Rechnung %s"
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID may only contain letters, digits and hyphens, for example 04011000-12345-67."
+msgstr "Die Leitweg-ID darf nur Buchstaben, Ziffern und Bindestriche enthalten, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The first part of the Leitweg-ID needs 2 to 12 digits and the optional middle part at most 30 characters, for example 04011000-12345-67."
+msgstr "Der erste Teil der Leitweg-ID braucht 2 bis 12 Ziffern, der optionale mittlere Teil höchstens 30 Zeichen, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
+msgstr "Die Leitweg-ID muss so aussehen: 04011000-12345-67. Ziffern, ein optionaler mittlerer Teil und eine zweistellige Prüfziffer, getrennt durch Bindestriche."

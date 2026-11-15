@@ -795,3 +795,15 @@ msgstr ""
 #: src/CreditNote/Box.php
 msgid "refers to invoice %s"
 msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID may only contain letters, digits and hyphens, for example 04011000-12345-67."
+msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The first part of the Leitweg-ID needs 2 to 12 digits and the optional middle part at most 30 characters, for example 04011000-12345-67."
+msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
+msgstr ""
