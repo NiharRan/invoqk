@@ -15,6 +15,7 @@ final class Plugin {
 			Admin\Override::boot();
 			Guard\Actions::boot();
 			Admin\SettingsPage::boot();
+			Licensing\Notice::boot();
 			Onboarding\Wizard::boot();
 		}
 		add_action(
