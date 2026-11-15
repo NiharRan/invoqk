@@ -35,10 +35,11 @@ final class Export {
 		if ( 'running' !== $s['state'] || ( $s['id'] ?? '' ) !== $id ) {
 			return;
 		}
-		$dir = Archive::storage()->exports();
-		$zip = "$dir/$id.zip";
-		$csv = "$dir/$id.csv";
+		$zip = $csv = '';
 		try {
+			$dir = Archive::storage()->exports();
+			$zip = "$dir/$id.zip";
+			$csv = "$dir/$id.csv";
 			$rows = Archive::index()->after( $afterId, self::BATCH );
 			$z    = new \ZipArchive();
 			if ( true !== $z->open( $zip, \ZipArchive::CREATE ) ) {
@@ -83,7 +84,7 @@ final class Export {
 				as_enqueue_async_action( self::HOOK, [ $id, $afterId ], Scheduler::GROUP );
 				return;
 			}
-			if ( ! $z->open( $zip, \ZipArchive::CREATE ) || ! $z->addFile( $csv, 'index.csv' ) || ! $z->close() ) {
+			if ( true !== $z->open( $zip, \ZipArchive::CREATE ) || ! $z->addFile( $csv, 'index.csv' ) || ! $z->close() ) {
 				throw new \RuntimeException( 'finish' );
 			}
 			unlink( $csv );
@@ -91,8 +92,11 @@ final class Export {
 			$s['file']  = "$id.zip";
 			update_option( self::OPT, $s, false );
 		} catch ( \Throwable $e ) {
-			@unlink( $zip );
-			@unlink( $csv );
+			foreach ( [ $zip, $csv ] as $f ) {
+				if ( '' !== $f ) {
+					@unlink( $f );
+				}
+			}
 			update_option( self::OPT, [ 'state' => 'failed', 'at' => time() ] + $s, false );
 			wc_get_logger()->error( "archive export $id failed: " . get_class( $e ) . ': ' . $e->getMessage(), [ 'source' => 'invoqk' ] );
 			return;
@@ -101,14 +105,19 @@ final class Export {
 	}
 
 	public static function cleanup( int $now ): void {
-		$dir = Archive::storage()->exports();
+		try {
+			$dir = Archive::storage()->exports();
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( 'archive export cleanup failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
+			return;
+		}
 		foreach ( array_merge( glob( "$dir/*.zip" ) ?: [], glob( "$dir/*.csv" ) ?: [] ) as $f ) {
 			if ( filemtime( $f ) < $now - 7 * DAY_IN_SECONDS ) {
 				@unlink( $f );
 			}
 		}
 		$s = self::state();
-		if ( 'ready' === $s['state'] && ! is_file( "$dir/" . $s['file'] ) ) {
+		if ( 'ready' === $s['state'] && ! is_file( "$dir/" . ( $s['file'] ?? '' ) ) ) {
 			update_option( self::OPT, [ 'state' => 'none' ], false );
 		}
 	}

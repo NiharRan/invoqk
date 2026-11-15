@@ -161,4 +161,68 @@ final class ExportTest extends TestCase {
 		$this->assertFileDoesNotExist( $zip );
 		$this->assertSame( 'none', Export::state()['state'] );
 	}
+
+	public function test_exports_dir_failure_marks_failed(): void {
+		$this->add( 1, 1, '2024-03-01' );
+		$id = $this->begin();
+		$GLOBALS['invoqk_as'] = [];
+		Archive::$storage     = new class implements \Invoqk\Archive\Storage {
+			public function put( string $p, string $e, int $t ): string { return ''; }
+			public function path( string $k ): ?string { return null; }
+			public function delete( string $k ): void {}
+			public function staging(): string { return ''; }
+			public function exports(): string { throw new \RuntimeException( 'dir' ); }
+		};
+		Export::run( $id, 0, $this->mail() );
+		$this->assertSame( 'failed', Export::state()['state'] );
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+		$this->assertSame( [], $this->mails );
+		Export::cleanup( time() );
+		$this->assertSame( 'failed', Export::state()['state'] );
+	}
+
+	private function bulk( int $n, int $skip = 0 ): array {
+		$src = sys_get_temp_dir() . '/invoqk-e-bulk.tmp';
+		file_put_contents( $src, 'x' );
+		$key = Archive::storage()->put( $src, 'xml', 1700000000 );
+		unlink( $src );
+		$ids = [];
+		for ( $i = 1; $i <= $n; $i++ ) {
+			$ids[] = $this->ix->append( [ 'order_id' => $i, 'version' => 1, 'invoice_number' => 1 === $i ? 'RE-1' : ( $n === $i && $skip ? 're-1' : "RE-X$i" ), 'invoice_date' => '2024-03-01', 'xml_key' => $key ], [ Chain::class, 'hash' ] )['id'];
+		}
+		return $ids;
+	}
+
+	public function test_name_collision_across_batches_gets_id_suffix(): void {
+		$ids = $this->bulk( 201, 1 );
+		$id  = $this->begin();
+		Export::run( $id, 0, $this->mail() );
+		Export::run( $id, $ids[199], $this->mail() );
+		[ $names ] = $this->names( $id );
+		$this->assertContains( 'RE-1_v1.xml', $names );
+		$this->assertContains( 're-1_v1-' . $ids[200] . '.xml', $names );
+		$this->assertCount( 202, $names );
+	}
+
+	public function test_zero_rows_in_range_gives_header_only_zip(): void {
+		$this->add( 1, 1, '2020-01-01' );
+		$id = $this->begin();
+		Export::run( $id, 0, $this->mail() );
+		$this->assertSame( 'ready', Export::state()['state'] );
+		$this->assertSame( 0, Export::state()['count'] );
+		[ $names, $z ] = $this->names( $id );
+		$this->assertSame( [ 'index.csv' ], $names );
+		$this->assertSame( \Invoqk\Archive\ExportFormat::header(), $z->getFromName( 'index.csv' ) );
+	}
+
+	public function test_exactly_one_full_batch_finishes_with_empty_last_batch(): void {
+		$ids = $this->bulk( 200 );
+		$id  = $this->begin();
+		$GLOBALS['invoqk_as'] = [];
+		Export::run( $id, 0, $this->mail() );
+		$this->assertSame( [ $id, $ids[199] ], $GLOBALS['invoqk_as'][0]['args'] );
+		Export::run( $id, $ids[199], $this->mail() );
+		$this->assertSame( 'ready', Export::state()['state'] );
+		$this->assertSame( 200, Export::state()['count'] );
+	}
 }
