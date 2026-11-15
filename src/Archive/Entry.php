@@ -9,12 +9,12 @@ final class Entry {
 	public const HOOK = Capture::ENTRY;
 
 	public static function boot(): void {
-		add_action( self::HOOK, static fn( $setId, $attempt = 1 ) => self::handle( (string) $setId, (int) $attempt ), 10, 2 );
+		add_action( self::HOOK, static fn( $setId ) => self::handle( (string) $setId ) );
 		add_action( Scheduler::SWEEP, static fn() => self::sweep( time() ) );
 		add_action( 'invoqk_validated', static fn( $id, $record = [] ) => self::onValidated( (int) $id, (array) $record ), 10, 2 );
 	}
 
-	public static function handle( string $setId, int $attempt = 1, ?callable $meta = null ): void {
+	public static function handle( string $setId, ?callable $meta = null ): void {
 		if ( ! preg_match( '/^[a-f0-9]+$/', $setId ) ) {
 			return;
 		}
@@ -22,12 +22,13 @@ final class Entry {
 		if ( ! is_dir( $dir ) ) {
 			return;
 		}
+		$m = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
+		if ( ! is_array( $m ) ) {
+			wc_get_logger()->error( "archive staging {$setId} has no manifest", [ 'source' => 'invoqk' ] );
+			return;
+		}
+		$attempt = max( 1, (int) ( $m['attempt'] ?? 1 ) );
 		try {
-			$m = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
-			if ( ! is_array( $m ) ) {
-				wc_get_logger()->error( "archive staging {$setId} has no manifest", [ 'source' => 'invoqk' ] );
-				return;
-			}
 			$orderId = (int) ( $m['order_id'] ?? 0 );
 			$order   = wc_get_order( $orderId );
 			$order   = $order instanceof \WC_Order ? $order : null;
@@ -36,7 +37,7 @@ final class Entry {
 			$row     = [
 				'order_id'          => $orderId,
 				'invoice_number'    => (string) ( $info['invoice_number'] ?? '' ),
-				'invoice_date'      => (string) ( $info['invoice_date'] ?? '' ),
+				'invoice_date'      => '' !== (string) ( $info['invoice_date'] ?? '' ) ? (string) $info['invoice_date'] : null, // NULL, not '': a DATE column would read '' back as 0000-00-00
 				'customer'          => $order ? ( '' !== (string) $order->get_billing_company() ? (string) $order->get_billing_company() : trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ) ) : '',
 				'currency'          => $order ? (string) $order->get_currency() : '',
 				'validation_status' => $order ? Record::status( $order ) : 'none',
@@ -49,6 +50,7 @@ final class Entry {
 			$row['gross'] = $gross;
 			$row['vat']   = $vat;
 			$row['net']   = $gross - $vat;
+			$keys = [];
 			foreach ( (array) ( $m['files'] ?? [] ) as $f ) {
 				$fmt  = (string) ( $f['format'] ?? '' );
 				$path = "$dir/" . basename( (string) ( $f['file'] ?? '' ) );
@@ -58,13 +60,16 @@ final class Entry {
 				}
 				$row[ "{$fmt}_hash" ] = $hash;
 				$row[ "{$fmt}_size" ] = filesize( $path );
-				$row[ "{$fmt}_key" ]  = $index->keyForHash( $hash ) ?? Archive::storage()->put( $path, $fmt, time() );
+				$row[ "{$fmt}_key" ]  = $keys[ $hash ] ??= $index->keyForHash( $hash ) ?? Archive::storage()->put( $path, $fmt, time() );
 			}
 			$row['version'] = $index->maxVersion( $orderId ) + 1;
 			$index->append( $row, [ Chain::class, 'hash' ] );
 		} catch ( \Throwable $e ) {
 			wc_get_logger()->error( "archive entry {$setId} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
-			as_schedule_single_action( time() + ( Scheduler::backoff( $attempt ) ?? HOUR_IN_SECONDS ), self::HOOK, [ $setId, $attempt + 1 ], Scheduler::GROUP );
+			$m['attempt'] = $attempt + 1; // args stay [ setId ] so the sweep sees the pending retry
+			$json         = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
+			@file_put_contents( "$dir/manifest.json", $json );
+			as_schedule_single_action( time() + ( Scheduler::backoff( $attempt ) ?? HOUR_IN_SECONDS ), self::HOOK, [ $setId ], Scheduler::GROUP );
 			return;
 		}
 		foreach ( glob( "$dir/*" ) ?: [] as $f ) {
@@ -97,7 +102,15 @@ final class Entry {
 	}
 
 	public static function onValidated( int $orderId, array $record ): void {
-		Archive::index()->setStatus( $orderId, (string) ( $record['status'] ?? 'error' ) );
+		$status = $record['status'] ?? null;
+		if ( ! is_string( $status ) || '' === $status ) {
+			return;
+		}
+		try {
+			Archive::index()->setStatus( $orderId, $status );
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( "archive status #{$orderId} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
+		}
 	}
 
 	/** @return array{invoice_number: string, invoice_date: string} */
