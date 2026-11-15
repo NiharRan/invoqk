@@ -18,11 +18,11 @@ Invoqk finds the e-invoice (XRechnung, ZUGFeRD, Factur-X, UBL or CII) that your 
 
 = Supported invoice plugins =
 
-* Germanized Pro
-* German Market
-* WP Overnight PDF Invoices
+* WP Overnight PDF Invoices (supported today)
+* Germanized Pro (planned)
+* German Market (planned)
 
-Invoqk reads the invoice these plugins already create. It does not create invoices itself. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
+Invoqk reads the invoice that these plugins already create. Today it detects invoices from WP Overnight only. It does not create invoices itself. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
 
 = Free =
 
@@ -111,7 +111,7 @@ No. The plugin shows a notice and does not run.
 
 = Which invoice plugins are supported? =
 
-Germanized Pro, German Market and WP Overnight PDF Invoices.
+WP Overnight PDF Invoices is supported today. Support for Germanized Pro is planned, and so is support for German Market.
 
 == Screenshots ==
 

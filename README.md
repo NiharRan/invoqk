@@ -8,7 +8,7 @@ WooCommerce plugin: finds each order's e-invoice and shows its source. Needs Wor
 
 - Tests: `composer install && vendor/bin/phpunit` (pure unit tests, no WordPress needed).
 - Source adapters: see `ADAPTERS.md`.
-- Integration tests against Germanized Pro, German Market and WP Overnight need licensed copies and are not yet written.
+- Integration tests against WP Overnight (the only adapter that ships today) and, later, Germanized Pro and German Market need licensed copies and are not yet written.
 
 ## Compatibility matrix (checked 2026-11-15 on a dev site: WP, WooCommerce 10.9.4, HPOS on, Action Scheduler 3.9.3)
 

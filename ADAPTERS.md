@@ -16,7 +16,7 @@ One class per invoice plugin. If that plugin changes where it keeps its e-invoic
 
 ## Register
 
-Built-ins load in this fixed order, first hit wins: Germanized Pro, German Market, WP Overnight. Add your own:
+Only the WP Overnight adapter ships today; the registry also lists Germanized Pro and German Market adapters (planned, loaded only if their classes exist). First hit wins, in this order: Germanized Pro, German Market, WP Overnight. Add your own:
 
 ```php
 add_filter( 'invoqk_source_adapters', fn( array $list ) => [ ...$list, new My_Adapter() ] );
