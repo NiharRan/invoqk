@@ -518,3 +518,175 @@ msgstr "Rechnungen mit Fehlern zurückhalten"
 #: src/Admin/SettingsPage.php
 msgid "Only warn me"
 msgstr "Nur mich warnen"
+
+#: src/Admin/Dashboard.php:20
+#, php-format
+msgid "Archive: %s"
+msgstr "Archiv: %s"
+
+#: src/Admin/SettingsPage.php:81
+msgid "Archive retention (years)"
+msgstr "Aufbewahrungsfrist des Archivs (Jahre)"
+
+#: src/Admin/SettingsPage.php:83
+msgid "This is not tax advice. Check the retention period with your tax advisor."
+msgstr "Das ist keine Steuerberatung. Prüfen Sie die Aufbewahrungsfrist mit Ihrer Steuerberatung."
+
+#: src/Admin/SettingsPage.php:87
+msgid "Your server ignores .htaccess. Add a rule that denies web access to uploads/invoqk-archive/, or set INVOQK_ARCHIVE_DIR outside the web root."
+msgstr "Ihr Server ignoriert .htaccess. Fügen Sie eine Regel hinzu, die den Webzugriff auf uploads/invoqk-archive/ sperrt, oder legen Sie INVOQK_ARCHIVE_DIR außerhalb des Web-Roots fest."
+
+#: src/Archive/Actions.php:30
+msgid "File not found."
+msgstr "Datei nicht gefunden."
+
+#: src/Archive/Actions.php:79 src/Archive/Page.php:109
+msgid "DELETE"
+msgstr "LÖSCHEN"
+
+#: src/Archive/Page.php:13 src/Archive/Page.php:137
+msgid "Invoqk Archive"
+msgstr "Invoqk-Archiv"
+
+#: src/Archive/Page.php:46
+msgid "Delivery unconfirmed"
+msgstr "Zustellung unbestätigt"
+
+#: src/Archive/Page.php:49
+msgid "deletable"
+msgstr "löschbar"
+
+#. translators: 1: date, 2: user name
+#: src/Archive/Page.php:56
+#, php-format
+msgid "Deleted on %1$s by %2$s"
+msgstr "Gelöscht am %1$s von %2$s"
+
+#: src/Archive/Page.php:91
+msgid "Check running"
+msgstr "Prüfung läuft"
+
+#. translators: %s: date
+#: src/Archive/Page.php:93
+#, php-format
+msgid "Last check: %s, no changes detected"
+msgstr "Letzte Prüfung: %s, keine Änderungen erkannt"
+
+#. translators: 1: date, 2: entry id, 3: kind of change
+#: src/Archive/Page.php:95
+#, php-format
+msgid "Last check: %1$s, changes detected at entry #%2$d (%3$s)"
+msgstr "Letzte Prüfung: %1$s, Änderungen erkannt bei Eintrag #%2$d (%3$s)"
+
+#: src/Archive/Page.php:96
+msgid "No check run yet"
+msgstr "Noch keine Prüfung durchgeführt"
+
+#: src/Archive/Page.php:100
+msgid "Check archive"
+msgstr "Archiv prüfen"
+
+#: src/Archive/Page.php:112
+msgid "Reason"
+msgstr "Grund"
+
+#: src/Archive/Page.php:113
+msgid "Delete selected"
+msgstr "Auswahl löschen"
+
+#. translators: %s: confirm word
+#: src/Archive/Page.php:115
+#, php-format
+msgid "Entries before the retention date are only deleted when you type %s and give a reason."
+msgstr "Einträge vor Ablauf der Aufbewahrungsfrist werden nur gelöscht, wenn Sie %s eingeben und einen Grund angeben."
+
+#. translators: %d: count
+#: src/Archive/Page.php:124
+#, php-format
+msgid "%d entry deleted."
+msgid_plural "%d entries deleted."
+msgstr[0] "%d Eintrag gelöscht."
+msgstr[1] "%d Einträge gelöscht."
+
+#. translators: %d: count
+#: src/Archive/Page.php:128
+#, php-format
+msgid "%d entry kept: before the retention date it needs the confirm word and a reason."
+msgid_plural "%d entries kept: before the retention date they need the confirm word and a reason."
+msgstr[0] "%d Eintrag behalten: Vor Ablauf der Aufbewahrungsfrist braucht er das Bestätigungswort und einen Grund."
+msgstr[1] "%d Einträge behalten: Vor Ablauf der Aufbewahrungsfrist brauchen sie das Bestätigungswort und einen Grund."
+
+#: src/Archive/Page.php:144
+msgid "The archive stores every e-invoice you send. Available in Invoqk Pro."
+msgstr "Das Archiv speichert jede E-Rechnung, die Sie versenden. Verfügbar in Invoqk Pro."
+
+#: src/Archive/Page.php:145
+msgid "Upgrade to Pro"
+msgstr "Auf Pro upgraden"
+
+#: src/Archive/Page.php:153
+msgid "Only deletable"
+msgstr "Nur löschbare"
+
+#: src/Archive/Page.php:154
+msgid "Filter"
+msgstr "Filtern"
+
+#: src/Archive/Page.php:163
+msgid "Number"
+msgstr "Nummer"
+
+#: src/Archive/Page.php:164
+msgid "Date"
+msgstr "Datum"
+
+#: src/Archive/Page.php:165
+msgid "Customer"
+msgstr "Kunde"
+
+#: src/Archive/Page.php:166
+msgid "Net"
+msgstr "Netto"
+
+#: src/Archive/Page.php:167
+msgid "VAT"
+msgstr "USt."
+
+#: src/Archive/Page.php:168
+msgid "Gross"
+msgstr "Brutto"
+
+#: src/Archive/Page.php:169
+msgid "Status"
+msgstr "Status"
+
+#: src/Archive/Page.php:170
+msgid "Files"
+msgstr "Dateien"
+
+#: src/Archive/Page.php:171
+msgid "Version"
+msgstr "Version"
+
+#. translators: 1: used GB, 2: limit GB
+#: src/Archive/Usage.php:15
+#, php-format
+msgid "%1$s GB of %2$s GB"
+msgstr "%1$s GB von %2$s GB"
+
+#. translators: %d: percent
+#: src/Archive/Usage.php:28
+#, php-format
+msgid "Invoqk: archive at %d %%"
+msgstr "Invoqk: Archiv zu %d %% voll"
+
+#. translators: %s: "1,2 GB of 5 GB"
+#: src/Archive/Usage.php:54
+#, php-format
+msgid "Invoqk archive uses %s."
+msgstr "Das Invoqk-Archiv belegt %s."
+
+#: src/Archive/Usage.php:56
+msgid "Archiving continues; consider your storage plan."
+msgstr "Die Archivierung läuft weiter; prüfen Sie Ihren Speicherplatz."
+

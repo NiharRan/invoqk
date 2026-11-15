@@ -66,6 +66,16 @@ final class I18nTest extends TestCase {
 		foreach ( $e4 as $id => $de ) {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
+		$e7 = [
+			'This is not tax advice. Check the retention period with your tax advisor.' => 'Das ist keine Steuerberatung. Prüfen Sie die Aufbewahrungsfrist mit Ihrer Steuerberatung.',
+			'DELETE'                         => 'LÖSCHEN',
+			'Entries before the retention date are only deleted when you type %s and give a reason.' => 'Einträge vor Ablauf der Aufbewahrungsfrist werden nur gelöscht, wenn Sie %s eingeben und einen Grund angeben.',
+			'Only deletable'                 => 'Nur löschbare',
+			'Last check: %s, no changes detected' => 'Letzte Prüfung: %s, keine Änderungen erkannt',
+		];
+		foreach ( $e7 as $id => $de ) {
+			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
+		}
 		$this->assertSame( "%d Hinweis\0%d Hinweise", $mo["%d note\0%d notes"] ?? null );
 		$this->assertSame( "%d Rechnung von Invoqk zurückgehalten\0%d Rechnungen von Invoqk zurückgehalten", $mo["%d invoice held by Invoqk\0%d invoices held by Invoqk"] ?? null );
 	}
