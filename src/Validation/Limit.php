@@ -7,8 +7,7 @@ use Invoqk\Onboarding\State;
 /** Free tier: 20 distinct orders may be validated. The only writer of invoqk_free_slots. */
 final class Limit {
 	public const MAX = 20;
-	// Open question in the E3 spec: confirm before release.
-	public const DEFAULT_UPGRADE_URL = 'https://invoqk.com';
+	public const DEFAULT_UPGRADE_URL = 'https://invoqk.com/plugin'; // plans and the free trial
 	private const OPTION = 'invoqk_free_slots';
 
 	public static function isPro(): bool {
