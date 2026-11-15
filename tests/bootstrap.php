@@ -192,3 +192,7 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 		};
 	}
 }
+
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || mkdir( $d, 0777, true ); }
+}

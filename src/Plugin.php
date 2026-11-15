@@ -6,6 +6,7 @@ final class Plugin {
 		Jobs\Scheduler::boot();
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
+		Archive\Capture::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
