@@ -38,31 +38,35 @@ final class Capture {
 		}
 		$format = in_array( $format, [ 'pdf', 'xml' ], true ) ? $format : strtolower( pathinfo( $path, PATHINFO_EXTENSION ) );
 		if ( in_array( $format, [ 'pdf', 'xml' ], true ) ) {
-			self::$recorded[ $id ][] = [ 'path' => $path, 'format' => $format ];
+			self::$recorded[ $id ][ $path ] = [ 'path' => $path, 'format' => $format ];
 		}
 	}
 
 	public static function stage( $attachments, $emailId, $object, $email = null ) {
-		if ( ! is_array( $attachments ) || ! $object instanceof \WC_Order
-			|| ! is_object( $email ) || ! method_exists( $email, 'is_customer_email' ) || ! $email->is_customer_email() ) {
+		if ( ! is_array( $attachments ) || ! $object instanceof \WC_Order || ! is_object( $email ) || ! method_exists( $email, 'is_customer_email' ) ) {
 			return $attachments;
 		}
-		$id    = $object->get_id();
+		$id = $object->get_id();
+		if ( ! $email->is_customer_email() ) {
+			unset( self::$recorded[ $id ] ); // same as Guard: admin mail must not leak paths into the next customer mail
+			return $attachments;
+		}
 		$files = array_values( array_filter( self::$recorded[ $id ] ?? [], static fn( $r ) => in_array( $r['path'], $attachments, true ) ) );
 		unset( self::$recorded[ $id ] );
 		if ( ! $files ) {
 			return $attachments;
 		}
-		$setId = bin2hex( random_bytes( 16 ) );
-		$dir   = Archive::storage()->staging() . '/' . $setId;
+		$dir = '';
 		try {
+			$setId = bin2hex( random_bytes( 16 ) );
+			$dir   = Archive::storage()->staging() . '/' . $setId;
 			if ( ! wp_mkdir_p( $dir ) ) {
 				throw new \RuntimeException( 'mkdir' );
 			}
 			$list = [];
 			foreach ( $files as $i => $r ) {
 				$name = "invoice-{$i}.{$r['format']}";
-				if ( ! copy( $r['path'], "$dir/$name" ) ) {
+				if ( ! @copy( $r['path'], "$dir/$name" ) ) {
 					throw new \RuntimeException( 'copy' );
 				}
 				$list[] = [ 'format' => $r['format'], 'file' => $name ];
@@ -75,7 +79,9 @@ final class Capture {
 			self::$sets[ spl_object_id( $email ) ] = $setId;
 		} catch ( \Throwable $e ) {
 			wc_get_logger()->error( "archive capture #{$id} failed: " . get_class( $e ), [ 'source' => 'invoqk' ] );
-			self::remove( $dir );
+			if ( '' !== $dir ) {
+				self::remove( $dir );
+			}
 		}
 		return $attachments;
 	}
@@ -86,23 +92,27 @@ final class Capture {
 		}
 		$setId = self::$sets[ spl_object_id( $email ) ];
 		unset( self::$sets[ spl_object_id( $email ) ] );
-		$dir = Archive::storage()->staging() . '/' . $setId;
-		if ( true !== $return ) {
-			self::remove( $dir );
-			return;
+		try { // the mail already left: a throw here must not read as a send failure
+			$dir = Archive::storage()->staging() . '/' . $setId;
+			if ( ! $return ) {
+				self::remove( $dir );
+				return;
+			}
+			$m = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
+			if ( ! is_array( $m ) ) {
+				return;
+			}
+			$m['sent']    = true;
+			$m['sent_at'] = time();
+			$json         = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
+			if ( false === @file_put_contents( "$dir/manifest.json", $json ) ) {
+				wc_get_logger()->error( "archive capture #{$m['order_id']} manifest write failed", [ 'source' => 'invoqk' ] );
+			}
+			// Queue even if the rewrite failed: the entry job treats an unconfirmed set as sent_confirmed 0, better than a gap.
+			as_enqueue_async_action( self::ENTRY, [ $setId ], Scheduler::GROUP );
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( 'archive capture sent failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
 		}
-		$m = json_decode( (string) @file_get_contents( "$dir/manifest.json" ), true );
-		if ( ! is_array( $m ) ) {
-			return;
-		}
-		$m['sent']    = true;
-		$m['sent_at'] = time();
-		$json         = function_exists( 'wp_json_encode' ) ? wp_json_encode( $m ) : json_encode( $m );
-		if ( false === file_put_contents( "$dir/manifest.json", $json ) ) {
-			wc_get_logger()->error( "archive capture #{$m['order_id']} manifest write failed", [ 'source' => 'invoqk' ] );
-		}
-		// Queue even if the rewrite failed: the entry job treats an unconfirmed set as sent_confirmed 0, better than a gap.
-		as_enqueue_async_action( self::ENTRY, [ $setId ], Scheduler::GROUP );
 	}
 
 	private static function remove( string $dir ): void {

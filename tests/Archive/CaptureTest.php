@@ -155,4 +155,57 @@ final class CaptureTest extends TestCase {
 		$this->assertSame( $in, Capture::stage( $in, 'x', $o, $this->email() ) );
 		$this->assertSame( 'junk', Capture::stage( 'junk', 'x', $o, $this->email() ) );
 	}
+
+	private function throwingStorage( int $okCalls = 0 ): \Invoqk\Archive\Storage {
+		return new class( $okCalls, new LocalStorage( $this->base ) ) implements \Invoqk\Archive\Storage {
+			public function __construct( private int $ok, private LocalStorage $real ) {}
+			public function put( string $s, string $e, int $t ): string { return $this->real->put( $s, $e, $t ); }
+			public function path( string $k ): ?string { return $this->real->path( $k ); }
+			public function delete( string $k ): void { $this->real->delete( $k ); }
+			public function staging(): string {
+				if ( $this->ok-- > 0 ) { return $this->real->staging(); }
+				throw new \RuntimeException( 'unwritable' );
+			}
+		};
+	}
+
+	public function test_staging_failure_returns_attachments_unchanged(): void {
+		$this->pro();
+		$o   = $this->order();
+		$pdf = $this->file( 'a.pdf' );
+		$this->rec( $o, $pdf, 'pdf' );
+		Archive::$storage = $this->throwingStorage();
+		$this->assertSame( [ $pdf ], Capture::stage( [ $pdf ], 'x', $o, $this->email() ) );
+	}
+
+	public function test_sent_never_throws(): void {
+		$o = $this->order();
+		$o->meta['_invoqk_source'] = 'wpo';
+		$pdf = $this->file( 'a.pdf' );
+		$e   = $this->email();
+		$mailer = function ( int $id ) use ( $o, $pdf, $e ) {
+			$this->rec( $o, $pdf, 'pdf' );
+			Capture::stage( [ $pdf ], 'customer_invoice', $o, $e );
+			Archive::$storage = $this->throwingStorage();
+			do_action( 'woocommerce_email_sent', true, 'customer_invoice', $e );
+		};
+		$this->assertTrue( Guard::send( 5, 'released', [], $mailer ) );
+		$this->assertCount( 0, $this->queued() );
+	}
+
+	public function test_admin_then_customer_stages_one_copy(): void {
+		$this->pro();
+		$o   = $this->order();
+		$pdf = $this->file( 'a.pdf' );
+		$this->rec( $o, $pdf, 'pdf' );
+		$this->rec( $o, $pdf, 'pdf' );
+		Capture::stage( [ $pdf ], 'new_order', $o, $this->email( false ) );
+		$this->rec( $o, $pdf, 'pdf' );
+		$this->rec( $o, $pdf, 'pdf' );
+		Capture::stage( [ $pdf ], 'customer_processing_order', $o, $this->email() );
+		$sets = $this->sets();
+		$this->assertCount( 1, $sets );
+		$m = json_decode( file_get_contents( "{$sets[0]}/manifest.json" ), true );
+		$this->assertCount( 1, $m['files'] );
+	}
 }
