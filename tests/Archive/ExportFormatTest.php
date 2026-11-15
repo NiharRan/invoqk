@@ -12,17 +12,31 @@ final class ExportFormatTest extends TestCase {
 	}
 
 	public function test_line_formats_money_date_and_resend(): void {
-		$this->assertSame( "RE-1;05.03.2026;Kunde;100,00;19,00;119,00;EUR;valid;2;ja\r\n", ExportFormat::line( $this->row( [ 'version' => 2 ] ) ) );
+		$this->assertSame( "RE-1;05.03.2026;Kunde;100,00;19,00;119,00;EUR;valid;2;ja;Rechnung;\r\n", ExportFormat::line( $this->row( [ 'version' => 2 ] ) ) );
 	}
 
 	public function test_first_version_has_empty_resend_cell(): void {
-		$this->assertStringEndsWith( ";1;\r\n", ExportFormat::line( $this->row() ) );
+		$this->assertStringContainsString( ";1;;Rechnung;\r\n", ExportFormat::line( $this->row() ) );
 	}
 
 	public function test_header_starts_with_bom(): void {
 		$h = ExportFormat::header();
 		$this->assertStringStartsWith( "\xEF\xBB\xBFRechnungsnr;Datum;Kunde;", $h );
-		$this->assertStringEndsWith( ";Erneut gesendet\r\n", $h );
+		$this->assertStringEndsWith( ";Erneut gesendet;Art;Bezug auf Rechnungsnr\r\n", $h );
+	}
+
+	public function test_header_keeps_existing_columns_first(): void {
+		$this->assertSame( [ 'Rechnungsnr', 'Datum', 'Kunde', 'Netto', 'USt', 'Brutto', 'Währung', 'Validierungsstatus', 'Version', 'Erneut gesendet', 'Art', 'Bezug auf Rechnungsnr' ], ExportFormat::HEADER );
+	}
+
+	public function test_credit_note_line_has_art_and_bezug_and_no_resent_flag(): void {
+		$c = str_getcsv( rtrim( ExportFormat::line( $this->row( [ 'kind' => 'credit_note', 'version' => 1, 'gross' => '-119.00' ] ), 'RE-1' ) ), ';', '"', '' );
+		$this->assertSame( [ '', 'Gutschrift', 'RE-1' ], array_slice( $c, 9 ) );
+	}
+
+	public function test_invoice_line_has_art_rechnung(): void {
+		$c = str_getcsv( rtrim( ExportFormat::line( $this->row( [ 'kind' => 'invoice' ] ) ) ), ';', '"', '' );
+		$this->assertSame( [ 'Rechnung', '' ], array_slice( $c, 10 ) );
 	}
 
 	public function test_formula_prefix_is_neutralised(): void {

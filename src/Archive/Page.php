@@ -69,12 +69,11 @@ final class Page {
 			$files = implode( ' | ', $links );
 		}
 		$date  = (string) ( $row['invoice_date'] ?? '' );
+		$cn    = 'credit_note' === ( $row['kind'] ?? '' );
 		$money = static fn( $k ) => isset( $row[ $k ] ) ? esc_html( number_format( (float) $row[ $k ], 2, ',', '.' ) ) : '';
 		return [
 			'cb'       => self::checkbox( $row ),
-			'number'   => ( $o = wc_get_order( (int) ( $row['order_id'] ?? 0 ) ) ) instanceof \WC_Order
-				? '<a href="' . esc_url( $o->get_edit_order_url() ) . '">' . esc_html( (string) ( $row['invoice_number'] ?? '' ) ) . '</a>'
-				: esc_html( (string) ( $row['invoice_number'] ?? '' ) ),
+			'number'   => self::number( $row ),
 			'date'     => ( $dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date ) ) ? esc_html( $dt->format( 'd.m.Y' ) ) : '',
 			'customer' => esc_html( (string) ( $row['customer'] ?? '' ) ),
 			'net'      => $money( 'net' ),
@@ -82,8 +81,20 @@ final class Page {
 			'gross'    => $money( 'gross' ),
 			'status'   => $status,
 			'files'    => $files,
-			'version'  => esc_html( (string) ( $row['version'] ?? '' ) ),
+			'version'  => $cn ? '' : esc_html( (string) ( $row['version'] ?? '' ) ),
 		];
+	}
+
+	/** Number cell; a credit note row stores the refund id, so its order link goes through the refund's parent. */
+	private static function number( array $row ): string {
+		$cn  = 'credit_note' === ( $row['kind'] ?? '' );
+		$o   = wc_get_order( (int) ( $row['order_id'] ?? 0 ) );
+		$o   = $cn && $o && method_exists( $o, 'get_parent_id' ) ? wc_get_order( (int) $o->get_parent_id() ) : $o;
+		$num = esc_html( (string) ( $row['invoice_number'] ?? '' ) );
+		if ( $o instanceof \WC_Order ) {
+			$num = '<a href="' . esc_url( $o->get_edit_order_url() ) . '">' . $num . '</a>';
+		}
+		return $cn ? $num . ' <em>' . esc_html__( 'Credit note', 'invoqk' ) . '</em>' : $num;
 	}
 
 	public static function header( array $verify, int $used, int $stuck = 0 ): string {

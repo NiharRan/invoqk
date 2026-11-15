@@ -49,6 +49,15 @@ if ( ! class_exists( 'WC_Order' ) ) {
 	}
 }
 
+if ( ! class_exists( 'WC_Order_Refund' ) ) {
+	// A real refund is not a WC_Order; it only knows its parent.
+	class WC_Order_Refund {
+		public function __construct( public int $id = 1, public int $parent = 0 ) {}
+		public function get_id(): int { return $this->id; }
+		public function get_parent_id(): int { return $this->parent; }
+	}
+}
+
 $GLOBALS['invoqk_filters'] = [];
 if ( ! function_exists( 'add_filter' ) ) {
 	function add_filter( string $tag, callable $cb ): void { $GLOBALS['invoqk_filters'][ $tag ][] = $cb; }

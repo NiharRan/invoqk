@@ -30,6 +30,7 @@ final class OrderBox {
 		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
 		echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box()
 		echo Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html()
+		echo \Invoqk\CreditNote\Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html()
 		$r = Result::fromOrder( $order );
 		if ( $r ) {
 			echo '<p>' . esc_html( $r->label ?? $r->source ) . '</p>';

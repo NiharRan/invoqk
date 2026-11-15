@@ -783,3 +783,15 @@ msgid "%d order has a refund without a corrective e-invoice."
 msgid_plural "%d orders have a refund without a corrective e-invoice."
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Archive/Page.php
+msgid "Credit note"
+msgstr ""
+
+#: src/CreditNote/Box.php
+msgid "Refund #%1$d: credit note %2$s"
+msgstr ""
+
+#: src/CreditNote/Box.php
+msgid "refers to invoice %s"
+msgstr ""
