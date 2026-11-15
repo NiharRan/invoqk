@@ -62,8 +62,10 @@ final class WpdbIndex implements Index {
 			KEY pdf_hash (pdf_hash)
 			) {$wpdb->get_charset_collate()};"
 		);
-		// Only a table that really exists is recorded, so a failed dbDelta is retried on the next append.
-		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) === $t ) {
+		// Only a table that really exists with the schema-2 columns is recorded, so a failed dbDelta or ALTER is retried next time.
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) === $t
+			&& 'kind' === $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM {$t} LIKE %s", 'kind' ) )
+			&& 'parent_id' === $wpdb->get_var( $wpdb->prepare( "SHOW COLUMNS FROM {$t} LIKE %s", 'parent_id' ) ) ) {
 			update_option( 'invoqk_archive_db', self::SCHEMA, false );
 		}
 	}
@@ -149,6 +151,7 @@ final class WpdbIndex implements Index {
 
 	public function latestForOrder( int $orderId ): ?array {
 		global $wpdb;
+		self::ensure(); // queries `kind`, which a not yet upgraded table lacks (called before append)
 		$t = self::table();
 		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE order_id = %d AND kind = 'invoice' AND deleted_at IS NULL ORDER BY id DESC LIMIT 1", $orderId ), ARRAY_A );
 		return $r ? Archive::normalise( $r ) : null;
