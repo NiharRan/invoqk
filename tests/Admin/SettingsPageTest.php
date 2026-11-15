@@ -6,6 +6,9 @@ if ( ! function_exists( 'settings_fields' ) ) {
 	function settings_fields( string $g ): void { echo '<input type="hidden" name="option_page" value="' . $g . '">'; }
 	function submit_button(): void { echo '<button type="submit">save</button>'; }
 }
+if ( ! function_exists( 'register_setting' ) ) {
+	function register_setting( string $g, string $name, array $args = [] ): void { $GLOBALS['invoqk_settings'][ $name ] = $args; }
+}
 
 final class SettingsPageTest extends TestCase {
 	protected function setUp(): void {
@@ -128,6 +131,15 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'Only warn me', $h );
 		$GLOBALS['invoqk_options']['invoqk_guard_mode'] = 'warn';
 		$this->assertStringContainsString( 'value="warn" checked', $this->page() );
+	}
+
+	public function test_guard_mode_setting_registered_with_autoload_off(): void {
+		$GLOBALS['invoqk_actions']  = [];
+		$GLOBALS['invoqk_settings'] = [];
+		add_filter( 'invoqk_is_pro', fn() => true );
+		SettingsPage::boot();
+		do_action( 'admin_init' );
+		$this->assertFalse( $GLOBALS['invoqk_settings']['invoqk_guard_mode']['autoload'] ?? null );
 	}
 
 	public function test_intro_notice_shown_once(): void {
