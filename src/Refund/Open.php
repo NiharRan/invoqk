@@ -61,6 +61,36 @@ final class Open {
 		}
 	}
 
+	/**
+	 * Drops index entries whose order is gone or trashed and flagged refunds the order no longer has, so a flag
+	 * can always be cleared. Returns the live order IDs. Called from the hourly sweep (Pro).
+	 *
+	 * @return list<int>
+	 */
+	public static function reconcile(): array {
+		$list = self::orders();
+		$keep = [];
+		foreach ( $list as $id ) {
+			$o = wc_get_order( $id );
+			if ( ! $o instanceof \WC_Order || 'trash' === $o->get_status() ) {
+				continue;
+			}
+			$ids   = self::ids( $o );
+			$valid = array_values( array_intersect( $ids, array_map( static fn( $r ) => (int) $r->get_id(), $o->get_refunds() ) ) );
+			if ( $valid !== $ids ) {
+				$valid ? $o->update_meta_data( self::META, $valid ) : $o->delete_meta_data( self::META );
+				$o->save_meta_data();
+			}
+			if ( $valid ) {
+				$keep[] = $id;
+			}
+		}
+		if ( $keep !== $list ) {
+			update_option( self::INDEX, $keep, false );
+		}
+		return $keep;
+	}
+
 	/** @return list<int> */
 	public static function orders(): array {
 		$l = get_option( self::INDEX, [] );

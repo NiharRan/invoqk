@@ -31,4 +31,10 @@ final class BoxTest extends TestCase {
 		$o->update_meta_data( Open::META, [ 11 ] );
 		$this->assertSame( '', Box::html( $o ) );
 	}
+
+	public function test_empty_when_the_flagged_refund_no_longer_exists(): void {
+		$o = new WC_Order( 5 );
+		$o->update_meta_data( Open::META, [ 11 ] );
+		$this->assertSame( '', Box::html( $o ) );
+	}
 }

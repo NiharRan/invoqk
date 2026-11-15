@@ -21,6 +21,9 @@ final class Box {
 			$items .= '<li>' . esc_html( sprintf( '#%d: %s', $rid, html_entity_decode( wp_strip_all_tags( wc_price( (float) $r->get_amount(), [ 'currency' => $o->get_currency() ] ) ) ) ) )
 				. ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'No corrective e-invoice needed', 'invoqk' ) . '</a></li>';
 		}
+		if ( '' === $items ) { // flagged refunds no longer on the order: the sweep reconciles the meta
+			return '';
+		}
 		return '<p><strong>' . esc_html__( 'Corrective e-invoice open', 'invoqk' ) . '</strong></p><ul>' . $items . '</ul>';
 	}
 }

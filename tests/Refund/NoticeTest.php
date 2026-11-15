@@ -26,4 +26,13 @@ final class NoticeTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 		$this->assertSame( '', Notice::html() );
 	}
+
+	public function test_count_follows_the_reconciled_index(): void {
+		$o          = $GLOBALS['invoqk_orders'][5];
+		$o->refunds = [ new WC_Order_Refund( 11, 5 ) ];
+		$o->meta[ \Invoqk\Refund\Open::META ] = [ 11 ];
+		update_option( 'invoqk_refund_open_orders', [ 5, 6 ] ); // order 6 was deleted
+		\Invoqk\Refund\Open::reconcile();
+		$this->assertStringContainsString( '1 order has', Notice::html() );
+	}
 }
