@@ -133,6 +133,7 @@ final class ActionsTest extends TestCase {
 			public function path( string $k ): ?string { return $this->s->path( $k ); }
 			public function delete( string $k ): void { throw new \RuntimeException( 'x' ); }
 			public function staging(): string { return $this->s->staging(); }
+			public function exports(): string { return $this->s->exports(); }
 		};
 		$this->assertSame( 2, Actions::delete( [ $a['id'], $b['id'] ], 7, '', '', self::NOW )['deleted'] );
 		$this->assertNotEmpty( $this->ix->find( $a['id'] )['deleted_at'] );

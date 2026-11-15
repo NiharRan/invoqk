@@ -10,4 +10,6 @@ interface Storage {
 	public function delete( string $key ): void;
 	/** Directory for files not yet stored. */
 	public function staging(): string;
+	/** Directory for Steuerberater export ZIPs. */
+	public function exports(): string;
 }

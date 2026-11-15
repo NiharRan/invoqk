@@ -42,9 +42,14 @@ final class LocalStorage implements Storage {
 		return $this->base . '/staging';
 	}
 
+	public function exports(): string {
+		$this->ready();
+		return $this->base . '/exports';
+	}
+
 	/** Creates the base and staging dirs and their protection files on first use. */
 	private function ready(): void {
-		foreach ( [ $this->base, $this->base . '/staging' ] as $dir ) {
+		foreach ( [ $this->base, $this->base . '/staging', $this->base . '/exports' ] as $dir ) {
 			$this->dir( $dir );
 			$this->guard( "$dir/.htaccess", "Require all denied\n<IfModule !mod_authz_core.c>Deny from all</IfModule>\n" );
 		}

@@ -22,6 +22,7 @@ final class VerifyTest extends TestCase {
 			public function path( string $k ): ?string { return is_file( $this->d . '/' . $k ) ? $this->d . '/' . $k : null; }
 			public function delete( string $k ): void { @unlink( $this->d . '/' . $k ); }
 			public function staging(): string { return $this->d; }
+			public function exports(): string { return $this->d; }
 		};
 		$this->ix = Archive::$index = new MemoryIndex();
 	}

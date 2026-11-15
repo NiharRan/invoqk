@@ -166,6 +166,7 @@ final class CaptureTest extends TestCase {
 				if ( $this->ok-- > 0 ) { return $this->real->staging(); }
 				throw new \RuntimeException( 'unwritable' );
 			}
+			public function exports(): string { return $this->real->exports(); }
 		};
 	}
 
