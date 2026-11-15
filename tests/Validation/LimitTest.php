@@ -60,6 +60,6 @@ final class LimitTest extends TestCase {
 	}
 
 	public function test_upgrade_url_default(): void {
-		$this->assertSame( 'https://invoqk.com', Limit::upgradeUrl() );
+		$this->assertSame( 'https://invoqk.com/plugin', Limit::upgradeUrl() );
 	}
 }
