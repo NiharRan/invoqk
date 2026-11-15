@@ -107,7 +107,7 @@ final class Page {
 
 	public static function deleteControls(): string {
 		$word = __( 'DELETE', 'invoqk' );
-		return '<input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', '_wpnonce', true, false )
+		return '<input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', 'invoqk_delete_nonce', false, false )
 			. '<p><input type="text" name="confirm" placeholder="' . esc_attr( $word ) . '"> '
 			. '<input type="text" name="reason" placeholder="' . esc_attr( __( 'Reason', 'invoqk' ) ) . '"> '
 			. '<button class="button" type="submit">' . esc_html__( 'Delete selected', 'invoqk' ) . '</button></p>'
@@ -125,7 +125,7 @@ final class Page {
 		}
 		if ( $r > 0 ) {
 			/* translators: %d: count */
-			$o .= '<div class="notice notice-warning"><p>' . esc_html( sprintf( __( '%d entries kept: before the retention date they need the confirm word and a reason.', 'invoqk' ), $r ) ) . '</p></div>';
+			$o .= '<div class="notice notice-warning"><p>' . esc_html( sprintf( _n( '%d entry kept: before the retention date it needs the confirm word and a reason.', '%d entries kept: before the retention date they need the confirm word and a reason.', $r, 'invoqk' ), $r ) ) . '</p></div>';
 		}
 		return $o;
 	}
@@ -159,7 +159,7 @@ final class Page {
 			}
 			public function get_columns(): array {
 				return [
-					'cb'       => '',
+					'cb'       => '<input type="checkbox" />',
 					'number'   => __( 'Number', 'invoqk' ),
 					'date'     => __( 'Date', 'invoqk' ),
 					'customer' => __( 'Customer', 'invoqk' ),

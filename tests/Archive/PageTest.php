@@ -55,7 +55,7 @@ final class PageTest extends TestCase {
 
 	public function test_delete_controls(): void {
 		$h = Page::deleteControls();
-		$this->assertStringContainsString( 'data-action="invoqk_archive_delete"', $h );
+		$this->assertStringContainsString( 'name="invoqk_delete_nonce"', $h );
 		$this->assertStringContainsString( 'name="action" value="invoqk_archive_delete"', $h );
 		$this->assertStringContainsString( 'name="confirm"', $h );
 		$this->assertStringContainsString( 'name="reason"', $h );
@@ -66,7 +66,7 @@ final class PageTest extends TestCase {
 		$this->assertSame( '', Page::notice( [] ) );
 		$n = Page::notice( [ 'deleted' => '2', 'refused' => '1<b>' ] );
 		$this->assertStringContainsString( '2 entries deleted.', $n );
-		$this->assertStringContainsString( '1 entries kept', $n );
+		$this->assertStringContainsString( '1 entry kept', $n );
 		$this->assertStringNotContainsString( '<b>', $n );
 	}
 

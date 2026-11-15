@@ -55,7 +55,7 @@ final class Actions {
 	}
 
 	public static function callback(): void {
-		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_delete' ) ) {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_delete', 'invoqk_delete_nonce' ) ) {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
 		$ids     = array_map( 'absint', array_filter( (array) wp_unslash( $_POST['ids'] ?? [] ), 'is_scalar' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above

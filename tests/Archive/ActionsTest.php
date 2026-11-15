@@ -195,4 +195,14 @@ final class ActionsTest extends TestCase {
 			}
 		}
 	}
+
+	public function test_delete_callback_uses_own_nonce_field(): void {
+		$GLOBALS['invoqk_nonce_args'] = [];
+		$_POST = [];
+		try {
+			Actions::callback();
+		} catch ( \Throwable $e ) { // exit ends the callback; only the nonce args matter
+		}
+		$this->assertSame( 'invoqk_delete_nonce', $GLOBALS['invoqk_nonce_args']['invoqk_archive_delete'] ?? null );
+	}
 }

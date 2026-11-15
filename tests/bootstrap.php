@@ -146,7 +146,7 @@ if ( ! function_exists( 'wp_date' ) ) {
 	function absint( $v ): int { return abs( (int) $v ); }
 	function wp_unslash( $v ) { return $v; }
 	function current_user_can( string $c ): bool { return $GLOBALS['invoqk_can'] ?? true; }
-	function check_admin_referer( $a ) { return $GLOBALS['invoqk_nonce_ok'] ?? true; }
+	function check_admin_referer( $a, $q = '_wpnonce' ) { $GLOBALS['invoqk_nonce_args'][ $a ] = $q; return $GLOBALS['invoqk_nonce_ok'] ?? true; }
 	function wp_safe_redirect( string $u ): bool { return true; }
 	function wp_get_referer() { return false; }
 	function wp_nonce_url( string $u, $a = -1 ): string { return $u . '&_wpnonce=nonce-' . $a; }
