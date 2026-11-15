@@ -131,7 +131,45 @@ final class Page {
 			/* translators: %d: count */
 			$o .= '<div class="notice notice-warning"><p>' . esc_html( sprintf( _n( '%d entry kept: before the retention date it needs the confirm word and a reason.', '%d entries kept: before the retention date they need the confirm word and a reason.', $r, 'invoqk' ), $r ) ) . '</p></div>';
 		}
+		$e = [
+			'started' => [ 'success', __( 'Export started. It runs in the background.', 'invoqk' ) ],
+			'busy'    => [ 'warning', __( 'An export is already running.', 'invoqk' ) ],
+			'range'   => [ 'warning', __( 'Choose a valid date range.', 'invoqk' ) ],
+			'nozip'   => [ 'warning', __( 'The PHP zip extension is missing.', 'invoqk' ) ],
+		][ (string) ( $get['export'] ?? '' ) ] ?? null;
+		if ( $e ) {
+			$o .= '<div class="notice notice-' . $e[0] . '"><p>' . esc_html( $e[1] ) . '</p></div>';
+		}
 		return $o;
+	}
+
+	/** Steuerberater export box: range form plus the state of the last export. */
+	public static function exportBox( array $state, bool $zip, int $now ): string {
+		$h = '<div class="invoqk-archive-export"><h2>' . esc_html__( 'Export for Steuerberater', 'invoqk' ) . '</h2>';
+		if ( ! $zip ) {
+			return $h . '<p>' . esc_html__( 'The PHP zip extension is missing. Ask your host to enable it.', 'invoqk' ) . '</p></div>';
+		}
+		$h .= '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_archive_export">'
+			. wp_nonce_field( 'invoqk_archive_export', '_wpnonce', true, false )
+			. '<input type="date" name="from"> <input type="date" name="to"> '
+			. '<button class="button" type="submit">' . esc_html__( 'Export range', 'invoqk' ) . '</button> '
+			. '<button class="button" type="submit" name="range" value="this_month">' . esc_html__( 'This month', 'invoqk' ) . '</button> '
+			. '<button class="button" type="submit" name="range" value="last_month">' . esc_html__( 'Last month', 'invoqk' ) . '</button></form>';
+		switch ( $state['state'] ?? 'none' ) {
+			case 'running':
+				$h .= '<p>' . esc_html__( 'Export running. Reload this page later.', 'invoqk' ) . '</p>';
+				break;
+			case 'ready':
+				$url = wp_nonce_url( admin_url( 'admin-post.php?action=invoqk_archive_export_download' ), 'invoqk_archive_export_download' );
+				/* translators: 1: invoice count, 2: first date, 3: last date */
+				$txt = sprintf( __( '%1$d invoices, %2$s to %3$s', 'invoqk' ), (int) ( $state['count'] ?? 0 ), (string) ( $state['from'] ?? '' ), (string) ( $state['to'] ?? '' ) );
+				$h  .= '<p><a href="' . esc_url( $url ) . '">' . esc_html( $txt ) . '</a></p>';
+				break;
+			case 'failed':
+				$h .= '<p>' . esc_html__( 'Export failed. Check the archive check, then try again.', 'invoqk' ) . '</p>';
+				break;
+		}
+		return $h . '</div>';
 	}
 
 	public static function render(): void {
@@ -151,6 +189,7 @@ final class Page {
 		}
 		echo self::notice( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- counts only, escaped in notice()
 		echo self::header( Verify::result(), Usage::used(), Entry::stuck() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
+		echo self::exportBox( Export::state(), Export::available(), $now ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in exportBox()
 		echo '<form method="get"><input type="hidden" name="page" value="invoqk-archive">'
 			. '<input type="search" name="s" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
 			. '<input type="date" name="from" value="' . esc_attr( $f['from'] ?? '' ) . '"> <input type="date" name="to" value="' . esc_attr( $f['to'] ?? '' ) . '"> '

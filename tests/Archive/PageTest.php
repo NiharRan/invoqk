@@ -97,4 +97,43 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( 'Last check: 01.01.1970, no changes detected', Page::header( [ 'state' => 'ok', 'at' => 0 ], 0 ) );
 		$this->assertStringContainsString( 'changes detected at entry #9 (link)', Page::header( [ 'state' => 'broken', 'brokenId' => 9, 'kind' => 'link', 'at' => 0 ], 0 ) );
 	}
+
+	public function test_export_box_without_zip_has_no_form(): void {
+		$h = Page::exportBox( [ 'state' => 'none' ], false, self::NOW );
+		$this->assertStringContainsString( 'The PHP zip extension is missing. Ask your host to enable it.', $h );
+		$this->assertStringNotContainsString( '<form', $h );
+	}
+
+	public function test_export_box_has_nonce_and_three_buttons(): void {
+		$h = Page::exportBox( [ 'state' => 'none' ], true, self::NOW );
+		$this->assertStringContainsString( 'name="action" value="invoqk_archive_export"', $h );
+		$this->assertStringContainsString( 'data-action="invoqk_archive_export"', $h );
+		$this->assertStringContainsString( 'name="from"', $h );
+		$this->assertStringContainsString( 'name="to"', $h );
+		$this->assertStringContainsString( 'Export range', $h );
+		$this->assertStringContainsString( 'name="range" value="this_month"', $h );
+		$this->assertStringContainsString( 'name="range" value="last_month"', $h );
+		$this->assertSame( 3, substr_count( $h, '<button' ) );
+	}
+
+	public function test_export_box_ready_shows_download_link_with_nonce(): void {
+		$h = Page::exportBox( [ 'state' => 'ready', 'count' => 3, 'from' => '2026-01-01', 'to' => '2026-01-31' ], true, self::NOW );
+		$this->assertStringContainsString( 'action=invoqk_archive_export_download', $h );
+		$this->assertStringContainsString( '_wpnonce=nonce-invoqk_archive_export_download', $h );
+		$this->assertStringContainsString( '3 invoices, 2026-01-01 to 2026-01-31', $h );
+		$this->assertStringContainsString( 'Export running', Page::exportBox( [ 'state' => 'running' ], true, self::NOW ) );
+	}
+
+	public function test_export_box_failed_message(): void {
+		$this->assertStringContainsString( 'Export failed. Check the archive check, then try again.', Page::exportBox( [ 'state' => 'failed' ], true, self::NOW ) );
+	}
+
+	public function test_notice_export_codes(): void {
+		$this->assertStringContainsString( 'notice-success', Page::notice( [ 'export' => 'started' ] ) );
+		$this->assertStringContainsString( 'Export started. It runs in the background.', Page::notice( [ 'export' => 'started' ] ) );
+		$this->assertStringContainsString( 'An export is already running.', Page::notice( [ 'export' => 'busy' ] ) );
+		$this->assertStringContainsString( 'Choose a valid date range.', Page::notice( [ 'export' => 'range' ] ) );
+		$this->assertStringContainsString( 'The PHP zip extension is missing.', Page::notice( [ 'export' => 'nozip' ] ) );
+		$this->assertSame( '', Page::notice( [ 'export' => 'bogus' ] ) );
+	}
 }
