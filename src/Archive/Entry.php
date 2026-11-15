@@ -75,12 +75,10 @@ final class Entry {
 			@unlink( $f );
 		}
 		@rmdir( $dir );
-		if ( class_exists( Usage::class ) ) {
-			try {
-				Usage::check();
-			} catch ( \Throwable $e ) {
-				wc_get_logger()->error( 'archive usage check failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
-			}
+		try {
+			Usage::check();
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( 'archive usage check failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
 		}
 	}
 

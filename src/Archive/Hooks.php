@@ -9,6 +9,9 @@ final class Hooks {
 		Actions::boot();
 		Page::boot();
 		add_action( Verify::HOOK, static fn( $afterId, $prevHash ) => Verify::run( (int) $afterId, (string) $prevHash ), 10, 2 );
+		add_action( 'admin_notices', static function (): void {
+			echo Usage::notice(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in notice()
+		} );
 		add_action( 'admin_init', [ WpdbIndex::class, 'ensure' ] );
 	}
 }

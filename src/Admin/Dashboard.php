@@ -1,6 +1,8 @@
 <?php
 namespace Invoqk\Admin;
 
+use Invoqk\Archive\Archive;
+use Invoqk\Archive\Usage;
 use Invoqk\Validation\Limit;
 
 /** Readiness dashboard markup. Pure: takes Readiness::get() data, returns escaped HTML. */
@@ -14,6 +16,9 @@ final class Dashboard {
 		}
 		$h .= '<div class="invoqk-grid">' . self::readiness( $d ) . self::deadline( $turnover ) . '</div>';
 		$h .= 0 === (int) $d['required'] ? self::empty() : self::top( $d['top'] );
+		if ( Limit::isPro() ) {
+			$h .= '<p class="invoqk-muted">' . esc_html( sprintf( __( 'Archive: %s', 'invoqk' ), Usage::label( Archive::index()->usage() ) ) ) . '</p>';
+		}
 		return $h . self::pro() . '</div>';
 	}
 

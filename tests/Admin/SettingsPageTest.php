@@ -13,6 +13,11 @@ if ( ! function_exists( 'register_setting' ) ) {
 final class SettingsPageTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['invoqk_filters'] = []; // other tests leave adapter filters behind
+		\Invoqk\Archive\Archive::$index = new \Invoqk\Tests\Archive\MemoryIndex(); // Pro dashboard shows archive usage
+	}
+
+	protected function tearDown(): void {
+		\Invoqk\Archive\Archive::reset();
 	}
 
 	public function test_form_uses_options_flow_and_never_echoes_key(): void {

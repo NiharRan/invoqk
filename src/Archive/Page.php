@@ -94,7 +94,7 @@ final class Page {
 			/* translators: 1: date, 2: entry id, 3: kind of change */
 			'broken'  => sprintf( __( 'Last check: %1$s, changes detected at entry #%2$d (%3$s)', 'invoqk' ), $at, (int) ( $verify['brokenId'] ?? 0 ), (string) ( $verify['kind'] ?? '' ) ),
 		][ $state ] ?? __( 'No check run yet', 'invoqk' );
-		$meter = sprintf( __( '%s GB of %s GB', 'invoqk' ), number_format( $used / 1024 ** 3, 1, ',', '.' ), '5' ); // Task 9: Usage::label
+		$meter = Usage::label( $used );
 		$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_archive_verify">'
 			. wp_nonce_field( 'invoqk_archive_verify', '_wpnonce', true, false )
 			. '<button class="button">' . esc_html__( 'Check archive', 'invoqk' ) . '</button></form>';
