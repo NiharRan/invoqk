@@ -66,5 +66,6 @@ final class Job {
 				as_schedule_single_action( time() + $delay, Scheduler::VALIDATE, [ $order->get_id(), $attempt + 1, false ], Scheduler::GROUP );
 			}
 		}
+		do_action( 'invoqk_validated', $order->get_id(), $record );
 	}
 }

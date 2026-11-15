@@ -67,6 +67,7 @@ final class I18nTest extends TestCase {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
 		$this->assertSame( "%d Hinweis\0%d Hinweise", $mo["%d note\0%d notes"] ?? null );
+		$this->assertSame( "%d Rechnung von Invoqk zurückgehalten\0%d Rechnungen von Invoqk zurückgehalten", $mo["%d invoice held by Invoqk\0%d invoices held by Invoqk"] ?? null );
 	}
 
 	public function test_mo_has_german_for_e5_strings(): void {
@@ -79,6 +80,19 @@ final class I18nTest extends TestCase {
 			'Go to dashboard'         => 'Zum Dashboard',
 			'No API key is set yet.'  => 'Es ist noch kein API-Schlüssel hinterlegt.',
 			'Enter it in the settings below.' => 'Geben Sie ihn unten in den Einstellungen ein.',
+		] as $id => $de ) {
+			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
+		}
+	}
+
+	public function test_mo_has_german_for_e6_strings(): void {
+		$mo = $this->mo();
+		foreach ( [
+			'Your invoice will follow in a separate email.' => 'Ihre Rechnung folgt in einer separaten E-Mail.',
+			'Held by Invoqk'                                 => 'Von Invoqk zurückgehalten',
+			'Fix and resend'                                 => 'Korrigieren und senden',
+			'Send anyway…'                                   => 'Trotzdem senden…',
+			'Check skipped – invoice sent without validation' => 'Prüfung übersprungen – Rechnung ohne Prüfung gesendet',
 		] as $id => $de ) {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}

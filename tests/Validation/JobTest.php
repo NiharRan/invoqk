@@ -55,6 +55,15 @@ final class JobTest extends TestCase {
 
 	private function code( WC_Order $o ): ?string { return Record::get( $o )['error']['code'] ?? null; }
 
+	public function test_finish_fires_validated_action(): void {
+		$o    = $this->order();
+		$seen = [];
+		$GLOBALS['invoqk_actions']['invoqk_validated'] = [ [ function ( $id, $rec ) use ( &$seen ) { $seen = [ $id, $rec['status'] ]; }, 2 ] ];
+		$this->go();
+		unset( $GLOBALS['invoqk_actions']['invoqk_validated'] );
+		$this->assertSame( [ 1, 'passed' ], $seen );
+	}
+
 	public function test_trashed_order_exits_quietly(): void {
 		$o = $this->order();
 		$o->status = 'trash';

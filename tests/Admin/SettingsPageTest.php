@@ -6,6 +6,9 @@ if ( ! function_exists( 'settings_fields' ) ) {
 	function settings_fields( string $g ): void { echo '<input type="hidden" name="option_page" value="' . $g . '">'; }
 	function submit_button(): void { echo '<button type="submit">save</button>'; }
 }
+if ( ! function_exists( 'register_setting' ) ) {
+	function register_setting( string $g, string $name, array $args = [] ): void { $GLOBALS['invoqk_settings'][ $name ] = $args; }
+}
 
 final class SettingsPageTest extends TestCase {
 	protected function setUp(): void {
@@ -111,5 +114,39 @@ final class SettingsPageTest extends TestCase {
 		$this->assertSame( [], $GLOBALS['invoqk_styles'] );
 		SettingsPage::enqueue( 'woocommerce_page_invoqk' );
 		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
+	}
+
+	private function page(): string {
+		ob_start();
+		SettingsPage::render();
+		return ob_get_clean();
+	}
+
+	public function test_mode_radios_only_on_pro(): void {
+		$this->reset( 'done' );
+		$this->assertStringNotContainsString( 'invoqk_guard_mode', $this->page() );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$h = $this->page();
+		$this->assertStringContainsString( 'name="invoqk_guard_mode" value="block" checked', $h );
+		$this->assertStringContainsString( 'Only warn me', $h );
+		$GLOBALS['invoqk_options']['invoqk_guard_mode'] = 'warn';
+		$this->assertStringContainsString( 'value="warn" checked', $this->page() );
+	}
+
+	public function test_guard_mode_setting_registered_with_autoload_off(): void {
+		$GLOBALS['invoqk_actions']  = [];
+		$GLOBALS['invoqk_settings'] = [];
+		add_filter( 'invoqk_is_pro', fn() => true );
+		SettingsPage::boot();
+		do_action( 'admin_init' );
+		$this->assertFalse( $GLOBALS['invoqk_settings']['invoqk_guard_mode']['autoload'] ?? null );
+	}
+
+	public function test_intro_notice_shown_once(): void {
+		$this->reset( 'done' );
+		$this->assertStringNotContainsString( 'now held until', $this->page() );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$this->assertStringContainsString( 'Invoices with errors are now held until you fix or release them.', $this->page() );
+		$this->assertStringNotContainsString( 'now held until', $this->page() );
 	}
 }

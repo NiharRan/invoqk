@@ -33,6 +33,7 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_shipping_country(): string { return $this->shipCountry; }
 		public function get_billing_company(): string { return $this->company; }
 		public function get_total(): string { return $this->total; }
+		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
 	}
@@ -73,6 +74,10 @@ if ( ! function_exists( 'wc_get_order' ) ) {
 	function add_action( string $tag, callable $cb, int $prio = 10, int $args = 1 ): void { $GLOBALS['invoqk_actions'][ $tag ][] = [ $cb, $args ]; }
 	function do_action( string $tag, ...$args ): void {
 		foreach ( $GLOBALS['invoqk_actions'][ $tag ] ?? [] as [ $cb, $n ] ) { $cb( ...array_slice( $args, 0, $n ) ); }
+	}
+	function remove_action( string $tag, callable $cb, int $prio = 10 ): bool {
+		$GLOBALS['invoqk_actions'][ $tag ] = array_values( array_filter( $GLOBALS['invoqk_actions'][ $tag ] ?? [], fn( $a ) => $a[0] !== $cb ) );
+		return true;
 	}
 	function as_has_scheduled_action( string $hook, array $args = [], string $group = '' ): bool {
 		foreach ( $GLOBALS['invoqk_as'] as $a ) {
@@ -156,5 +161,34 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
+	function get_userdata( $id ) { return (object) [ 'ID' => $id, 'display_name' => $GLOBALS['invoqk_user_name'] ?? 'T' ]; }
+	function esc_js( $s ): string { return str_replace( "'", "\\'", (string) $s ); }
 	function wp_get_current_user() { return (object) [ 'ID' => 1, 'display_name' => 'T' ]; }
+}
+
+// --- WP Overnight stand-ins for the guard ---
+if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
+	function wpo_ips_edi_is_available(): bool { return $GLOBALS['invoqk_edi'] ?? true; }
+	function wpo_ips_edi_send_attachments(): bool { return $GLOBALS['invoqk_edi_send'] ?? true; }
+	function WC() {
+		return new class {
+			public function mailer() {
+				return (object) [ 'emails' => [ 'WC_Email_Customer_Invoice' => new class {
+						public $id = 'customer_invoice';
+						// Like WC_Email::send: a mailer returning false stands for wp_mail failing.
+						public function trigger( $id ) { do_action( 'woocommerce_email_sent', false !== ( $GLOBALS['invoqk_mailer'] ?? static fn() => null )( $id ), $this->id, $this ); }
+					} ] ];
+			}
+		};
+	}
+	function WPO_WCPDF() {
+		return new class {
+			public $main;
+			public function __construct() {
+				$this->main = new class {
+					public function get_documents_for_email( $emailId, $order ) { return $GLOBALS['invoqk_wpo_email_docs'][ $emailId ] ?? []; }
+				};
+			}
+		};
+	}
 }
