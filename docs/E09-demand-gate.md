@@ -4,24 +4,32 @@ Records the demand gate decision for the free web checker launch (E9-S7). Fill i
 
 ## Gate rule
 
-Measured 4 weeks after launch (launch date: not set yet, fill in when known).
+Launch date: not set yet. **Locked on:** (date). The rule may be edited until the launch date is filled in; from the day "Locked on" is set, do not edit it.
 
-- **Go:** 300+ checks, 50+ confirmed emails, 20+ plugin installs, and 5 of 20 interviewees say they would pay.
+Measured 4 weeks after launch.
+
+- **Go:** all of these:
+  - 300+ checks
+  - 50+ confirmed emails
+  - 40+ plugin downloads (WordPress.org, over the 4 weeks)
+  - 10+ plugin trial signups
+  - at least 10 of the 20 interviews done, and 5 of the interviews done say they would pay
 - **Stop or rethink:** under 100 checks and under 15 confirmed emails.
-- **Between:** extend 4 weeks and measure again.
+- **Between** (or Go numbers met but fewer than 10 interviews done): extend 4 weeks and measure again.
 
-> These numbers are the controller's proposal from the design spec (`docs/superpowers/specs/2026-11-15-web-checker-launch-design.md`). The owner may change them before launch.
+> These numbers come from the design spec (`docs/superpowers/specs/2026-11-15-web-checker-launch-design.md`), revised by the owner: installs became downloads (wp.org shows exact downloads, but active installs only as a bucket such as "10+"), trial signups became a gate input, and the interview rule needs 10 done.
 
 ## Where each number comes from
 
-- **Checks:** `checker_upload`, with the `checker_pass` and `checker_fail` split. **Confirmed emails:** `lead_confirmed`. Both come from the `DemandCounter` collection in the site repo (`~/nodejs/ai-invoice`), read with:
-  `node --env-file=.env.local scripts/demand-report.ts --since YYYY-MM-DD`
-- **Plugin installs:** WordPress.org plugin stats page for slug `invoqk`.
-- **Trial signups:** plugin trial signups, counted in the site DB. Owner reads from the admin/DB; no script yet.
+- **Checks:** `checker_upload`. **Pass / Fail:** `checker_pass` and `checker_fail`. They do not add up to checks: unreadable files and rate-limited uploads count only as uploads. **Confirmed emails:** `lead_confirmed`. All come from the `DemandCounter` collection in the site repo (`~/nodejs/ai-invoice`).
+- **Trial signups:** confirmed plugin trial users (`User.authProvider = "plugin_trial"`), counted by the same script.
+- Both are printed per week, plus a total, by:
+  `node --env-file=.env.local scripts/demand-report.ts --since YYYY-MM-DD` (use the launch date; weeks are 7-day blocks from it, UTC).
+- **Plugin downloads:** WordPress.org plugin stats page for slug `invoqk` (downloads per day). Sum by hand per week.
 
 ## Weekly counts
 
-| Week starting | Checks | Pass | Fail | Confirmed emails | Plugin installs | Trial signups |
+| Week starting | Checks | Pass | Fail | Confirmed emails | Plugin downloads | Trial signups |
 |---|---|---|---|---|---|---|
 | Week 1: | | | | | | |
 | Week 2: | | | | | | |
@@ -54,6 +62,6 @@ Measured 4 weeks after launch (launch date: not set yet, fill in when known).
 | 19 | | | | | |
 | 20 | | | | | |
 
-Would pay yes: __ of 20
+Interviews done: __ of 20 (need 10+). Would pay yes: __ of those done (need 5+).
 
 Decision: go / stop / extend — date:
