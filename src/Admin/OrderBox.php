@@ -25,6 +25,7 @@ final class OrderBox {
 		$ref = \Invoqk\B2g\Reference::get( $order );
 		if ( '' !== $ref ) {
 			printf( '<p>%s: %s</p>', esc_html__( 'Leitweg-ID / Buyer reference', 'invoqk' ), esc_html( $ref ) );
+			echo \Invoqk\B2g\Delivery::notice( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in notice(); Pro only
 		}
 		if ( ! Classifier::isRequired( $order ) ) {
 			echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box(); a held order reclassified later still needs its links

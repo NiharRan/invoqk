@@ -835,3 +835,13 @@ msgstr ""
 #: src/Admin/SettingsPage.php
 msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
 msgstr ""
+
+#: src/B2g/Delivery.php
+#. translators: %1$s: invoice plugin name
+#, php-format
+msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
+msgstr ""
+
+#: src/B2g/Delivery.php
+msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
+msgstr ""

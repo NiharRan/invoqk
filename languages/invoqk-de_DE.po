@@ -835,3 +835,12 @@ msgstr "Nur für Geschäftskunden (Firmenname oder USt-IdNr. ausgefüllt)"
 #: src/Admin/SettingsPage.php
 msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
 msgstr "Der Block-Checkout zeigt das Feld immer an. Nur der klassische Checkout kann es auf Geschäftskunden beschränken."
+
+#: src/B2g/Delivery.php
+#, php-format
+msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem Versand der E-Rechnung in %1$s als Käuferreferenz eingetragen werden."
+
+#: src/B2g/Delivery.php
+msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
+msgstr "Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden."

@@ -13,6 +13,8 @@ One class per invoice plugin. If that plugin changes where it keeps its e-invoic
 | `read(\WC_Order $order, InvoiceFile $file)` | `?string` | The file's bytes. Stored-file adapters read the file; on-demand sources (WP Overnight) may build it in memory. Never save, send or attach |
 | `findCreditNotes(\WC_Order $order)` | `array<int, InvoiceFile>` | Existing credit notes keyed by refund ID, `[]` when none. Never create one. `read()` is then called with the parent order and must build the credit note named by `$file->reference` (WP Overnight: `wpo:credit-note:<refund id>`) |
 
+Optional: `Invoqk\Sources\BuyerReferenceAware::supportsBuyerReference(): bool`. Implement it when your plugin can take the buyer reference (Leitweg-ID, BT-10) through a documented filter or setting: wire `Invoqk\B2g\Reference::get( $order )` into it (only when non-empty, only for that order, never editing generated XML) and document the hook in the adapter docblock. Without it, the order box tells the merchant to enter the Leitweg-ID in the invoice plugin. WP Overnight: UBL 2.1 and PEPPOL BIS via `wpo_ips_edi_document_structure` and `wpo_ips_edi_ubl_buyer_reference`; its CII formats have no BuyerReference.
+
 `InvoiceFile(int|string $reference, string $mime, string $format, bool $onDemand = false)`: attachment ID or absolute path (a plain tag when `onDemand`, i.e. the source builds the file on request); `application/xml` or `application/pdf`; one of `ubl|cii|zugferd|facturx|unknown`. ZUGFeRD PDFs are passed as PDF; the API extracts the XML.
 
 ## Register
@@ -31,4 +33,4 @@ Each adapter gets its own test file in `tests/Sources/` using fixtures recorded 
 
 ## Order meta written by Invoqk
 
-`_invoqk_source` (adapter id or `none`), `_invoqk_label`, `_invoqk_file` (`reference`, `mime`, `format`), `_invoqk_detected_at`. Filter `invoqk_order_requires_einvoice` (default `true`) decides whether a missing invoice is flagged.
+`_invoqk_source` (adapter id or `none`), `_invoqk_label`, `_invoqk_file` (`reference`, `mime`, `format`), `_invoqk_detected_at`, `_invoqk_buyer_reference` (Leitweg-ID / BT-10, read it with `Reference::get()`). Filter `invoqk_order_requires_einvoice` (default `true`) decides whether a missing invoice is flagged.

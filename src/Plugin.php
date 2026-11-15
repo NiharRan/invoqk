@@ -11,6 +11,7 @@ final class Plugin {
 		CreditNote\Detect::boot();
 		Licensing\Actions::boot();
 		B2g\Field::boot(); // checkout is front end
+		Sources\WpOvernightAdapter::boot(); // WP Overnight builds EDI for emails and downloads too, not only in admin
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
