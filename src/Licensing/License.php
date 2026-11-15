@@ -54,16 +54,15 @@ final class License {
 	}
 
 	public static function isActive( ?int $now = null ): bool {
-		$l   = self::get();
-		$now ??= time();
-		if ( 'free' === $l['plan'] ) {
-			return false;
-		}
-		return $now < $l['valid_until'] + ( $l['check_failed'] ? self::GRACE : 0 );
+		return self::activeAt( self::get(), $now ?? time() );
 	}
 
-	public static function daysLeft( int $now ): int {
-		return max( 0, (int) ceil( ( self::get()['valid_until'] - $now ) / 86400 ) );
+	public static function activeAt( array $l, int $now ): bool {
+		return 'free' !== $l['plan'] && $now < $l['valid_until'] + ( $l['check_failed'] ? self::GRACE : 0 );
+	}
+
+	public static function daysLeft( int $now, ?array $l = null ): int {
+		return max( 0, (int) ceil( ( ( $l ?? self::get() )['valid_until'] - $now ) / 86400 ) );
 	}
 
 	private static function defaults(): array {
