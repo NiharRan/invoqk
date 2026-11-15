@@ -71,6 +71,7 @@ final class WpdbIndex implements Index {
 			throw new \RuntimeException( 'invoqk archive lock not obtained' );
 		}
 		try {
+			$row              = Archive::normalise( $row );
 			$last             = $this->last();
 			$row['prev_hash'] = $last['hash'] ?? str_repeat( '0', 64 );
 			$row['hash']      = $hash( $row );
@@ -89,13 +90,15 @@ final class WpdbIndex implements Index {
 	public function find( int $id ): ?array {
 		global $wpdb;
 		$t = self::table();
-		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ), ARRAY_A ) ?: null;
+		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE id = %d", $id ), ARRAY_A );
+		return $r ? Archive::normalise( $r ) : null;
 	}
 
 	public function last(): ?array {
 		global $wpdb;
 		$t = self::table();
-		return $wpdb->get_row( "SELECT * FROM {$t} ORDER BY id DESC LIMIT 1", ARRAY_A ) ?: null;
+		$r = $wpdb->get_row( "SELECT * FROM {$t} ORDER BY id DESC LIMIT 1", ARRAY_A );
+		return $r ? Archive::normalise( $r ) : null;
 	}
 
 	public function count(): int {
@@ -107,7 +110,7 @@ final class WpdbIndex implements Index {
 	public function after( int $id, int $limit ): array {
 		global $wpdb;
 		$t = self::table();
-		return $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE id > %d ORDER BY id ASC LIMIT %d", $id, $limit ), ARRAY_A ) ?: [];
+		return array_map( [ Archive::class, 'normalise' ], $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE id > %d ORDER BY id ASC LIMIT %d", $id, $limit ), ARRAY_A ) ?: [] );
 	}
 
 	public function search( array $f, int $page, int $per ): array {
@@ -124,12 +127,12 @@ final class WpdbIndex implements Index {
 		if ( ! empty( $f['to'] ) ) {
 			$where[] = $wpdb->prepare( 'invoice_date <= %s', $f['to'] );
 		}
-		if ( ! empty( $f['deletable'] ) ) {
+		if ( ! empty( $f['deletable'] ) && isset( $f['before'] ) ) {
 			$where[] = $wpdb->prepare( 'sent_at IS NOT NULL AND sent_at < %d', $f['before'] );
 		}
 		$w     = implode( ' AND ', $where );
 		$total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$t} WHERE {$w}" );
-		$rows  = $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE {$w} ORDER BY id DESC LIMIT %d OFFSET %d", $per, max( 0, $page - 1 ) * $per ), ARRAY_A ) ?: [];
+		$rows  = array_map( [ Archive::class, 'normalise' ], $wpdb->get_results( $wpdb->prepare( "SELECT * FROM {$t} WHERE {$w} ORDER BY id DESC LIMIT %d OFFSET %d", $per, max( 0, $page - 1 ) * $per ), ARRAY_A ) ?: [] );
 		return [ 'rows' => $rows, 'total' => $total ];
 	}
 

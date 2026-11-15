@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Tests\Archive;
 
+use Invoqk\Archive\Archive;
 use Invoqk\Archive\Index;
 
 /** Array-backed Index with the same contract as WpdbIndex. */
@@ -9,6 +10,7 @@ final class MemoryIndex implements Index {
 	public array $rows = [];
 
 	public function append( array $row, callable $hash ): array {
+		$row              = Archive::normalise( $row );
 		$last             = $this->last();
 		$row['prev_hash'] = $last['hash'] ?? str_repeat( '0', 64 );
 		$row['hash']      = $hash( $row );
@@ -43,7 +45,7 @@ final class MemoryIndex implements Index {
 				return ( '' === $q || 0 === stripos( (string) ( $r['invoice_number'] ?? '' ), $q ) || 0 === stripos( (string) ( $r['customer'] ?? '' ), $q ) )
 					&& ( empty( $f['from'] ) || $d >= $f['from'] )
 					&& ( empty( $f['to'] ) || $d <= $f['to'] )
-					&& ( empty( $f['deletable'] ) || ( isset( $r['sent_at'] ) && $r['sent_at'] < $f['before'] ) );
+					&& ( empty( $f['deletable'] ) || ! isset( $f['before'] ) || ( isset( $r['sent_at'] ) && $r['sent_at'] < $f['before'] ) );
 			}
 		);
 		$rows = array_reverse( array_values( $rows ) );

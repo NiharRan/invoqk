@@ -71,4 +71,13 @@ final class MemoryIndexTest extends TestCase {
 		$this->assertSame( [ 1 ], array_column( $ix->search( [], 2, 2 )['rows'], 'id' ) );
 		$this->assertSame( [ 3 ], array_column( $ix->after( 2, 10 ), 'id' ) );
 	}
+
+	public function test_append_normalises_types(): void {
+		$ix = new MemoryIndex();
+		$r  = $ix->append( $this->row( 1, [ 'gross' => 12.5, 'order_id' => '7', 'net' => null ] ), fn( $r ) => $r['gross'] );
+		$this->assertSame( '12.50', $r['gross'] );
+		$this->assertSame( '12.50', $r['hash'] );
+		$this->assertSame( 7, $r['order_id'] );
+		$this->assertNull( $r['net'] );
+	}
 }
