@@ -7,6 +7,7 @@ final class Plugin {
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
 		Archive\Hooks::boot();
+		Refund\Open::boot();
 		Licensing\Actions::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
