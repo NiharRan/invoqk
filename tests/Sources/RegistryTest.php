@@ -52,4 +52,25 @@ final class RegistryTest extends TestCase {
 		$this->assertSame( 'b', $r->get( 'b' )->id() );
 		$this->assertNull( $r->get( 'zzz' ) );
 	}
+
+	public function test_credit_notes_use_the_stored_source_first(): void {
+		$a = new FakeAdapter( 'a', true, null, false, [ 7 => $this->file( 7 ) ] );
+		$b = new FakeAdapter( 'b', true, null, false, [ 8 => $this->file( 8 ) ] );
+		$order = new WC_Order();
+		$order->meta['_invoqk_source'] = 'b';
+		$hit = ( new Registry( $a, $b ) )->creditNotes( $order );
+		$this->assertSame( 'b', $hit['adapter']->id() );
+		$this->assertSame( [ 8 ], array_keys( $hit['files'] ) );
+		$this->assertSame( 'a', ( new Registry( $a, $b ) )->creditNotes( new WC_Order() )['adapter']->id() );
+	}
+
+	public function test_credit_notes_skip_a_throwing_adapter(): void {
+		$a = new FakeAdapter( 'a', true, null, true );
+		$b = new FakeAdapter( 'b', true, null, false, [ 8 => $this->file( 8 ) ] );
+		$this->assertSame( 'b', ( new Registry( $a, $b ) )->creditNotes( new WC_Order() )['adapter']->id() );
+	}
+
+	public function test_credit_notes_returns_null_when_none_found(): void {
+		$this->assertNull( ( new Registry( new FakeAdapter( 'a' ) ) )->creditNotes( new WC_Order() ) );
+	}
 }

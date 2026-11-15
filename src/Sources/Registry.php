@@ -53,4 +53,30 @@ final class Registry {
 		}
 		return null;
 	}
+
+	/**
+	 * Credit notes of the order from the stored source if available, else the first adapter with any.
+	 *
+	 * @return array{adapter: SourceAdapter, files: array<int, InvoiceFile>}|null
+	 */
+	public function creditNotes( \WC_Order $order ): ?array {
+		$stored = (string) $order->get_meta( '_invoqk_source' );
+		$list   = $this->adapters;
+		usort( $list, fn( $a, $b ) => ( $b->id() === $stored ) <=> ( $a->id() === $stored ) );
+		foreach ( $list as $adapter ) {
+			try {
+				if ( ! $adapter->isAvailable() ) {
+					continue;
+				}
+				$files = $adapter->findCreditNotes( $order );
+			} catch ( \Throwable $e ) {
+				wc_get_logger()->error( $adapter->id() . ': ' . $e->getMessage(), [ 'source' => 'invoqk' ] );
+				continue;
+			}
+			if ( $files ) {
+				return [ 'adapter' => $adapter, 'files' => $files ];
+			}
+		}
+		return null;
+	}
 }

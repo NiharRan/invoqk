@@ -11,6 +11,7 @@ One class per invoice plugin. If that plugin changes where it keeps its e-invoic
 | `isAvailable()` | `bool` | Source plugin is active. `find()` is not called when false |
 | `find(\WC_Order $order)` | `?InvoiceFile` | The file, or `null`. Never create or save anything. Return `null` if the file is missing on disk |
 | `read(\WC_Order $order, InvoiceFile $file)` | `?string` | The file's bytes. Stored-file adapters read the file; on-demand sources (WP Overnight) may build it in memory. Never save, send or attach |
+| `findCreditNotes(\WC_Order $order)` | `array<int, InvoiceFile>` | Existing credit notes keyed by refund ID, `[]` when none. Never create one. `read()` is then called with the parent order and must build the credit note named by `$file->reference` (WP Overnight: `wpo:credit-note:<refund id>`) |
 
 `InvoiceFile(int|string $reference, string $mime, string $format, bool $onDemand = false)`: attachment ID or absolute path (a plain tag when `onDemand`, i.e. the source builds the file on request); `application/xml` or `application/pdf`; one of `ubl|cii|zugferd|facturx|unknown`. ZUGFeRD PDFs are passed as PDF; the API extracts the XML.
 

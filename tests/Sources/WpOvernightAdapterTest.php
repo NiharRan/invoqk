@@ -3,12 +3,15 @@ use Invoqk\Sources\WpOvernightAdapter;
 use PHPUnit\Framework\TestCase;
 
 // Stand-ins for WP Overnight's global functions (recorded from PDF Invoices & Packing Slips 5.16.6).
-$GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false ];
+$GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false, 'cn' => true ];
 if ( ! function_exists( 'wcpdf_get_document' ) ) {
 	// wpo_ips_edi_is_available() lives in tests/bootstrap.php and reads $GLOBALS['invoqk_edi'].
 	function wpo_ips_edi_get_current_format( bool $full = false ) { return $GLOBALS['wpo']['format']; }
 	function wcpdf_get_document( string $type, $order, bool $init = false ) {
 		$GLOBALS['wpo']['init_called'] = $GLOBALS['wpo']['init_called'] || $init;
+		if ( 'credit-note' === $type && ! $GLOBALS['wpo']['cn'] ) {
+			return false;
+		}
 		return new class { public function exists(): bool { return $GLOBALS['wpo']['exists']; } };
 	}
 	function wpo_ips_edi_write_file( $doc, bool $attachment = false, bool $contents_only = false ) {
@@ -18,7 +21,7 @@ if ( ! function_exists( 'wcpdf_get_document' ) ) {
 
 final class WpOvernightAdapterTest extends TestCase {
 	protected function setUp(): void {
-		$GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false ];
+		$GLOBALS['wpo'] = [ 'edi' => true, 'format' => 'ubl-2p1', 'exists' => true, 'contents' => '<Invoice/>', 'init_called' => false, 'cn' => true ];
 		$GLOBALS['invoqk_edi'] = true;
 	}
 
@@ -68,5 +71,29 @@ final class WpOvernightAdapterTest extends TestCase {
 		$a = new WpOvernightAdapter();
 		$o = new WC_Order();
 		$this->assertNull( $a->read( $o, $a->find( $o ) ) );
+	}
+
+	private function refund( int $id ): object {
+		return new class( $id ) { public function __construct( private int $id ) {} public function get_id(): int { return $this->id; } };
+	}
+
+	public function test_find_credit_notes_returns_empty_without_the_document_type(): void {
+		$GLOBALS['wpo']['cn'] = false;
+		$o = new WC_Order();
+		$o->refunds = [ $this->refund( 11 ) ];
+		$this->assertSame( [], ( new WpOvernightAdapter() )->findCreditNotes( $o ) );
+	}
+
+	public function test_find_credit_notes_keys_files_by_refund_id(): void {
+		$o = new WC_Order();
+		$o->refunds = [ $this->refund( 11 ) ];
+		$a = new WpOvernightAdapter();
+		$files = $a->findCreditNotes( $o );
+		$this->assertSame( [ 11 ], array_keys( $files ) );
+		$this->assertSame( 'wpo:credit-note:11', $files[11]->reference );
+		$this->assertSame( 'application/xml', $files[11]->mime );
+		$this->assertTrue( $files[11]->onDemand );
+		$this->assertFalse( $GLOBALS['wpo']['init_called'] );
+		$this->assertSame( '<Invoice/>', $a->read( $o, $files[11] ) );
 	}
 }

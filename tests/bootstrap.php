@@ -15,6 +15,8 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_id(): int { return $this->id; }
 		public function get_meta( string $k ) { return $this->meta[ $k ] ?? ''; }
 		public function update_meta_data( string $k, $v ): void { $this->meta[ $k ] = $v; }
+		public array $refunds = [];
+		public function get_refunds(): array { return $this->refunds; }
 		public int $saves = 0;
 		public int $metaSaves = 0;
 		public function save(): int { ++$this->saves; return $this->id; }
