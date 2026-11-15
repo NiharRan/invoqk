@@ -138,6 +138,28 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'value="warn" checked', $this->page() );
 	}
 
+	public function test_leitweg_mode_radio_shown_only_for_pro(): void {
+		$this->reset( 'done' );
+		$GLOBALS['invoqk_settings'] = [];
+		$GLOBALS['invoqk_actions']  = [];
+		SettingsPage::boot();
+		do_action( 'admin_init' );
+		$this->assertArrayNotHasKey( 'invoqk_leitweg_mode', $GLOBALS['invoqk_settings'] );
+		$this->assertStringNotContainsString( 'invoqk_leitweg_mode', $this->page() );
+
+		add_filter( 'invoqk_is_pro', fn() => true );
+		do_action( 'admin_init' );
+		$this->assertSame( [ \Invoqk\B2g\Field::class, 'sanitizeMode' ], $GLOBALS['invoqk_settings']['invoqk_leitweg_mode']['sanitize_callback'] );
+		$h = $this->page();
+		$this->assertStringContainsString( 'Ask for Leitweg-ID', $h );
+		$this->assertStringContainsString( 'name="invoqk_leitweg_mode" value="off" checked', $h );
+		$this->assertStringContainsString( 'value="business"', $h );
+		$this->assertStringContainsString( 'The block checkout always shows the field.', $h );
+		$this->assertGreaterThan( strpos( $h, 'name="invoqk_guard_mode"' ), strpos( $h, 'name="invoqk_leitweg_mode"' ) );
+		$GLOBALS['invoqk_options']['invoqk_leitweg_mode'] = 'always';
+		$this->assertStringContainsString( 'name="invoqk_leitweg_mode" value="always" checked', $this->page() );
+	}
+
 	public function test_guard_mode_setting_registered_with_autoload_off(): void {
 		$GLOBALS['invoqk_actions']  = [];
 		$GLOBALS['invoqk_settings'] = [];

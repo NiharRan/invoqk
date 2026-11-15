@@ -807,3 +807,31 @@ msgstr "Der erste Teil der Leitweg-ID braucht 2 bis 12 Ziffern, der optionale mi
 #: src/B2g/LeitwegId.php
 msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
 msgstr "Die Leitweg-ID muss so aussehen: 04011000-12345-67. Ziffern, ein optionaler mittlerer Teil und eine zweistellige Prüfziffer, getrennt durch Bindestriche."
+
+#: src/B2g/Field.php, src/Admin/OrderBox.php
+msgid "Leitweg-ID / Buyer reference"
+msgstr "Leitweg-ID / Käuferreferenz"
+
+#: src/B2g/Field.php
+msgid "Only for orders with a company name."
+msgstr "Nur für Bestellungen mit Firmenname."
+
+#: src/Admin/SettingsPage.php
+msgid "Ask for Leitweg-ID"
+msgstr "Leitweg-ID abfragen"
+
+#: src/Admin/SettingsPage.php
+msgid "Off"
+msgstr "Aus"
+
+#: src/Admin/SettingsPage.php
+msgid "Always"
+msgstr "Immer"
+
+#: src/Admin/SettingsPage.php
+msgid "Only for business customers (company name filled in)"
+msgstr "Nur für Geschäftskunden (Firmenname ausgefüllt)"
+
+#: src/Admin/SettingsPage.php
+msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
+msgstr "Der Block-Checkout zeigt das Feld immer an. Nur der klassische Checkout kann es auf Geschäftskunden beschränken."

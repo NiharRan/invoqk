@@ -22,6 +22,10 @@ final class OrderBox {
 			return;
 		}
 		echo self::classification( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in classification()
+		$ref = \Invoqk\B2g\Reference::get( $order );
+		if ( '' !== $ref ) {
+			printf( '<p>%s: %s</p>', esc_html__( 'Leitweg-ID / Buyer reference', 'invoqk' ), esc_html( $ref ) );
+		}
 		if ( ! Classifier::isRequired( $order ) ) {
 			echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box(); a held order reclassified later still needs its links
 			echo Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html(); a flag set before a later override stays dismissable

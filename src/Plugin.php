@@ -10,6 +10,7 @@ final class Plugin {
 		Refund\Open::boot();
 		CreditNote\Detect::boot();
 		Licensing\Actions::boot();
+		B2g\Field::boot(); // checkout is front end
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();

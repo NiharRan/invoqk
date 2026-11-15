@@ -132,7 +132,15 @@ if ( ! function_exists( 'get_option' ) ) {
 	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }
 
-if ( ! class_exists( 'WP_Error' ) ) { class WP_Error {} }
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		public array $errors = [];
+		public function __construct( $code = '', $message = '' ) { if ( '' !== $code ) { $this->add( $code, $message ); } }
+		public function add( $code, $message, $data = '' ): void { $this->errors[ $code ][] = $message; }
+		public function get_error_messages(): array { return array_merge( [], ...array_values( $this->errors ) ); }
+		public function has_errors(): bool { return (bool) $this->errors; }
+	}
+}
 if ( ! function_exists( 'is_wp_error' ) ) {
 	function is_wp_error( $v ): bool { return $v instanceof WP_Error; }
 	function wp_remote_post( string $url, array $args = [] ) { $GLOBALS['invoqk_http'][] = $url; return new WP_Error(); }
