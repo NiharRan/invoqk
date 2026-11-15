@@ -80,4 +80,16 @@ final class DashboardTest extends TestCase {
 		$this->assertStringContainsString( 'href="#invoqk_api_key"', $h );
 		$this->assertStringNotContainsString( 'WooCommerce &gt; Invoqk', $h );
 	}
+
+	public function test_pro_shows_archive_usage_line(): void {
+		\Invoqk\Archive\Archive::$index = new \Invoqk\Tests\Archive\MemoryIndex();
+		$GLOBALS['invoqk_filters']['invoqk_is_pro'] = [ static fn() => true ];
+		try {
+			$this->assertStringContainsString( 'Archive: 0,0 GB of 5 GB', Dashboard::html( $this->data(), 'under', true ) );
+		} finally {
+			unset( $GLOBALS['invoqk_filters']['invoqk_is_pro'] );
+			\Invoqk\Archive\Archive::reset();
+		}
+		$this->assertStringNotContainsString( 'Archive: 0,0', Dashboard::html( $this->data(), 'under', true ) );
+	}
 }

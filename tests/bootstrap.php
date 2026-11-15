@@ -33,6 +33,14 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_shipping_country(): string { return $this->shipCountry; }
 		public function get_billing_company(): string { return $this->company; }
 		public function get_total(): string { return $this->total; }
+		public string $tax = '0.00';
+		public string $currency = 'EUR';
+		public string $first = '';
+		public string $last = '';
+		public function get_total_tax(): string { return $this->tax; }
+		public function get_currency(): string { return $this->currency; }
+		public function get_billing_first_name(): string { return $this->first; }
+		public function get_billing_last_name(): string { return $this->last; }
 		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
@@ -54,6 +62,10 @@ if ( ! function_exists( 'add_filter' ) ) {
 			public function info( $m, $c = [] ): void { $GLOBALS['invoqk_log'][] = (string) $m; }
 		};
 	}
+}
+
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
 }
 
 // --- WooCommerce / Action Scheduler stand-ins for unit tests ---
@@ -134,7 +146,7 @@ if ( ! function_exists( 'wp_date' ) ) {
 	function absint( $v ): int { return abs( (int) $v ); }
 	function wp_unslash( $v ) { return $v; }
 	function current_user_can( string $c ): bool { return $GLOBALS['invoqk_can'] ?? true; }
-	function check_admin_referer( $a ) { return $GLOBALS['invoqk_nonce_ok'] ?? true; }
+	function check_admin_referer( $a, $q = '_wpnonce' ) { $GLOBALS['invoqk_nonce_args'][ $a ] = $q; return $GLOBALS['invoqk_nonce_ok'] ?? true; }
 	function wp_safe_redirect( string $u ): bool { return true; }
 	function wp_get_referer() { return false; }
 	function wp_nonce_url( string $u, $a = -1 ): string { return $u . '&_wpnonce=nonce-' . $a; }
@@ -166,6 +178,11 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_get_current_user() { return (object) [ 'ID' => 1, 'display_name' => 'T' ]; }
 }
 
+if ( ! function_exists( 'sanitize_file_name' ) ) {
+	function sanitize_file_name( string $n ): string { return preg_replace( '/[^A-Za-z0-9._-]/', '-', $n ); }
+	function nocache_headers(): void {}
+}
+
 // --- WP Overnight stand-ins for the guard ---
 if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 	function wpo_ips_edi_is_available(): bool { return $GLOBALS['invoqk_edi'] ?? true; }
@@ -191,4 +208,8 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 			}
 		};
 	}
+}
+
+if ( ! function_exists( 'wp_mkdir_p' ) ) {
+	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || mkdir( $d, 0777, true ); }
 }

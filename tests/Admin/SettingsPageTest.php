@@ -13,6 +13,11 @@ if ( ! function_exists( 'register_setting' ) ) {
 final class SettingsPageTest extends TestCase {
 	protected function setUp(): void {
 		$GLOBALS['invoqk_filters'] = []; // other tests leave adapter filters behind
+		\Invoqk\Archive\Archive::$index = new \Invoqk\Tests\Archive\MemoryIndex(); // Pro dashboard shows archive usage
+	}
+
+	protected function tearDown(): void {
+		\Invoqk\Archive\Archive::reset();
 	}
 
 	public function test_form_uses_options_flow_and_never_echoes_key(): void {
@@ -148,5 +153,25 @@ final class SettingsPageTest extends TestCase {
 		add_filter( 'invoqk_is_pro', fn() => true );
 		$this->assertStringContainsString( 'Invoices with errors are now held until you fix or release them.', $this->page() );
 		$this->assertStringNotContainsString( 'now held until', $this->page() );
+	}
+
+	public function test_retention_field_note_and_registration(): void {
+		$this->reset( 'done' );
+		$h = $this->page();
+		$this->assertStringContainsString( 'name="invoqk_archive_retention_years"', $h );
+		$this->assertStringContainsString( 'min="1" max="30"', $h );
+		$this->assertStringContainsString( 'This is not tax advice. Check the retention period with your tax advisor.', $h );
+		$this->assertStringNotContainsString( 'ignores .htaccess', $h );
+		$_SERVER['SERVER_SOFTWARE'] = 'nginx/1.25';
+		$this->assertStringContainsString( 'Your server ignores .htaccess.', $this->page() );
+		unset( $_SERVER['SERVER_SOFTWARE'] );
+		$GLOBALS['invoqk_actions'] = [];
+		SettingsPage::boot();
+		do_action( 'admin_init' );
+		$this->assertArrayHasKey( 'invoqk_archive_retention_years', $GLOBALS['invoqk_settings'] );
+		$this->assertSame( 8, $GLOBALS['invoqk_options']['invoqk_archive_retention_years'] );
+		$GLOBALS['invoqk_options']['invoqk_archive_retention_years'] = 5;
+		do_action( 'admin_init' );
+		$this->assertSame( 5, $GLOBALS['invoqk_options']['invoqk_archive_retention_years'] );
 	}
 }

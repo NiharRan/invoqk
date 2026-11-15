@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Admin;
 
+use Invoqk\Archive\Actions;
 use Invoqk\Onboarding\State;
 use Invoqk\Onboarding\Wizard;
 use Invoqk\Guard\Hold;
@@ -17,6 +18,8 @@ final class SettingsPage {
 		add_action( 'admin_enqueue_scripts', [ self::class, 'enqueue' ] );
 		add_action( 'admin_init', static function () {
 			register_setting( 'invoqk', 'invoqk_api_key', [ 'sanitize_callback' => 'sanitize_text_field', 'autoload' => false ] );
+			register_setting( 'invoqk', Actions::RETENTION_OPTION, [ 'sanitize_callback' => [ Actions::class, 'sanitizeYears' ] ] );
+			add_option( Actions::RETENTION_OPTION, 8, '', false ); // register_setting has no autoload argument; no-op when it exists
 			if ( Limit::isPro() ) {
 				register_setting( 'invoqk', 'invoqk_guard_mode', [ 'sanitize_callback' => [ Hold::class, 'sanitizeMode' ], 'autoload' => false ] );
 			}
@@ -75,7 +78,15 @@ final class SettingsPage {
 			}
 			echo '</td></tr>';
 		}
+		echo '<tr><th scope="row"><label for="invoqk_archive_retention_years">' . esc_html__( 'Archive retention (years)', 'invoqk' ) . '</label></th>'
+			. '<td><input type="number" min="1" max="30" id="invoqk_archive_retention_years" name="invoqk_archive_retention_years" value="' . esc_attr( (string) Actions::retentionYears() ) . '" class="small-text">'
+			. '<p class="description">' . esc_html__( 'This is not tax advice. Check the retention period with your tax advisor.', 'invoqk' ) . '</p></td></tr>';
 		echo '</table>';
+		if ( false !== stripos( (string) ( $_SERVER['SERVER_SOFTWARE'] ?? '' ), 'nginx' ) ) {
+			echo '<div class="notice notice-warning inline"><p>'
+				. esc_html__( 'Your server ignores .htaccess. Add a rule that denies web access to uploads/invoqk-archive/, or set INVOQK_ARCHIVE_DIR outside the web root.', 'invoqk' )
+				. '</p></div>';
+		}
 		submit_button();
 		echo '</form></div></div>';
 	}
