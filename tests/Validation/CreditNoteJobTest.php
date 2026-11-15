@@ -132,4 +132,20 @@ final class CreditNoteJobTest extends TestCase {
 		$this->go();
 		$this->assertSame( [ [ 1, 11, 'passed' ] ], $seen );
 	}
+
+	public function test_same_hash_refires_hook_while_not_archived(): void {
+		$o    = $this->order();
+		$seen = 0;
+		$GLOBALS['invoqk_actions']['invoqk_credit_note_validated'] = [ [ function ( $o, $r, $rec ) use ( &$seen ) { $seen += 'passed' === $rec['status'] ? 1 : 0; }, 3 ] ];
+		$this->go();
+		$this->go();
+		$this->assertSame( 1, $this->calls, 'not posted again' );
+		$this->assertSame( 2, $seen, 'archiving is retried' );
+		$e             = Store::get( $o )[11];
+		$e['archived'] = 5;
+		Store::put( $o, 11, $e );
+		$this->go();
+		$this->assertSame( 2, $seen );
+		$this->assertSame( 1, $this->calls );
+	}
 }

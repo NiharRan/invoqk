@@ -39,6 +39,9 @@ final class CreditNoteJob {
 		$hash = hash( 'sha256', $bytes );
 		$old  = $entry['validation'] ?? null;
 		if ( $old && ( $old['hash'] ?? '' ) === $hash && in_array( $old['status'] ?? '', [ 'passed', 'failed' ], true ) ) {
+			if ( empty( $entry['archived'] ) ) { // checked but not archived yet (archive failed): retry archiving only
+				do_action( 'invoqk_credit_note_validated', $orderId, $refundId, $old );
+			}
 			return;
 		}
 		$res = Client::post( $bytes, $file->mime, $transport );
