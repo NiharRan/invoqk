@@ -10,9 +10,8 @@ final class Archive {
 
 	public static ?Storage $storage = null;
 
-	/** Task 3 makes LocalStorage the production default. */
 	public static function storage(): Storage {
-		return self::$storage ?? throw new \LogicException( 'Archive storage not configured.' );
+		return self::$storage ??= new LocalStorage( wp_upload_dir()['basedir'] . '/invoqk-archive' );
 	}
 
 	public static function reset(): void {
