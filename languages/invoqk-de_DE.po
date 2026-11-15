@@ -813,8 +813,8 @@ msgid "Leitweg-ID / Buyer reference"
 msgstr "Leitweg-ID / Käuferreferenz"
 
 #: src/B2g/Field.php
-msgid "Only for orders with a company name."
-msgstr "Nur für Bestellungen mit Firmenname."
+msgid "Only for orders with a company name or VAT ID."
+msgstr "Nur für Bestellungen mit Firmenname oder USt-IdNr."
 
 #: src/Admin/SettingsPage.php
 msgid "Ask for Leitweg-ID"
@@ -829,8 +829,8 @@ msgid "Always"
 msgstr "Immer"
 
 #: src/Admin/SettingsPage.php
-msgid "Only for business customers (company name filled in)"
-msgstr "Nur für Geschäftskunden (Firmenname ausgefüllt)"
+msgid "Only for business customers (company name or VAT ID filled in)"
+msgstr "Nur für Geschäftskunden (Firmenname oder USt-IdNr. ausgefüllt)"
 
 #: src/Admin/SettingsPage.php
 msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."

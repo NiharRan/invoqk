@@ -154,6 +154,7 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'Ask for Leitweg-ID', $h );
 		$this->assertStringContainsString( 'name="invoqk_leitweg_mode" value="off" checked', $h );
 		$this->assertStringContainsString( 'value="business"', $h );
+		$this->assertStringContainsString( 'company name or VAT ID filled in', $h );
 		$this->assertStringContainsString( 'The block checkout always shows the field.', $h );
 		$this->assertGreaterThan( strpos( $h, 'name="invoqk_guard_mode"' ), strpos( $h, 'name="invoqk_leitweg_mode"' ) );
 		$GLOBALS['invoqk_options']['invoqk_leitweg_mode'] = 'always';

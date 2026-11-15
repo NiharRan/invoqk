@@ -83,7 +83,7 @@ final class SettingsPage {
 			echo '</td></tr>';
 			$lw = Field::mode();
 			echo '<tr><th scope="row">' . esc_html__( 'Ask for Leitweg-ID', 'invoqk' ) . '</th><td>';
-			foreach ( [ 'off' => __( 'Off', 'invoqk' ), 'always' => __( 'Always', 'invoqk' ), 'business' => __( 'Only for business customers (company name filled in)', 'invoqk' ) ] as $v => $label ) {
+			foreach ( [ 'off' => __( 'Off', 'invoqk' ), 'always' => __( 'Always', 'invoqk' ), 'business' => __( 'Only for business customers (company name or VAT ID filled in)', 'invoqk' ) ] as $v => $label ) {
 				echo '<label><input type="radio" name="' . esc_attr( Field::OPTION ) . '" value="' . esc_attr( $v ) . '"' . ( $v === $lw ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label><br>';
 			}
 			echo '<p class="description">' . esc_html__( 'The block checkout always shows the field. Only the classic checkout can limit it to business customers.', 'invoqk' ) . '</p></td></tr>';

@@ -77,6 +77,37 @@ final class FieldTest extends TestCase {
 		$this->assertArrayHasKey( 'invoqk/leitweg_id', $GLOBALS['invoqk_block_fields'] ); // block API cannot hide by company on WC 9.0
 	}
 
+	private function placeOrder(): WC_Order {
+		$_SERVER['REQUEST_METHOD'] = 'POST';
+		$data                      = array_intersect_key( $_POST, $this->billing() ); // as WC_Checkout::get_posted_data
+		$e                         = new WP_Error();
+		do_action( 'woocommerce_after_checkout_validation', $data, $e );
+		$this->assertFalse( $e->has_errors() );
+		$o = new WC_Order( 0 );
+		do_action( 'woocommerce_checkout_create_order', $o, $data );
+		return $o;
+	}
+
+	public function test_business_mode_vat_only_buyer_is_saved(): void {
+		$this->boot( 'business' );
+		$_POST = [ 'billing_company' => '', 'billing_vat_number' => 'DE123456789', 'invoqk_leitweg_id' => '04011000-12345-67' ];
+		$this->assertSame( '04011000-12345-67', Reference::get( $this->placeOrder() ) );
+	}
+
+	public function test_business_mode_without_company_or_vat_is_not_saved(): void {
+		$this->boot( 'business' );
+		$_POST = [ 'billing_company' => ' ', 'billing_vat_id' => ' ', 'invoqk_leitweg_id' => '04011000-12345-67' ];
+		$this->assertSame( '', Reference::get( $this->placeOrder() ) );
+	}
+
+	public function test_business_mode_honours_custom_vat_key(): void {
+		$this->boot( 'business' );
+		$_POST = [ 'my_vat' => 'ATU12345678', 'invoqk_leitweg_id' => '04011000-12345-67' ];
+		$this->assertSame( '', Reference::get( $this->placeOrder() ) );
+		add_filter( 'invoqk_vat_id_meta_keys', fn( $k ) => array_merge( $k, [ '_my_vat' ] ) );
+		$this->assertSame( '04011000-12345-67', Reference::get( $this->placeOrder() ) );
+	}
+
 	public function test_bad_id_blocks_checkout_with_german_message(): void {
 		$this->boot( 'always' );
 		$e = new WP_Error();

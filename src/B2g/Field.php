@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\B2g;
 
+use Invoqk\Classification\Classifier;
 use Invoqk\Validation\Limit;
 
 /**
@@ -11,7 +12,8 @@ use Invoqk\Validation\Limit;
  * action `woocommerce_after_checkout_validation( $data, WP_Error $errors )`, action
  * `woocommerce_checkout_create_order( WC_Order $order, $data )` (order not saved yet, see Reference::set).
  * No JS: in business mode the field is shown on the page, but on the checkout POST it is only added
- * (so only validated and saved) when billing_company is non-empty.
+ * (so only validated and saved) when billing_company or a VAT ID is posted. VAT field names are
+ * Classifier::vatKeys() (filter `invoqk_vat_id_meta_keys`) without the leading "_", as VAT plugins post them.
  *
  * Block checkout, checked against WooCommerce 9.0.0 and 9.9.5 source
  * (src/Blocks/Domain/Services/CheckoutFields.php, functions.php, StoreApi/Schemas/V1/CheckoutSchema.php):
@@ -54,8 +56,7 @@ final class Field {
 
 	public static function fields( $fields ) {
 		$business = 'business' === self::mode();
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WC_Checkout verifies the nonce; read-only decision
-		if ( $business && 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) && '' === sanitize_text_field( wp_unslash( $_POST['billing_company'] ?? '' ) ) ) {
+		if ( $business && 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) && ! self::postedBusiness() ) {
 			return $fields;
 		}
 		$fields['billing'][ self::KEY ] = [
@@ -64,9 +65,21 @@ final class Field {
 			'required'    => false,
 			'class'       => [ 'form-row-wide', 'invoqk-leitweg' ],
 			'priority'    => 35, // right after the company field
-			'description' => $business ? __( 'Only for orders with a company name.', 'invoqk' ) : '',
+			'description' => $business ? __( 'Only for orders with a company name or VAT ID.', 'invoqk' ) : '',
 		];
 		return $fields;
+	}
+
+	/** Company name or VAT ID in the checkout POST. */
+	private static function postedBusiness(): bool {
+		$keys = array_merge( [ 'billing_company' ], array_map( static fn( $k ) => ltrim( $k, '_' ), Classifier::vatKeys() ) );
+		foreach ( $keys as $k ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WC_Checkout verifies the nonce; read-only decision
+			if ( is_scalar( $_POST[ $k ] ?? null ) && '' !== sanitize_text_field( wp_unslash( (string) $_POST[ $k ] ) ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** @param \WP_Error $errors */

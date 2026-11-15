@@ -813,7 +813,7 @@ msgid "Leitweg-ID / Buyer reference"
 msgstr ""
 
 #: src/B2g/Field.php
-msgid "Only for orders with a company name."
+msgid "Only for orders with a company name or VAT ID."
 msgstr ""
 
 #: src/Admin/SettingsPage.php
@@ -829,7 +829,7 @@ msgid "Always"
 msgstr ""
 
 #: src/Admin/SettingsPage.php
-msgid "Only for business customers (company name filled in)"
+msgid "Only for business customers (company name or VAT ID filled in)"
 msgstr ""
 
 #: src/Admin/SettingsPage.php
