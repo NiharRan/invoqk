@@ -100,18 +100,22 @@ final class Field {
 		if ( ! function_exists( 'woocommerce_register_additional_checkout_field' ) ) {
 			return;
 		}
-		woocommerce_register_additional_checkout_field( [
-			'id'                => self::BLOCK_ID,
-			'label'             => __( 'Leitweg-ID / Buyer reference', 'invoqk' ),
-			'location'          => 'order',
-			'type'              => 'text',
-			'required'          => false,
-			'sanitize_callback' => static fn( $v ) => LeitwegId::normalise( (string) $v ),
-			'validate_callback' => static function ( $v ) {
-				$msg = self::error( (string) $v );
-				return null === $msg ? true : new \WP_Error( 'invoqk_leitweg_id', $msg );
-			},
-		] );
+		try { // WooCommerce throws when it rejects a field; on woocommerce_init that would take the site down
+			woocommerce_register_additional_checkout_field( [
+				'id'                => self::BLOCK_ID,
+				'label'             => __( 'Leitweg-ID / Buyer reference', 'invoqk' ),
+				'location'          => 'order',
+				'type'              => 'text',
+				'required'          => false,
+				'sanitize_callback' => static fn( $v ) => LeitwegId::normalise( (string) $v ),
+				'validate_callback' => static function ( $v ) {
+					$msg = self::error( (string) $v );
+					return null === $msg ? true : new \WP_Error( 'invoqk_leitweg_id', $msg );
+				},
+			] );
+		} catch ( \Throwable $e ) {
+			wc_get_logger()->error( 'leitweg field registration failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
+		}
 	}
 
 	private static function error( string $v ): ?string {

@@ -5,7 +5,12 @@ use Invoqk\B2g\Reference;
 use PHPUnit\Framework\TestCase;
 
 if ( ! function_exists( 'woocommerce_register_additional_checkout_field' ) ) {
-	function woocommerce_register_additional_checkout_field( array $options ): void { $GLOBALS['invoqk_block_fields'][ $options['id'] ] = $options; }
+	function woocommerce_register_additional_checkout_field( array $options ): void {
+		if ( ! empty( $GLOBALS['invoqk_block_throws'] ) ) {
+			throw new \Exception( 'Unable to register field with id: SECRET' ); // as WooCommerce does when it rejects a field
+		}
+		$GLOBALS['invoqk_block_fields'][ $options['id'] ] = $options;
+	}
 }
 
 final class FieldTest extends TestCase {
@@ -19,6 +24,7 @@ final class FieldTest extends TestCase {
 	}
 
 	protected function tearDown(): void {
+		$GLOBALS['invoqk_block_throws'] = false;
 		$_POST = [];
 		unset( $_SERVER['REQUEST_METHOD'] );
 	}
@@ -157,5 +163,15 @@ final class FieldTest extends TestCase {
 			$this->assertSame( 'off', Field::sanitizeMode( $v ) );
 		}
 		$this->assertSame( 'off', Field::mode() );
+	}
+
+	public function test_rejected_block_registration_is_logged_not_thrown(): void {
+		$GLOBALS['invoqk_block_throws'] = true;
+		$GLOBALS['invoqk_log']          = [];
+		$this->boot( 'always' ); // must not throw on woocommerce_init
+		$this->assertSame( [], $GLOBALS['invoqk_block_fields'] );
+		$log = implode( ' ', $GLOBALS['invoqk_log'] );
+		$this->assertStringContainsString( 'Exception', $log );
+		$this->assertStringNotContainsString( 'SECRET', $log );
 	}
 }
