@@ -194,4 +194,36 @@ final class ActionsTest extends TestCase {
 		$this->assertSame( 'pro', License::get()['plan'] );
 		$this->assertArrayNotHasKey( 'invoqk_checkout_pending', $GLOBALS['invoqk_options'] );
 	}
+
+	public function test_handle_trial_redirects_to_settings_with_ok(): void {
+		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		$url = Actions::handle( [ 'license_action' => 'trial' ], 1000, $this->t() );
+		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=ok', $url );
+	}
+
+	public function test_handle_activate_sanitizes_and_passes_key(): void {
+		$this->reply( 404, [ 'error' => 'invalid_key' ] );
+		$url = Actions::handle( [ 'license_action' => 'activate', 'key' => ' <b>LIC-5</b> ' ], 1000, $this->t() );
+		$this->assertStringContainsString( 'invoqk_license=invalid_key', $url );
+		$this->assertStringContainsString( '"key":"LIC-5"', $this->calls[0][1]['body'] );
+	}
+
+	public function test_handle_checkout_returns_provider_url(): void {
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
+		$this->reply( 200, [ 'url' => 'https://pay.example/c/1' ] );
+		$this->assertSame( 'https://pay.example/c/1', Actions::handle( [ 'license_action' => 'checkout', 'plan' => 'pro' ], 1000, $this->t() ) );
+	}
+
+	public function test_handle_unknown_action_makes_no_call(): void {
+		$url = Actions::handle( [ 'license_action' => 'wipe' ], 1000, $this->t() );
+		$this->assertStringContainsString( 'invoqk_license=unknown', $url );
+		$this->assertSame( [], $this->calls );
+	}
+
+	public function test_boot_registers_post_handler_and_sweep_refresh(): void {
+		$GLOBALS['invoqk_actions'] = [];
+		Actions::boot();
+		$this->assertArrayHasKey( 'admin_post_invoqk_license', $GLOBALS['invoqk_actions'] );
+		$this->assertArrayHasKey( \Invoqk\Jobs\Scheduler::SWEEP, $GLOBALS['invoqk_actions'] );
+	}
 }

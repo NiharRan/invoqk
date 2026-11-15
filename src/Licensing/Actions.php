@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Licensing;
 
+use Invoqk\Jobs\Scheduler;
 use Invoqk\Validation\Client;
 
 /** Every license change the plugin makes, each one a call to the license API. A failed call never wipes a working license. */
@@ -9,6 +10,47 @@ final class Actions {
 	private const PLANS  = [ 'pro', 'pro3', 'agency' ];
 	private const POLL   = 300;
 	private const POLL_FOR = 3 * 86400;
+
+	public static function boot(): void {
+		add_action( 'admin_post_invoqk_license', [ self::class, 'post' ] );
+		add_action( Scheduler::SWEEP, static fn() => self::refreshIfStale( time() ) );
+	}
+
+	/** admin-post entry: capability and nonce first, then redirect (the provider checkout URL is external). */
+	public static function post(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+		check_admin_referer( 'invoqk_license' );
+		$url = self::handle( $_POST, time() ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above
+		str_starts_with( $url, admin_url() ) ? wp_safe_redirect( $url ) : wp_redirect( $url ); // phpcs:ignore WordPress.Security.SafeRedirect -- provider URL from our own API
+		exit;
+	}
+
+	/** @return string where to send the browser: the settings page with a result code, or the checkout URL */
+	public static function handle( array $post, int $now, ?callable $transport = null ): string {
+		$act = sanitize_key( (string) ( $post['license_action'] ?? '' ) );
+		switch ( $act ) {
+			case 'trial':
+				$r = self::trial( $now, $transport );
+				break;
+			case 'activate':
+				$r = self::activate( sanitize_text_field( wp_unslash( (string) ( $post['key'] ?? '' ) ) ), $now, $transport );
+				break;
+			case 'deactivate':
+				$r = self::deactivate( $now, $transport );
+				break;
+			case 'checkout':
+				$r = self::checkout( sanitize_key( (string) ( $post['plan'] ?? '' ) ), $now, $transport );
+				if ( $r['ok'] ) {
+					return (string) $r['url'];
+				}
+				break;
+			default:
+				$r = self::fail( 'unknown' );
+		}
+		return admin_url( 'admin.php?page=invoqk' ) . '&invoqk_license=' . ( $r['ok'] ? 'ok' : (string) $r['error'] );
+	}
 
 	/** @return array{ok:bool,error:?string} */
 	public static function trial( int $now, ?callable $transport = null ): array {
