@@ -8,16 +8,22 @@ namespace Invoqk\B2g;
  * Pure: no I/O.
  *
  * Error codes of check(), tested in this order on the normalised value:
- *   chars  -> anything besides A-Z, 0-9 and "-" (spaces, underscores, punctuation)
+ *   chars  -> anything besides A-Z, 0-9 and "-" after normalising (underscores, punctuation, non-ASCII letters)
  *   parts  -> not 2 or 3 "-" separated parts, empty part, non-digit coarse, or check not exactly 2 digits
  *   length -> coarse not 2-12 digits, or fine not 1-30 characters (checked before the check part)
  */
 final class LeitwegId {
-	/** Trim, collapse whitespace, map dash look-alikes to "-", upper-case. */
+	/** Map dash look-alikes to "-", drop invisible characters and whitespace around hyphens or at the ends, turn other spaces into "-", ASCII upper-case. */
 	public static function normalise( string $raw ): string {
 		$s = preg_replace( '/[\x{2010}-\x{2015}\x{2212}]/u', '-', $raw ) ?? $raw;
-		$s = preg_replace( '/\s+/u', ' ', trim( $s ) ) ?? $s;
-		return mb_strtoupper( trim( $s ) );
+		$s = preg_replace( '/[\x{00AD}\x{200B}\x{FEFF}]+/u', '', $s ) ?? $s;
+		// No whitespace in a real ID: drop it around hyphens and at the ends; a space between
+		// parts is a pasted separator and becomes "-".
+		$s = preg_replace( '/[\s\x{00A0}]*-[\s\x{00A0}]*/u', '-', trim( $s, " \t\n\r\0\x0B" ) ) ?? $s;
+		$s = preg_replace( '/^[\s\x{00A0}]+|[\s\x{00A0}]+$/u', '', $s ) ?? $s;
+		$s = preg_replace( '/[\s\x{00A0}]+/u', '-', $s ) ?? $s;
+		// ASCII only: mb_strtoupper would turn "ß" into "SS" and let it pass.
+		return strtoupper( $s );
 	}
 
 	/** @return ?string null when plausible, else chars|length|parts. */
@@ -26,7 +32,7 @@ final class LeitwegId {
 		if ( '' === $s ) {
 			return null;
 		}
-		if ( ! preg_match( '/^[A-Z0-9-]+$/', $s ) ) {
+		if ( ! preg_match( '/\A[A-Z0-9-]+\z/', $s ) ) {
 			return 'chars';
 		}
 		$p = explode( '-', $s );
@@ -38,7 +44,7 @@ final class LeitwegId {
 		if ( strlen( $p[0] ) < 2 || strlen( $p[0] ) > 12 || ( null !== $fine && strlen( $fine ) > 30 ) ) {
 			return 'length';
 		}
-		return preg_match( '/^[0-9]{2}$/', $p[ $n - 1 ] ) ? null : 'parts';
+		return preg_match( '/\A[0-9]{2}\z/', $p[ $n - 1 ] ) ? null : 'parts';
 	}
 
 	public static function message( string $code ): string {
