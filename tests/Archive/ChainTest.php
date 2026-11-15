@@ -29,4 +29,24 @@ final class ChainTest extends TestCase {
 	public function test_credit_note_hash_differs_from_same_row_as_invoice(): void {
 		$this->assertNotSame( self::GOLDEN, Chain::hash( [ 'kind' => 'credit_note' ] + $this->invoiceRow() ) );
 	}
+
+	public function test_credit_note_hash_covers_parent_id(): void {
+		$cn = [ 'kind' => 'credit_note' ] + $this->invoiceRow();
+		$h5 = Chain::hash( [ 'parent_id' => 5 ] + $cn );
+		$this->assertNotSame( $h5, Chain::hash( [ 'parent_id' => 6 ] + $cn ) );
+		$this->assertSame( $h5, Chain::hash( [ 'parent_id' => 5 ] + $cn ) );
+		$none = Chain::hash( $cn );
+		$this->assertSame( $none, Chain::hash( [ 'parent_id' => null ] + $cn ) );
+		$this->assertNotSame( $none, $h5 );
+	}
+
+	public function test_parent_id_does_not_change_invoice_hash(): void {
+		$this->assertSame( self::GOLDEN, Chain::hash( [ 'parent_id' => 5 ] + $this->invoiceRow() ) );
+		$this->assertSame( self::GOLDEN, Chain::hash( [ 'kind' => 'invoice', 'parent_id' => 5 ] + $this->invoiceRow() ) );
+	}
+
+	public function test_empty_or_null_kind_hashes_as_invoice(): void {
+		$this->assertSame( self::GOLDEN, Chain::hash( [ 'kind' => '' ] + $this->invoiceRow() ) );
+		$this->assertSame( self::GOLDEN, Chain::hash( [ 'kind' => null ] + $this->invoiceRow() ) );
+	}
 }

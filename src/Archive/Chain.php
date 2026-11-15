@@ -10,6 +10,7 @@ final class Chain {
 		// Appended only for non-invoice rows, so rows written before kind existed keep their hash.
 		if ( '' !== $f( 'kind' ) && 'invoice' !== $r['kind'] ) {
 			$fields[] = $r['kind'];
+			$fields[] = $f( 'parent_id' );
 		}
 		return hash( 'sha256', implode( '|', $fields ) );
 	}
