@@ -14,6 +14,7 @@ final class Plugin {
 			Guard\Actions::boot();
 			Admin\SettingsPage::boot();
 			Onboarding\Wizard::boot();
+			add_action( 'admin_init', [ Archive\WpdbIndex::class, 'ensure' ] );
 		}
 		add_action(
 			'init',
