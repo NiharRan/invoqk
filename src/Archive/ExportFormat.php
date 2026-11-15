@@ -6,12 +6,12 @@ final class ExportFormat {
 	public const HEADER = [ 'Rechnungsnr', 'Datum', 'Kunde', 'Netto', 'USt', 'Brutto', 'Währung', 'Validierungsstatus', 'Version', 'Erneut gesendet' ];
 
 	public static function header(): string {
-		return "\xEF\xBB\xBF" . self::csv( self::HEADER );
+		return "\xEF\xBB\xBF" . implode( ';', self::HEADER ) . "\r\n";
 	}
 
 	public static function line( array $row ): string {
 		$customer = (string) ( $row['customer'] ?? '' );
-		if ( '' !== $customer && false !== strpos( '=+-@', $customer[0] ) ) {
+		if ( '' !== $customer && false !== strpos( "=+-@\t\r", $customer[0] ) ) {
 			$customer = "'" . $customer; // neutralise spreadsheet formulas
 		}
 		$money = static fn( $v ): string => null === $v || '' === $v ? '' : number_format( (float) $v, 2, ',', '' );
@@ -26,7 +26,7 @@ final class ExportFormat {
 			(string) ( $row['currency'] ?? '' ),
 			(string) ( $row['validation_status'] ?? '' ),
 			(string) (int) ( $row['version'] ?? 1 ),
-			(int) ( $row['version'] ?? 1 ) > 1 ? 'ja' : 'nein',
+			(int) ( $row['version'] ?? 1 ) > 1 ? 'ja' : '',
 		] );
 	}
 

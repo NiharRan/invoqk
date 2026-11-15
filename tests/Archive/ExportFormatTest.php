@@ -15,14 +15,18 @@ final class ExportFormatTest extends TestCase {
 		$this->assertSame( "RE-1;05.03.2026;Kunde;100,00;19,00;119,00;EUR;valid;2;ja\r\n", ExportFormat::line( $this->row( [ 'version' => 2 ] ) ) );
 	}
 
+	public function test_first_version_has_empty_resend_cell(): void {
+		$this->assertStringEndsWith( ";1;\r\n", ExportFormat::line( $this->row() ) );
+	}
+
 	public function test_header_starts_with_bom(): void {
 		$h = ExportFormat::header();
 		$this->assertStringStartsWith( "\xEF\xBB\xBFRechnungsnr;Datum;Kunde;", $h );
-		$this->assertStringEndsWith( ";\"Erneut gesendet\"\r\n", $h );
+		$this->assertStringEndsWith( ";Erneut gesendet\r\n", $h );
 	}
 
 	public function test_formula_prefix_is_neutralised(): void {
-		foreach ( [ '=HYPERLINK("x")', '@a', '+1', '-1' ] as $c ) {
+		foreach ( [ '=HYPERLINK("x")', '@a', '+1', '-1', "\tx", "\rx" ] as $c ) {
 			$cells = str_getcsv( rtrim( ExportFormat::line( $this->row( [ 'customer' => $c ] ) ) ), ';', '"', '' );
 			$this->assertSame( "'" . $c, $cells[2] );
 		}
