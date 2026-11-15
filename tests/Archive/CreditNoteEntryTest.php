@@ -50,7 +50,10 @@ final class CreditNoteEntryTest extends TestCase {
 	}
 
 	private function order( int $refundId = 11 ): \WC_Order {
-		$o          = $GLOBALS['invoqk_orders'][5] = new \WC_Order( 5 );
+		$o          = $GLOBALS['invoqk_orders'][5] = new class( 5 ) extends \WC_Order {
+			public bool $failMeta = false;
+			public function save_meta_data(): void { if ( $this->failMeta ) { throw new \RuntimeException( 'db' ); } parent::save_meta_data(); }
+		};
 		$o->total   = '119.00';
 		$o->company = 'Acme';
 		$o->refunds = [ new class( $refundId ) {
@@ -119,12 +122,29 @@ final class CreditNoteEntryTest extends TestCase {
 
 	public function test_identical_file_content_reuses_the_stored_key(): void {
 		$o = $this->order();
-		$a = $this->go();
+		$e = Store::get( $o )[11];
+		Store::put( $o, 12, $e );
 		$o->refunds[] = new class { public function get_id() { return 12; } public function get_total() { return '-1'; } public function get_total_tax() { return '0'; } };
-		Store::put( $o, 12, Store::get( $o )[11] + [] );
-		$s = Store::get( $o )[12]; $s['archived'] = null; Store::put( $o, 12, $s );
+		$a = $this->go();
 		$b = $this->go( 'passed', 12 );
 		$this->assertSame( $a['xml_key'], $b['xml_key'] );
+	}
+
+	public function test_existing_row_with_null_archived_is_not_duplicated(): void {
+		$this->order();
+		Archive::index()->append( [ 'order_id' => 11, 'version' => 1, 'kind' => 'credit_note' ], [ Chain::class, 'hash' ] );
+		$this->assertNull( $this->go() );
+		$this->assertSame( 1, Archive::index()->count() );
+	}
+
+	public function test_failed_store_put_after_append_does_not_duplicate_on_retry(): void {
+		$o = $this->order();
+		$o->failMeta = true;
+		$this->assertNull( $this->go() );
+		$this->assertSame( 1, Archive::index()->count() );
+		$o->failMeta = false;
+		$this->assertNull( $this->go() );
+		$this->assertSame( 1, Archive::index()->count() );
 	}
 
 	public function test_hash_chain_still_verifies_with_a_credit_note_row(): void {

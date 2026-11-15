@@ -72,6 +72,10 @@ final class CreditNoteEntry {
 			$row[ "{$fmt}_size" ] = strlen( $bytes );
 			$row[ "{$fmt}_key" ]  = $index->keyForHash( $hash ) ?? Archive::storage()->put( $tmp, $fmt, time() );
 			$stage = 'append';
+			if ( $index->maxVersion( $refundId ) > 0 ) { // a row exists (any kind, tombstoned too) but `archived` was never stored
+				return null;
+			}
+			// shortcut: no lock between this check and append, so two overlapping runs can still double-append; upgrade with a unique key on (order_id, kind, version).
 			$saved = $index->append( $row, [ Chain::class, 'hash' ] );
 			$stage = 'store';
 			$entry['archived'] = (int) $saved['id'];
