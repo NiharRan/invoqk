@@ -174,4 +174,13 @@ final class SettingsPageTest extends TestCase {
 		do_action( 'admin_init' );
 		$this->assertSame( 5, $GLOBALS['invoqk_options']['invoqk_archive_retention_years'] );
 	}
+
+	public function test_render_shows_licensing_box_for_free_site(): void {
+		$GLOBALS['invoqk_options'] = [];
+		ob_start();
+		SettingsPage::render();
+		$h = ob_get_clean();
+		$this->assertStringContainsString( 'Free plan', $h );
+		$this->assertStringContainsString( 'value="checkout"', $h );
+	}
 }

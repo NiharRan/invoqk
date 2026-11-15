@@ -1,6 +1,7 @@
 <?php
 namespace Invoqk\Validation;
 
+use Invoqk\Licensing\License;
 use Invoqk\Onboarding\State;
 
 /** Free tier: 20 distinct orders may be validated. The only writer of invoqk_free_slots. */
@@ -11,7 +12,7 @@ final class Limit {
 	private const OPTION = 'invoqk_free_slots';
 
 	public static function isPro(): bool {
-		return (bool) apply_filters( 'invoqk_is_pro', false );
+		return (bool) apply_filters( 'invoqk_is_pro', License::isActive() );
 	}
 
 	public static function upgradeUrl(): string {

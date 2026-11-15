@@ -7,6 +7,7 @@ final class Plugin {
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
 		Archive\Hooks::boot();
+		Licensing\Actions::boot();
 		if ( is_admin() ) {
 			Admin\OrderColumn::boot();
 			Admin\OrderBox::boot();
@@ -14,6 +15,7 @@ final class Plugin {
 			Admin\Override::boot();
 			Guard\Actions::boot();
 			Admin\SettingsPage::boot();
+			Licensing\Notice::boot();
 			Onboarding\Wizard::boot();
 		}
 		add_action(

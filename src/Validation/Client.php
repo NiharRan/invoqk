@@ -13,9 +13,13 @@ final class Client {
 		return trim( (string) get_option( 'invoqk_api_key', '' ) );
 	}
 
-	public static function url(): string {
+	public static function base(): string {
 		$base = defined( 'INVOQK_API_BASE' ) ? (string) INVOQK_API_BASE : (string) get_option( 'invoqk_api_base', '' );
-		return rtrim( '' !== $base ? $base : self::DEFAULT_BASE, '/' ) . '/api/v1/einvoice/validate';
+		return rtrim( '' !== $base ? $base : self::DEFAULT_BASE, '/' );
+	}
+
+	public static function url(): string {
+		return self::base() . '/api/v1/einvoice/validate';
 	}
 
 	/** @return array{http:int,body:?array,retryAfter:?string} */
@@ -25,7 +29,7 @@ final class Client {
 			'timeout'     => 20,
 			'redirection' => 0,
 			'sslverify'   => true,
-			'headers'     => [ 'Content-Type' => $mime, self::KEY_HEADER => 'Bearer ' . self::apiKey() ],
+			'headers'     => [ 'Content-Type' => $mime, self::KEY_HEADER => 'Bearer ' . self::apiKey(), 'X-Invoqk-Site' => \Invoqk\Licensing\Api::domain() ], // the server binds a key to the first shop it is used from
 			'body'        => $bytes,
 		] );
 		if ( is_wp_error( $res ) ) {
