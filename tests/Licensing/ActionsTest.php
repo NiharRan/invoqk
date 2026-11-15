@@ -161,6 +161,15 @@ final class ActionsTest extends TestCase {
 		$this->assertSame( [], $this->calls );
 	}
 
+	public function test_checkout_rejects_non_https_url(): void {
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
+		foreach ( [ 'javascript:alert(1)', 'http://pay.example/c', '//pay.example/c' ] as $bad ) {
+			$this->reply( 200, [ 'url' => $bad ] );
+			$this->assertSame( 'unknown', Actions::checkout( 'pro', 4000, $this->t() )['error'], $bad );
+		}
+		$this->assertArrayNotHasKey( 'invoqk_checkout_pending', $GLOBALS['invoqk_options'] );
+	}
+
 	public function test_checkout_without_url_in_reply_is_unknown(): void {
 		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
 		$this->reply( 200, [] );

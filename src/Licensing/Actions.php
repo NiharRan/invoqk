@@ -113,7 +113,7 @@ final class Actions {
 		}
 		$res = Api::call( 'checkout', [ 'plan' => $plan ], true, $transport );
 		$url = 200 === $res['http'] ? ( $res['body']['url'] ?? null ) : null;
-		if ( ! is_string( $url ) || '' === $url ) {
+		if ( ! is_string( $url ) || 'https' !== parse_url( $url, PHP_URL_SCHEME ) ) { // the browser is redirected here: never a javascript: or http: URL
 			return self::fail( 200 === $res['http'] ? 'unknown' : Api::error( $res ) );
 		}
 		update_option( self::PENDING, $now, false ); // the purchase arrives by webhook; poll until it does
