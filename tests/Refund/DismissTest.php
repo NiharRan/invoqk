@@ -33,4 +33,11 @@ final class DismissTest extends TestCase {
 		$this->assertFalse( Dismiss::handle( 404, 11, true, true, 7, 'Erika' ) );
 		$this->assertSame( [], $this->o->notes );
 	}
+
+	public function test_not_pro_changes_nothing(): void {
+		$GLOBALS['invoqk_filters'] = [];
+		$this->assertFalse( Dismiss::handle( 5, 11, true, true, 7, 'Erika' ) );
+		$this->assertSame( [ 11 ], Open::ids( $this->o ) );
+		$this->assertSame( [], $this->o->notes );
+	}
 }

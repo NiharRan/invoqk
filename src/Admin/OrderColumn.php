@@ -30,7 +30,7 @@ final class OrderColumn {
 	public static function render( \WC_Order $order ): string {
 		$tag = Classifier::isOverridden( $order ) ? ' <small>(' . esc_html__( 'manual', 'invoqk' ) . ')</small>' : '';
 		$held = 'held' === ( Hold::get( $order )['state'] ?? '' ) ? Badge::html( 'held' ) . ' ' : '';
-		$refund = \Invoqk\Refund\Open::ids( $order ) ? Badge::html( 'refund' ) . ' ' : '';
+		$refund = \Invoqk\Validation\Limit::isPro() && \Invoqk\Refund\Open::ids( $order ) ? Badge::html( 'refund' ) . ' ' : '';
 		return $refund . $held . self::cell( $order, $tag );
 	}
 

@@ -1,6 +1,8 @@
 <?php
 namespace Invoqk\Refund;
 
+use Invoqk\Validation\Limit;
+
 /** Marks an open refund as needing no corrective e-invoice. Links, not a form: the box sits inside the order edit form. */
 final class Dismiss {
 	public const ACTION = 'invoqk_refund_dismiss';
@@ -23,7 +25,7 @@ final class Dismiss {
 
 	/** Returns true when a flagged refund was cleared. Bad nonce, missing capability or an unflagged refund change nothing. */
 	public static function handle( int $orderId, int $refundId, bool $allowed, bool $nonceOk, int $userId, string $userName ): bool {
-		if ( ! $allowed || ! $nonceOk || $orderId <= 0 || $refundId <= 0 ) {
+		if ( ! $allowed || ! $nonceOk || $orderId <= 0 || $refundId <= 0 || ! Limit::isPro() ) {
 			return false;
 		}
 		$order = wc_get_order( $orderId );

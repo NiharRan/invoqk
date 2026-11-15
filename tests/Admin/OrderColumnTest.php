@@ -74,9 +74,16 @@ final class OrderColumnTest extends TestCase {
 	}
 
 	public function test_render_shows_refund_badge_when_open(): void {
+		$GLOBALS['invoqk_filters'] = [ 'invoqk_is_pro' => [ fn() => true ] ];
 		$o = new WC_Order();
 		$o->update_meta_data( \Invoqk\Refund\Open::META, [ 3 ] );
 		$this->assertStringContainsString( 'Corrective e-invoice open', OrderColumn::render( $o ) );
 		$this->assertStringNotContainsString( 'Corrective', OrderColumn::render( new WC_Order() ) );
+	}
+
+	public function test_no_refund_badge_when_not_pro(): void {
+		$o = new WC_Order();
+		$o->update_meta_data( \Invoqk\Refund\Open::META, [ 3 ] );
+		$this->assertStringNotContainsString( 'Corrective', OrderColumn::render( $o ) );
 	}
 }

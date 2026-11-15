@@ -1,6 +1,8 @@
 <?php
 namespace Invoqk\Refund;
 
+use Invoqk\Validation\Limit;
+
 /** One batched admin notice for all orders with open refunds. */
 final class Notice {
 	public static function boot(): void {
@@ -13,7 +15,7 @@ final class Notice {
 
 	public static function html(): string {
 		$n = Open::count();
-		if ( $n < 1 ) {
+		if ( $n < 1 || ! Limit::isPro() ) {
 			return '';
 		}
 		$first = wc_get_order( Open::orders()[0] );
