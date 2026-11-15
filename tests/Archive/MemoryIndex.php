@@ -5,7 +5,7 @@ use Invoqk\Archive\Archive;
 use Invoqk\Archive\Index;
 
 /** Array-backed Index with the same contract as WpdbIndex. */
-final class MemoryIndex implements Index {
+class MemoryIndex implements Index {
 	/** @var array<int, array> */
 	public array $rows = [];
 

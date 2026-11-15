@@ -33,6 +33,14 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_shipping_country(): string { return $this->shipCountry; }
 		public function get_billing_company(): string { return $this->company; }
 		public function get_total(): string { return $this->total; }
+		public string $tax = '0.00';
+		public string $currency = 'EUR';
+		public string $first = '';
+		public string $last = '';
+		public function get_total_tax(): string { return $this->tax; }
+		public function get_currency(): string { return $this->currency; }
+		public function get_billing_first_name(): string { return $this->first; }
+		public function get_billing_last_name(): string { return $this->last; }
 		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
