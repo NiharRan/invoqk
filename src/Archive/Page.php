@@ -71,8 +71,9 @@ final class Page {
 		$date  = (string) ( $row['invoice_date'] ?? '' );
 		$money = static fn( $k ) => isset( $row[ $k ] ) ? esc_html( number_format( (float) $row[ $k ], 2, ',', '.' ) ) : '';
 		return [
+			'cb'       => self::checkbox( $row ),
 			'number'   => esc_html( (string) ( $row['invoice_number'] ?? '' ) ),
-			'date'     => '' !== $date ? esc_html( wp_date( 'd.m.Y', (int) strtotime( $date . ' UTC' ) ) ) : '',
+			'date'     => ( $dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date ) ) ? esc_html( $dt->format( 'd.m.Y' ) ) : '',
 			'customer' => esc_html( (string) ( $row['customer'] ?? '' ) ),
 			'net'      => $money( 'net' ),
 			'vat'      => $money( 'vat' ),
@@ -85,16 +86,48 @@ final class Page {
 
 	public static function header( array $verify, int $used ): string {
 		$state = (string) ( $verify['state'] ?? 'none' );
+		$at    = wp_date( 'd.m.Y', (int) ( $verify['at'] ?? 0 ) );
 		$msg   = [
 			'running' => __( 'Check running', 'invoqk' ),
-			'ok'      => __( 'Last check: no changes detected', 'invoqk' ),
-			'broken'  => __( 'Last check: changes detected', 'invoqk' ),
+			/* translators: %s: date */
+			'ok'      => sprintf( __( 'Last check: %s, no changes detected', 'invoqk' ), $at ),
+			/* translators: 1: date, 2: entry id, 3: kind of change */
+			'broken'  => sprintf( __( 'Last check: %1$s, changes detected at entry #%2$d (%3$s)', 'invoqk' ), $at, (int) ( $verify['brokenId'] ?? 0 ), (string) ( $verify['kind'] ?? '' ) ),
 		][ $state ] ?? __( 'No check run yet', 'invoqk' );
 		$meter = sprintf( __( '%s GB of %s GB', 'invoqk' ), number_format( $used / 1024 ** 3, 1, ',', '.' ), '5' ); // Task 9: Usage::label
 		$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_archive_verify">'
 			. wp_nonce_field( 'invoqk_archive_verify', '_wpnonce', true, false )
 			. '<button class="button">' . esc_html__( 'Check archive', 'invoqk' ) . '</button></form>';
 		return '<div class="invoqk-archive-head"><p>' . esc_html( $meter ) . '</p>' . $form . '<p>' . esc_html( $msg ) . '</p></div>';
+	}
+
+	public static function checkbox( array $row ): string {
+		return empty( $row['deleted_at'] ) ? '<input type="checkbox" name="ids[]" value="' . (int) $row['id'] . '">' : '';
+	}
+
+	public static function deleteControls(): string {
+		$word = __( 'DELETE', 'invoqk' );
+		return '<input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', '_wpnonce', true, false )
+			. '<p><input type="text" name="confirm" placeholder="' . esc_attr( $word ) . '"> '
+			. '<input type="text" name="reason" placeholder="' . esc_attr( __( 'Reason', 'invoqk' ) ) . '"> '
+			. '<button class="button" type="submit">' . esc_html__( 'Delete selected', 'invoqk' ) . '</button></p>'
+			/* translators: %s: confirm word */
+			. '<p class="description">' . esc_html( sprintf( __( 'Entries before the retention date are only deleted when you type %s and give a reason.', 'invoqk' ), $word ) ) . '</p>';
+	}
+
+	public static function notice( array $get ): string {
+		$d = absint( $get['deleted'] ?? 0 );
+		$r = absint( $get['refused'] ?? 0 );
+		$o = '';
+		if ( isset( $get['deleted'] ) ) {
+			/* translators: %d: count */
+			$o .= '<div class="notice notice-success"><p>' . esc_html( sprintf( _n( '%d entry deleted.', '%d entries deleted.', $d, 'invoqk' ), $d ) ) . '</p></div>';
+		}
+		if ( $r > 0 ) {
+			/* translators: %d: count */
+			$o .= '<div class="notice notice-warning"><p>' . esc_html( sprintf( __( '%d entries kept: before the retention date they need the confirm word and a reason.', 'invoqk' ), $r ) ) . '</p></div>';
+		}
+		return $o;
 	}
 
 	public static function render(): void {
@@ -112,11 +145,12 @@ final class Page {
 				. ' <a href="' . esc_url( Limit::upgradeUrl() ) . '">' . esc_html__( 'Upgrade to Pro', 'invoqk' ) . '</a></p></div></div>';
 			return;
 		}
+		echo self::notice( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- counts only, escaped in notice()
 		echo self::header( Verify::result(), $ix->usage() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
 		echo '<form method="get"><input type="hidden" name="page" value="invoqk-archive">'
 			. '<input type="search" name="s" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
 			. '<input type="date" name="from" value="' . esc_attr( $f['from'] ?? '' ) . '"> <input type="date" name="to" value="' . esc_attr( $f['to'] ?? '' ) . '"> '
-			. '<label><input type="checkbox" name="deletable" value="1"' . ( empty( $f['deletable'] ) ? '' : ' checked' ) . '> ' . esc_html__( 'deletable', 'invoqk' ) . '</label> '
+			. '<label><input type="checkbox" name="deletable" value="1"' . ( empty( $f['deletable'] ) ? '' : ' checked' ) . '> ' . esc_html__( 'Only deletable', 'invoqk' ) . '</label> '
 			. '<button class="button">' . esc_html__( 'Filter', 'invoqk' ) . '</button></form>';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 		$table = new class( $res['rows'], $res['total'], $page, $now ) extends \WP_List_Table {
@@ -125,6 +159,7 @@ final class Page {
 			}
 			public function get_columns(): array {
 				return [
+					'cb'       => '',
 					'number'   => __( 'Number', 'invoqk' ),
 					'date'     => __( 'Date', 'invoqk' ),
 					'customer' => __( 'Customer', 'invoqk' ),
@@ -141,12 +176,17 @@ final class Page {
 				$this->items           = array_map( fn( $r ) => Page::cells( $r, $this->now ), $this->data );
 				$this->set_pagination_args( [ 'total_items' => $this->total, 'per_page' => 20 ] );
 			}
+			protected function column_cb( $item ) {
+				return $item['cb'];
+			}
 			protected function column_default( $item, $col ) {
 				return $item[ $col ] ?? ''; // already escaped by Page::cells
 			}
 		};
 		$table->prepare_items();
+		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::deleteControls(); // phpcs:ignore WordPress.Security.EscapeOutput
 		$table->display();
+		echo '</form>';
 		echo '</div>';
 	}
 }

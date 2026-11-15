@@ -182,4 +182,17 @@ final class ActionsTest extends TestCase {
 		Verify::start();
 		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
 	}
+
+	public function test_download_endpoint_403_without_cap_or_nonce(): void {
+		foreach ( [ 'invoqk_can', 'invoqk_nonce_ok' ] as $k ) {
+			unset( $GLOBALS['invoqk_can'], $GLOBALS['invoqk_nonce_ok'] );
+			$GLOBALS[ $k ] = false;
+			try {
+				Actions::downloadCallback();
+				$this->fail( "expected die for $k" );
+			} catch ( \InvoqkTestDie $e ) {
+				$this->assertSame( 403, $e->getCode() );
+			}
+		}
+	}
 }

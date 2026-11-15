@@ -52,4 +52,32 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( '1,2 GB of 5 GB', $h );
 		$this->assertStringContainsString( 'invoqk_archive_verify', $h );
 	}
+
+	public function test_delete_controls(): void {
+		$h = Page::deleteControls();
+		$this->assertStringContainsString( 'data-action="invoqk_archive_delete"', $h );
+		$this->assertStringContainsString( 'name="action" value="invoqk_archive_delete"', $h );
+		$this->assertStringContainsString( 'name="confirm"', $h );
+		$this->assertStringContainsString( 'name="reason"', $h );
+		$this->assertStringContainsString( 'type DELETE and give a reason', $h );
+	}
+
+	public function test_notice_counts_and_escapes(): void {
+		$this->assertSame( '', Page::notice( [] ) );
+		$n = Page::notice( [ 'deleted' => '2', 'refused' => '1<b>' ] );
+		$this->assertStringContainsString( '2 entries deleted.', $n );
+		$this->assertStringContainsString( '1 entries kept', $n );
+		$this->assertStringNotContainsString( '<b>', $n );
+	}
+
+	public function test_checkbox_only_for_live_rows(): void {
+		$this->assertStringContainsString( 'name="ids[]" value="5"', Page::checkbox( $this->row() ) );
+		$this->assertSame( '', Page::checkbox( $this->row( [ 'deleted_at' => 5 ] ) ) );
+	}
+
+	public function test_date_not_shifted_by_timezone_and_last_check_line(): void {
+		$this->assertSame( '31.12.2019', Page::cells( $this->row( [ 'invoice_date' => '2019-12-31' ] ), self::NOW )['date'] );
+		$this->assertStringContainsString( 'Last check: 01.01.1970, no changes detected', Page::header( [ 'state' => 'ok', 'at' => 0 ], 0 ) );
+		$this->assertStringContainsString( 'changes detected at entry #9 (link)', Page::header( [ 'state' => 'broken', 'brokenId' => 9, 'kind' => 'link', 'at' => 0 ], 0 ) );
+	}
 }
