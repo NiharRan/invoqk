@@ -38,6 +38,8 @@ Invoqk reads the invoice that these plugins already create. Today it detects inv
 * Invoice guard: with WP Overnight, an invoice that failed the check is held back from customer emails until it is fixed or you release it
 * Archive: stores every e-invoice your shop sends, with a checksum chain to detect later changes
 * Export of the archive as a ZIP with an index file, for your Steuerberater
+* Refunds on orders that need an e-invoice are flagged until a credit note exists. With WP Overnight, credit notes it creates for refunds are checked and archived
+* Optional Leitweg-ID field at checkout. With WP Overnight it is written into UBL and PEPPOL BIS invoices; for other formats you are told to enter it in the invoice plugin
 
 If Pro ends, the guard and new archiving stop. Your existing archive stays readable and exportable.
 
