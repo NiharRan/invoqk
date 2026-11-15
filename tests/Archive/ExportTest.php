@@ -151,6 +151,16 @@ final class ExportTest extends TestCase {
 		$this->assertTrue( Export::start( '2024-01-01', '2024-12-31', 5, time() + 2 * HOUR_IN_SECONDS ) );
 	}
 
+	public function test_start_removes_previous_ready_zip(): void {
+		$this->add( 1, 1, '2024-03-01' );
+		$id = $this->begin();
+		Export::run( $id, 0, $this->mail() );
+		$zip = Archive::storage()->exports() . "/$id.zip";
+		$this->assertFileExists( $zip );
+		$this->assertTrue( Export::start( '2024-01-01', '2024-12-31', 5, time() ) );
+		$this->assertFileDoesNotExist( $zip );
+	}
+
 	public function test_cleanup_removes_old_zip_and_resets_state(): void {
 		$this->add( 1, 1, '2024-03-01' );
 		$id = $this->begin();

@@ -120,8 +120,8 @@ final class PageTest extends TestCase {
 		$h = Page::exportBox( [ 'state' => 'ready', 'count' => 3, 'from' => '2026-01-01', 'to' => '2026-01-31' ], true, self::NOW );
 		$this->assertStringContainsString( 'action=invoqk_archive_export_download', $h );
 		$this->assertStringContainsString( '_wpnonce=nonce-invoqk_archive_export_download', $h );
-		$this->assertStringContainsString( '3 invoices, 2026-01-01 to 2026-01-31', $h );
-		$this->assertStringContainsString( 'Export running', Page::exportBox( [ 'state' => 'running' ], true, self::NOW ) );
+		$this->assertStringContainsString( '3 invoices, 01.01.2026 to 31.01.2026', $h );
+		$this->assertStringContainsString( 'Export running', Page::exportBox( [ 'state' => 'running', 'at' => self::NOW ], true, self::NOW ) );
 	}
 
 	public function test_export_box_failed_message(): void {
@@ -135,5 +135,16 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( 'Choose a valid date range.', Page::notice( [ 'export' => 'range' ] ) );
 		$this->assertStringContainsString( 'The PHP zip extension is missing.', Page::notice( [ 'export' => 'nozip' ] ) );
 		$this->assertSame( '', Page::notice( [ 'export' => 'bogus' ] ) );
+	}
+
+	public function test_export_box_ready_singular(): void {
+		$this->assertStringContainsString( '1 invoice, 01.01.2026 to 31.01.2026', Page::exportBox( [ 'state' => 'ready', 'count' => 1, 'from' => '2026-01-01', 'to' => '2026-01-31' ], true, self::NOW ) );
+	}
+
+	public function test_export_box_stale_running_counts_as_failed(): void {
+		$this->assertStringContainsString( 'Export failed.', Page::exportBox( [ 'state' => 'running', 'at' => self::NOW - 2 * HOUR_IN_SECONDS ], true, self::NOW ) );
+		$h = Page::exportBox( [ 'state' => 'running', 'at' => self::NOW - 60 ], true, self::NOW );
+		$this->assertStringContainsString( 'Export running', $h );
+		$this->assertStringNotContainsString( 'Export failed', $h );
 	}
 }

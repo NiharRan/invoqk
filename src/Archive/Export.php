@@ -83,6 +83,13 @@ final class Export {
 		if ( 'running' === $s['state'] && (int) ( $s['at'] ?? 0 ) > $now - HOUR_IN_SECONDS ) {
 			return false;
 		}
+		if ( 'ready' === $s['state'] && ! empty( $s['file'] ) ) {
+			try {
+				@unlink( Archive::storage()->exports() . '/' . basename( (string) $s['file'] ) );
+			} catch ( \Throwable $e ) {
+				wc_get_logger()->error( 'archive export old zip removal failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );
+			}
+		}
 		$id = bin2hex( random_bytes( 16 ) );
 		update_option( self::OPT, [ 'id' => $id, 'state' => 'running', 'from' => $from, 'to' => $to, 'user' => $userId, 'at' => $now ], false );
 		as_enqueue_async_action( self::HOOK, [ $id, 0 ], Scheduler::GROUP );
@@ -143,6 +150,7 @@ final class Export {
 				as_enqueue_async_action( self::HOOK, [ $id, $afterId ], Scheduler::GROUP );
 				return;
 			}
+			// shortcut: each batch rewrites the whole ZIP (libzip copies entries), I/O grows with export size; fine for a month, switch to a streamed/temp-dir build if year-long exports time out.
 			if ( true !== $z->open( $zip, \ZipArchive::CREATE ) || ! $z->addFile( $csv, 'index.csv' ) || ! $z->close() ) {
 				throw new \RuntimeException( 'finish' );
 			}
@@ -157,7 +165,7 @@ final class Export {
 				}
 			}
 			update_option( self::OPT, [ 'state' => 'failed', 'at' => time() ] + $s, false );
-			wc_get_logger()->error( "archive export $id failed: " . get_class( $e ) . ': ' . $e->getMessage(), [ 'source' => 'invoqk' ] );
+			wc_get_logger()->error( "archive export $id failed: " . get_class( $e ) . ( $e instanceof \RuntimeException ? ': ' . $e->getMessage() : '' ), [ 'source' => 'invoqk' ] );
 			return;
 		}
 		self::notify( $s, $mail );

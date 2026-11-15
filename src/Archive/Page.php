@@ -155,14 +155,20 @@ final class Page {
 			. '<button class="button" type="submit">' . esc_html__( 'Export range', 'invoqk' ) . '</button> '
 			. '<button class="button" type="submit" name="range" value="this_month">' . esc_html__( 'This month', 'invoqk' ) . '</button> '
 			. '<button class="button" type="submit" name="range" value="last_month">' . esc_html__( 'Last month', 'invoqk' ) . '</button></form>';
-		switch ( $state['state'] ?? 'none' ) {
+		$st = $state['state'] ?? 'none';
+		if ( 'running' === $st && (int) ( $state['at'] ?? 0 ) < $now - HOUR_IN_SECONDS ) {
+			$st = 'failed'; // a crashed job never writes its failure
+		}
+		switch ( $st ) {
 			case 'running':
 				$h .= '<p>' . esc_html__( 'Export running. Reload this page later.', 'invoqk' ) . '</p>';
 				break;
 			case 'ready':
 				$url = wp_nonce_url( admin_url( 'admin-post.php?action=invoqk_archive_export_download' ), 'invoqk_archive_export_download' );
+				$n   = (int) ( $state['count'] ?? 0 );
+				$fmt = static fn( $d ) => ( $dt = \DateTimeImmutable::createFromFormat( '!Y-m-d', (string) $d ) ) ? $dt->format( 'd.m.Y' ) : (string) $d;
 				/* translators: 1: invoice count, 2: first date, 3: last date */
-				$txt = sprintf( __( '%1$d invoices, %2$s to %3$s', 'invoqk' ), (int) ( $state['count'] ?? 0 ), (string) ( $state['from'] ?? '' ), (string) ( $state['to'] ?? '' ) );
+				$txt = sprintf( _n( '%1$d invoice, %2$s to %3$s', '%1$d invoices, %2$s to %3$s', $n, 'invoqk' ), $n, $fmt( $state['from'] ?? '' ), $fmt( $state['to'] ?? '' ) );
 				$h  .= '<p><a href="' . esc_url( $url ) . '">' . esc_html( $txt ) . '</a></p>';
 				break;
 			case 'failed':

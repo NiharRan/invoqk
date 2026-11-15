@@ -729,8 +729,10 @@ msgstr ""
 #. translators: 1: invoice count, 2: first date, 3: last date
 #: src/Archive/Page.php
 #, php-format
-msgid "%1$d invoices, %2$s to %3$s"
-msgstr ""
+msgid "%1$d invoice, %2$s to %3$s"
+msgid_plural "%1$d invoices, %2$s to %3$s"
+msgstr[0] ""
+msgstr[1] ""
 
 #: src/Archive/Page.php
 msgid "Export failed. Check the archive check, then try again."
