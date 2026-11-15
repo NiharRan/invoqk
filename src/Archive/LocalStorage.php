@@ -3,7 +3,7 @@ namespace Invoqk\Archive;
 
 /** Archive files under a base directory that the web server must never serve. */
 final class LocalStorage implements Storage {
-	private const KEY = '#^\d{4}/\d{2}/[a-f0-9]{32}\.(xml|pdf)$#';
+	private const KEY = '#^\d{4}/\d{2}/[a-f0-9]{32}\.(xml|pdf)$#D';
 
 	public function __construct( private string $base ) {}
 
@@ -14,7 +14,8 @@ final class LocalStorage implements Storage {
 		$this->ready();
 		$key    = gmdate( 'Y/m', $time ) . '/' . bin2hex( random_bytes( 16 ) ) . '.' . $ext;
 		$target = $this->base . '/' . $key;
-		$this->mkdir( dirname( $target ) );
+		$this->dir( $this->base . '/' . substr( $key, 0, 4 ) );
+		$this->dir( dirname( $target ) );
 		if ( ! @copy( $sourcePath, $target ) ) {
 			throw new \RuntimeException( 'Could not copy file into archive.' );
 		}
@@ -44,27 +45,33 @@ final class LocalStorage implements Storage {
 	/** Creates the base and staging dirs and their protection files on first use. */
 	private function ready(): void {
 		foreach ( [ $this->base, $this->base . '/staging' ] as $dir ) {
-			$this->mkdir( $dir );
-			if ( ! is_file( "$dir/.htaccess" ) ) {
-				file_put_contents( "$dir/.htaccess", "Require all denied\n<IfModule !mod_authz_core.c>Deny from all</IfModule>\n" );
-			}
-			if ( ! is_file( "$dir/index.php" ) ) {
-				file_put_contents( "$dir/index.php", '' );
-			}
+			$this->dir( $dir );
+			$this->guard( "$dir/.htaccess", "Require all denied\n<IfModule !mod_authz_core.c>Deny from all</IfModule>\n" );
 		}
 	}
 
-	private function mkdir( string $dir ): void {
-		if ( is_dir( $dir ) ) {
+	/** Creates a directory and gives it an index.php so listings stay empty where .htaccess is ignored. */
+	private function dir( string $dir ): void {
+		if ( ! is_dir( $dir ) ) {
+			if ( function_exists( 'wp_mkdir_p' ) ) {
+				wp_mkdir_p( $dir );
+			} else {
+				@mkdir( $dir, 0755, true );
+			}
+			if ( ! is_dir( $dir ) ) {
+				throw new \RuntimeException( 'Could not create archive directory.' );
+			}
+		}
+		$this->guard( "$dir/index.php", '' );
+	}
+
+	/** Writes a protection file once; a failed write is an error, never a silent unprotected store. */
+	private function guard( string $file, string $body ): void {
+		if ( is_file( $file ) ) {
 			return;
 		}
-		if ( function_exists( 'wp_mkdir_p' ) ) {
-			wp_mkdir_p( $dir );
-		} else {
-			@mkdir( $dir, 0755, true );
-		}
-		if ( ! is_dir( $dir ) ) {
-			throw new \RuntimeException( 'Could not create archive directory.' );
+		if ( file_put_contents( $file, $body ) === false ) {
+			throw new \RuntimeException( 'Could not write archive protection file.' );
 		}
 	}
 }

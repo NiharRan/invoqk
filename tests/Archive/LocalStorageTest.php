@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 final class LocalStorageTest extends TestCase {
 	private string $base;
 	private string $src;
+	private ?string $sentinel = null;
 
 	protected function setUp(): void {
 		$this->base = sys_get_temp_dir() . '/invoqk-storage-' . uniqid();
@@ -17,6 +18,9 @@ final class LocalStorageTest extends TestCase {
 	protected function tearDown(): void {
 		$this->rrmdir( $this->base );
 		@unlink( $this->src );
+		if ( $this->sentinel !== null ) {
+			@unlink( $this->sentinel );
+		}
 	}
 
 	private function rrmdir( string $dir ): void {
@@ -75,6 +79,36 @@ final class LocalStorageTest extends TestCase {
 
 		$this->assertFileDoesNotExist( $path );
 		$this->assertNull( $store->path( $key ) );
+	}
+
+	public function test_month_dirs_get_index_php(): void {
+		$store = new LocalStorage( $this->base );
+		$store->put( $this->src, 'pdf', 1700000000 );
+
+		foreach ( [ '2023', '2023/11', 'staging' ] as $dir ) {
+			$this->assertFileExists( "{$this->base}/$dir/index.php", "$dir needs index.php" );
+		}
+	}
+
+	public function test_delete_bad_key_removes_nothing(): void {
+		$store    = new LocalStorage( $this->base );
+		$sentinel = dirname( $this->base ) . '/invoqk-sentinel-' . uniqid() . '.pdf';
+		file_put_contents( $sentinel, 'keep' );
+		$this->sentinel = $sentinel;
+
+		$store->delete( '../' . basename( $sentinel ) );
+
+		$this->assertFileExists( $sentinel );
+	}
+
+	public function test_regex_rejects_trailing_newline(): void {
+		$store = new LocalStorage( $this->base );
+		$key   = $store->put( $this->src, 'pdf', 1700000000 );
+		file_put_contents( $this->base . '/' . $key . "\n", 'x' );
+
+		$this->assertNull( $store->path( $key . "\n" ) );
+		$store->delete( $key . "\n" );
+		$this->assertFileExists( $this->base . '/' . $key . "\n" );
 	}
 
 	public function test_put_rejects_other_extensions(): void {

@@ -11,7 +11,7 @@ final class Archive {
 	public static ?Storage $storage = null;
 
 	public static function storage(): Storage {
-		return self::$storage ??= new LocalStorage( wp_upload_dir()['basedir'] . '/invoqk-archive' );
+		return self::$storage ??= new LocalStorage( defined( 'INVOQK_ARCHIVE_DIR' ) ? INVOQK_ARCHIVE_DIR : wp_upload_dir()['basedir'] . '/invoqk-archive' );
 	}
 
 	public static function reset(): void {
