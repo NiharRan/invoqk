@@ -60,7 +60,10 @@ final class WpdbIndex implements Index {
 			KEY pdf_hash (pdf_hash)
 			) {$wpdb->get_charset_collate()};"
 		);
-		update_option( 'invoqk_archive_db', self::SCHEMA, false );
+		// Only a table that really exists is recorded, so a failed dbDelta is retried on the next append.
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) === $t ) {
+			update_option( 'invoqk_archive_db', self::SCHEMA, false );
+		}
 	}
 
 	public function append( array $row, callable $hash ): array {
