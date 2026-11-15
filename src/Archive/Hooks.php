@@ -7,6 +7,7 @@ final class Hooks {
 		Capture::boot();
 		Entry::boot();
 		Actions::boot();
+		Page::boot();
 		add_action( Verify::HOOK, static fn( $afterId, $prevHash ) => Verify::run( (int) $afterId, (string) $prevHash ), 10, 2 );
 		add_action( 'admin_init', [ WpdbIndex::class, 'ensure' ] );
 	}

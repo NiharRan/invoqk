@@ -178,6 +178,11 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_get_current_user() { return (object) [ 'ID' => 1, 'display_name' => 'T' ]; }
 }
 
+if ( ! function_exists( 'sanitize_file_name' ) ) {
+	function sanitize_file_name( string $n ): string { return preg_replace( '/[^A-Za-z0-9._-]/', '-', $n ); }
+	function nocache_headers(): void {}
+}
+
 // --- WP Overnight stand-ins for the guard ---
 if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 	function wpo_ips_edi_is_available(): bool { return $GLOBALS['invoqk_edi'] ?? true; }

@@ -9,6 +9,11 @@ final class Verify {
 	private const OPT  = 'invoqk_archive_verify';
 
 	public static function start(): void {
+		$r = self::result();
+		// A run saves `at` every batch, so only a stale "running" (crashed job) may be restarted.
+		if ( 'running' === $r['state'] && ( $r['at'] ?? 0 ) > time() - HOUR_IN_SECONDS ) {
+			return;
+		}
 		update_option( self::OPT, [ 'state' => 'running', 'checked' => 0, 'at' => time() ], false );
 		as_enqueue_async_action( self::HOOK, [ 0, '' ], Scheduler::GROUP );
 	}

@@ -117,11 +117,11 @@ final class ActionsTest extends TestCase {
 		$this->assertSame( 8, Actions::retentionYears() );
 	}
 
-	public function test_boot_registers_delete_only(): void {
+	public function test_boot_registers_endpoints(): void {
 		$GLOBALS['invoqk_actions'] = [];
 		Actions::boot();
 		$this->assertNotEmpty( $GLOBALS['invoqk_actions']['admin_post_invoqk_archive_delete'] ?? [] );
-		$this->assertCount( 1, $GLOBALS['invoqk_actions'] );
+		$this->assertCount( 3, $GLOBALS['invoqk_actions'] );
 	}
 
 	public function test_unlink_failure_still_tombstones_and_continues(): void {
@@ -145,5 +145,41 @@ final class ActionsTest extends TestCase {
 		$b = $this->add( 2, $this->old(), $a['xml_key'] );
 		$this->assertSame( 2, Actions::delete( [ $a['id'], $b['id'] ], 7, '', '', self::NOW )['deleted'] );
 		$this->assertNull( Archive::storage()->path( $a['xml_key'] ) );
+	}
+
+	public function test_download_refuses_tombstone_and_bad_type_and_traversal(): void {
+		$r = $this->add( 1, $this->old() );
+		$this->assertNull( Actions::download( $r['id'], 'pdf' ), 'no pdf key' );
+		$this->assertNull( Actions::download( $r['id'], '../xml' ) );
+		$this->assertNull( Actions::download( $r['id'], 'exe' ) );
+		$this->assertNull( Actions::download( 999, 'xml' ) );
+		$this->assertNotNull( Actions::download( $r['id'], 'xml' ) );
+		Actions::delete( [ $r['id'] ], 7, '', '', self::NOW );
+		$this->assertNull( Actions::download( $r['id'], 'xml' ) );
+	}
+
+	public function test_download_name_sanitized(): void {
+		$r = $this->add( 1, $this->old() );
+		$d = Actions::download( $r['id'], 'xml' );
+		$this->assertSame( 'RE-1.xml', $d['name'] );
+		$this->assertSame( 'application/xml', $d['mime'] );
+		$this->assertSame( Archive::storage()->path( $r['xml_key'] ), $d['path'] );
+	}
+
+	public function test_verify_endpoint_403_without_cap(): void {
+		$GLOBALS['invoqk_can'] = false;
+		try {
+			Actions::verifyCallback();
+			$this->fail( 'expected die' );
+		} catch ( \InvoqkTestDie $e ) {
+			$this->assertSame( 403, $e->getCode() );
+		}
+		$this->assertSame( [], $GLOBALS['invoqk_as'] );
+	}
+
+	public function test_verify_not_restarted_while_running(): void {
+		Verify::start();
+		Verify::start();
+		$this->assertCount( 1, $GLOBALS['invoqk_as'] );
 	}
 }

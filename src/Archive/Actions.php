@@ -7,6 +7,51 @@ final class Actions {
 
 	public static function boot(): void {
 		add_action( 'admin_post_invoqk_archive_delete', [ self::class, 'callback' ] );
+		add_action( 'admin_post_invoqk_archive_download', [ self::class, 'downloadCallback' ] );
+		add_action( 'admin_post_invoqk_archive_verify', [ self::class, 'verifyCallback' ] );
+	}
+
+	public static function verifyCallback(): void {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_verify' ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+		Verify::start();
+		wp_safe_redirect( admin_url( 'admin.php?page=invoqk-archive' ) );
+		exit;
+	}
+
+	public static function downloadCallback(): void {
+		$id = absint( $_GET['id'] ?? 0 ); // phpcs:ignore WordPress.Security.NonceVerification -- checked below
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! check_admin_referer( 'invoqk_archive_download_' . $id ) ) {
+			wp_die( '', '', [ 'response' => 403 ] );
+		}
+		$d = self::download( $id, sanitize_key( wp_unslash( $_GET['file'] ?? '' ) ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! $d ) {
+			wp_die( esc_html__( 'File not found.', 'invoqk' ), '', [ 'response' => 404 ] );
+		}
+		nocache_headers();
+		header( 'Content-Type: ' . $d['mime'] );
+		header( 'Content-Disposition: attachment; filename="' . $d['name'] . '"' );
+		header( 'Content-Length: ' . filesize( $d['path'] ) );
+		readfile( $d['path'] );
+		exit;
+	}
+
+	/** @return array{path:string, name:string, mime:string}|null Null for tombstones, unknown ids, other types or missing files. */
+	public static function download( int $id, string $file ): ?array {
+		if ( ! in_array( $file, [ 'xml', 'pdf' ], true ) ) {
+			return null;
+		}
+		$row = Archive::index()->find( $id );
+		if ( ! $row || ! empty( $row['deleted_at'] ) || empty( $row[ $file . '_key' ] ) ) {
+			return null;
+		}
+		$path = Archive::storage()->path( (string) $row[ $file . '_key' ] );
+		if ( null === $path ) {
+			return null;
+		}
+		$base = (string) ( $row['invoice_number'] ?? '' );
+		return [ 'path' => $path, 'name' => sanitize_file_name( '' !== $base ? $base : "invoice-{$id}" ) . ".$file", 'mime' => 'xml' === $file ? 'application/xml' : 'application/pdf' ];
 	}
 
 	public static function callback(): void {

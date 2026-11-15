@@ -11,7 +11,7 @@ final class HooksTest extends TestCase {
 	public function test_registers_hooks(): void {
 		Hooks::boot();
 
-		foreach ( [ 'wpo_wcpdf_email_attachment', 'woocommerce_email_sent', 'invoqk_archive_entry', 'invoqk_archive_verify', 'invoqk_validated', 'invoqk_sweep', 'admin_init', 'admin_post_invoqk_archive_delete' ] as $tag ) {
+		foreach ( [ 'wpo_wcpdf_email_attachment', 'woocommerce_email_sent', 'invoqk_archive_entry', 'invoqk_archive_verify', 'invoqk_validated', 'invoqk_sweep', 'admin_init', 'admin_post_invoqk_archive_delete', 'admin_post_invoqk_archive_download', 'admin_post_invoqk_archive_verify', 'admin_menu' ] as $tag ) {
 			$this->assertNotEmpty( $GLOBALS['invoqk_actions'][ $tag ] ?? [], "action $tag" );
 		}
 		$this->assertNotEmpty( $GLOBALS['invoqk_filters']['woocommerce_email_attachments'] ?? [], 'filter woocommerce_email_attachments' );
