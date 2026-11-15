@@ -32,7 +32,7 @@ final class Actions {
 		$act = sanitize_key( (string) ( $post['license_action'] ?? '' ) );
 		switch ( $act ) {
 			case 'trial':
-				$r = self::trial( $now, $transport );
+				$r = self::trial( sanitize_text_field( wp_unslash( (string) ( $post['email'] ?? '' ) ) ), $now, $transport );
 				break;
 			case 'activate':
 				$r = self::activate( sanitize_text_field( wp_unslash( (string) ( $post['key'] ?? '' ) ) ), $now, $transport );
@@ -53,8 +53,12 @@ final class Actions {
 	}
 
 	/** @return array{ok:bool,error:?string} */
-	public static function trial( int $now, ?callable $transport = null ): array {
-		return self::install( Api::call( 'trial', [ 'domain' => Api::domain() ], false, $transport ), $now );
+	public static function trial( string $email, int $now, ?callable $transport = null ): array {
+		$email = strtolower( trim( $email ) );
+		if ( false === filter_var( $email, FILTER_VALIDATE_EMAIL ) ) {
+			return self::fail( 'invalid_email' );
+		}
+		return self::install( Api::call( 'trial', [ 'email' => $email, 'domain' => Api::domain() ], false, $transport ), $now );
 	}
 
 	/** @return array{ok:bool,error:?string} */
@@ -63,7 +67,8 @@ final class Actions {
 		if ( '' === $key ) {
 			return self::fail( 'invalid_key' );
 		}
-		return self::install( Api::call( 'activate', [ 'key' => $key, 'domain' => Api::domain() ], false, $transport ), $now );
+		// The license key is the account API key: it authenticates the call and, once accepted, becomes this shop's key.
+		return self::install( Api::call( 'activate', [], true, $transport, $key ), $now, $key );
 	}
 
 	/** @return array{ok:bool,error:?string} */
@@ -75,6 +80,11 @@ final class Actions {
 		if ( 401 === $res['http'] ) {
 			License::clear();
 			return self::fail( 'revoked' );
+		}
+		if ( 200 === $res['http'] && 'free' === ( $res['body']['plan'] ?? null ) ) {
+			License::clear(); // the account has nothing licensed any more (trial ended, subscription over)
+			delete_option( self::PENDING );
+			return [ 'ok' => true, 'error' => null ];
 		}
 		$license = 200 === $res['http'] && is_array( $res['body'] ) ? License::fromResponse( $res['body'], $now ) : null;
 		if ( null === $license ) {
@@ -138,13 +148,18 @@ final class Actions {
 	}
 
 	/** @return array{ok:bool,error:?string} */
-	private static function install( array $res, int $now ): array {
+	private static function install( array $res, int $now, ?string $enteredKey = null ): array {
+		if ( 200 === $res['http'] && null !== $enteredKey && 'free' === ( $res['body']['plan'] ?? null ) ) {
+			update_option( 'invoqk_api_key', $enteredKey, false ); // the key works for the free tier; it just carries no plan
+			update_option( 'invoqk_key_changed_at', $now );
+			return self::fail( 'no_license' );
+		}
 		$license = 200 === $res['http'] && is_array( $res['body'] ) ? License::fromResponse( $res['body'], $now ) : null;
 		if ( null === $license ) {
 			return self::fail( 200 === $res['http'] ? 'unknown' : Api::error( $res ) );
 		}
 		License::save( $license );
-		$siteKey = $res['body']['api_key'] ?? '';
+		$siteKey = $enteredKey ?? $res['body']['api_key'] ?? '';
 		if ( is_string( $siteKey ) && '' !== $siteKey ) {
 			update_option( 'invoqk_api_key', $siteKey, false );
 			update_option( 'invoqk_key_changed_at', $now ); // lets the sweep retry 401/403 records

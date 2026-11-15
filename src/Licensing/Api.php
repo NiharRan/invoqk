@@ -6,11 +6,11 @@ use Invoqk\Validation\Client;
 /** Calls to the Invoqk license API. Never logs the body or the key. */
 final class Api {
 	/** @return array{http:int,body:?array} */
-	public static function call( string $path, array $body, bool $withKey, ?callable $transport = null ): array {
+	public static function call( string $path, array $body, bool $withKey, ?callable $transport = null, ?string $key = null ): array {
 		$transport ??= 'wp_remote_post';
-		$headers   = [ 'Content-Type' => 'application/json' ];
+		$headers   = [ 'Content-Type' => 'application/json', 'X-Invoqk-Site' => self::domain() ];
 		if ( $withKey ) {
-			$headers[ Client::KEY_HEADER ] = 'Bearer ' . Client::apiKey();
+			$headers[ Client::KEY_HEADER ] = 'Bearer ' . ( $key ?? Client::apiKey() );
 		}
 		$res = $transport( Client::base() . '/api/v1/license/' . $path, [
 			'timeout'     => 15,

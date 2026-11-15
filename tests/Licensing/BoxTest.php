@@ -14,6 +14,7 @@ final class BoxTest extends TestCase {
 		$h = Box::html( $this->lic(), 1000 );
 		$this->assertStringContainsString( 'Free plan', $h );
 		$this->assertStringContainsString( 'value="trial"', $h );
+		$this->assertStringContainsString( 'name="email" type="email"', $h );
 		$this->assertStringContainsString( 'name="key"', $h );
 		foreach ( [ '€79', '1 shop', '€149', '3 shops', '€399', '25 shops' ] as $needle ) {
 			$this->assertStringContainsString( $needle, $h );
@@ -54,6 +55,7 @@ final class BoxTest extends TestCase {
 	public function test_flash_codes(): void {
 		$this->assertStringContainsString( 'seats', Box::html( $this->lic(), 1, 'seats_full' ) );
 		$this->assertStringContainsString( 'notice-error', Box::html( $this->lic(), 1, 'whatever' ) );
+		$this->assertStringContainsString( 'account', Box::html( $this->lic(), 1, 'account_exists' ) );
 		$this->assertStringNotContainsString( 'notice-error', Box::html( $this->lic(), 1, 'ok' ) );
 	}
 }

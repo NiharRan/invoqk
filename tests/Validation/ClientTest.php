@@ -37,6 +37,7 @@ final class ClientTest extends TestCase {
 		$this->assertSame( 'application/xml', $args['headers']['Content-Type'] );
 		$this->assertSame( 'Authorization', Client::KEY_HEADER );
 		$this->assertSame( 'Bearer sekret', $args['headers'][ Client::KEY_HEADER ] );
+		$this->assertSame( 'shop.example', $args['headers']['X-Invoqk-Site'] );
 	}
 
 	public function test_timeout_and_redirect_args(): void {

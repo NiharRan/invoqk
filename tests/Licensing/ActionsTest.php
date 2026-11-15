@@ -39,7 +39,7 @@ final class ActionsTest extends TestCase {
 
 	public function test_trial_saves_license_and_site_key(): void {
 		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
-		$r = Actions::trial( 1000, $this->t() );
+		$r = Actions::trial( 'a@b.de', 1000, $this->t() );
 		$this->assertTrue( $r['ok'] );
 		$this->assertSame( 'trial', License::get()['plan'] );
 		$this->assertSame( 'sk_new', $GLOBALS['invoqk_options']['invoqk_api_key'] );
@@ -49,7 +49,7 @@ final class ActionsTest extends TestCase {
 	public function test_trial_used_changes_nothing(): void {
 		$this->seedPro();
 		$this->reply( 409, [ 'error' => 'trial_used' ] );
-		$r = Actions::trial( 1000, $this->t() );
+		$r = Actions::trial( 'a@b.de', 1000, $this->t() );
 		$this->assertSame( [ 'ok' => false, 'error' => 'trial_used' ], $r );
 		$this->assertSame( 'pro', License::get()['plan'] );
 		$this->assertSame( 'sk_old', $GLOBALS['invoqk_options']['invoqk_api_key'] );
@@ -62,8 +62,9 @@ final class ActionsTest extends TestCase {
 		$l = License::get();
 		$this->assertSame( 'pro3', $l['plan'] );
 		$this->assertSame( 3, $l['seats_max'] );
-		$this->assertSame( 'sk_new', $GLOBALS['invoqk_options']['invoqk_api_key'] );
-		$this->assertStringContainsString( '"key":"LIC-9"', $this->calls[0][1]['body'] );
+		$this->assertSame( 'LIC-9', $GLOBALS['invoqk_options']['invoqk_api_key'] );
+		$this->assertSame( 'Bearer LIC-9', $this->calls[0][1]['headers']['Authorization'] );
+		$this->assertStringNotContainsString( 'LIC-9', $this->calls[0][1]['body'] );
 	}
 
 	public function test_activate_empty_key_makes_no_call(): void {
@@ -75,6 +76,7 @@ final class ActionsTest extends TestCase {
 		$this->seedPro();
 		$this->reply( 404, [ 'error' => 'invalid_key' ] );
 		$this->assertSame( 'invalid_key', Actions::activate( 'TYPO', 1000, $this->t() )['error'] );
+		$this->assertSame( 'sk_old', $GLOBALS['invoqk_options']['invoqk_api_key'] );
 		$this->assertSame( 'LIC-1', License::get()['key'] );
 		$this->assertSame( 'sk_old', $GLOBALS['invoqk_options']['invoqk_api_key'] );
 	}
@@ -206,7 +208,7 @@ final class ActionsTest extends TestCase {
 
 	public function test_handle_trial_redirects_to_settings_with_ok(): void {
 		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
-		$url = Actions::handle( [ 'license_action' => 'trial' ], 1000, $this->t() );
+		$url = Actions::handle( [ 'license_action' => 'trial', 'email' => 'a@b.de' ], 1000, $this->t() );
 		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=ok', $url );
 	}
 
@@ -214,7 +216,7 @@ final class ActionsTest extends TestCase {
 		$this->reply( 404, [ 'error' => 'invalid_key' ] );
 		$url = Actions::handle( [ 'license_action' => 'activate', 'key' => ' <b>LIC-5</b> ' ], 1000, $this->t() );
 		$this->assertStringContainsString( 'invoqk_license=invalid_key', $url );
-		$this->assertStringContainsString( '"key":"LIC-5"', $this->calls[0][1]['body'] );
+		$this->assertSame( 'Bearer LIC-5', $this->calls[0][1]['headers']['Authorization'] );
 	}
 
 	public function test_handle_checkout_returns_provider_url(): void {
@@ -234,5 +236,31 @@ final class ActionsTest extends TestCase {
 		Actions::boot();
 		$this->assertArrayHasKey( 'admin_post_invoqk_license', $GLOBALS['invoqk_actions'] );
 		$this->assertArrayHasKey( \Invoqk\Jobs\Scheduler::SWEEP, $GLOBALS['invoqk_actions'] );
+	}
+
+	public function test_trial_sends_email_and_domain_and_needs_a_valid_email(): void {
+		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
+		Actions::trial( ' Owner@Shop.de ', 1000, $this->t() );
+		$this->assertSame( '{"email":"owner@shop.de","domain":"shop.example"}', $this->calls[0][1]['body'] );
+		$this->calls = [];
+		$this->assertSame( 'invalid_email', Actions::trial( 'nope', 1000, $this->t() )['error'] );
+		$this->assertSame( [], $this->calls );
+	}
+
+	public function test_refresh_with_server_plan_free_clears_the_license(): void {
+		$this->seedPro( [ 'trial_used' => true ] );
+		$this->reply( 200, [ 'plan' => 'free', 'valid_until' => 0 ] );
+		$this->assertTrue( Actions::refresh( 2000, $this->t() )['ok'] );
+		$this->assertSame( 'free', License::get()['plan'] );
+		$this->assertTrue( License::get()['trial_used'] );
+		$this->assertFalse( License::get()['check_failed'] );
+		$this->assertSame( 'sk_old', $GLOBALS['invoqk_options']['invoqk_api_key'] );
+	}
+
+	public function test_activating_a_key_of_a_free_account_keeps_the_key_but_reports_no_license(): void {
+		$this->reply( 200, [ 'plan' => 'free', 'valid_until' => 0 ] );
+		$this->assertSame( 'no_license', Actions::activate( 'iqk_free', 1000, $this->t() )['error'] );
+		$this->assertSame( 'iqk_free', $GLOBALS['invoqk_options']['invoqk_api_key'] );
+		$this->assertSame( 'free', License::get()['plan'] );
 	}
 }

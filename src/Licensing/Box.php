@@ -11,9 +11,9 @@ final class Box {
 			$h .= self::form( 'deactivate', __( 'Deactivate this site', 'invoqk' ) );
 		} else {
 			if ( ! $l['trial_used'] ) {
-				$h .= self::form( 'trial', __( 'Start 14-day trial', 'invoqk' ) );
+				$h .= self::form( 'trial', __( 'Start 14-day trial', 'invoqk' ), '<label>' . esc_html__( 'Email', 'invoqk' ) . ' <input name="email" type="email" required autocomplete="email" class="regular-text"></label> ' );
 			}
-			$h .= self::form( 'activate', __( 'Activate', 'invoqk' ), '<label>' . esc_html__( 'License key', 'invoqk' ) . ' <input type="text" name="key" value="" autocomplete="off" class="regular-text"></label> ' );
+			$h .= self::form( 'activate', __( 'Activate', 'invoqk' ), '<label>' . esc_html__( 'License key (API key from your account)', 'invoqk' ) . ' <input type="text" name="key" value="" autocomplete="off" class="regular-text"></label> ' );
 		}
 		if ( ! $active || 'trial' === $l['plan'] ) {
 			$h .= self::plans();
@@ -70,6 +70,11 @@ final class Box {
 			'trial_used'  => __( 'The trial was already used for this site.', 'invoqk' ),
 			'unreachable' => __( 'The Invoqk server could not be reached. Try again later.', 'invoqk' ),
 			'no_key'      => __( 'Enter your API key in the settings below first.', 'invoqk' ),
+			'invalid_email' => __( 'Enter a valid email address.', 'invoqk' ),
+			'account_exists' => __( 'An invoqk.com account with this email exists. Create an API key in your account and enter it below.', 'invoqk' ),
+			'no_license'  => __( 'The key is saved, but this account has no active plan. Buy a plan below.', 'invoqk' ),
+			'wrong_site'  => __( 'This key is already connected to another shop. Deactivate it there first.', 'invoqk' ),
+			'site_taken'  => __( 'Another key of your account is already connected to this shop.', 'invoqk' ),
 		];
 		return '<div class="notice notice-error inline"><p>' . esc_html( $texts[ $code ] ?? __( 'Something went wrong. Try again later.', 'invoqk' ) ) . '</p></div>';
 	}

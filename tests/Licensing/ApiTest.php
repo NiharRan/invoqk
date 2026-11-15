@@ -26,6 +26,7 @@ final class ApiTest extends TestCase {
 		$this->assertSame( 'https://invoqk.com/api/v1/license/trial', $url );
 		$this->assertSame( '{"domain":"a.de"}', $args['body'] );
 		$this->assertArrayNotHasKey( 'Authorization', $args['headers'] );
+		$this->assertSame( 'shop.example', $args['headers']['X-Invoqk-Site'] );
 		$this->assertSame( 200, $res['http'] );
 		$this->assertSame( 'trial', $res['body']['plan'] );
 	}
@@ -49,5 +50,11 @@ final class ApiTest extends TestCase {
 
 	public function test_domain_is_lowercase_host(): void {
 		$this->assertSame( 'shop.example', Api::domain() );
+	}
+
+	public function test_explicit_key_overrides_stored_key(): void {
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_stored';
+		Api::call( 'activate', [], true, $this->transport( [ 'response' => [ 'code' => 200 ], 'body' => '{}' ] ), 'iqk_typed' );
+		$this->assertSame( 'Bearer iqk_typed', $this->seen[0][1]['headers']['Authorization'] );
 	}
 }

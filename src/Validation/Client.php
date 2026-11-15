@@ -29,7 +29,7 @@ final class Client {
 			'timeout'     => 20,
 			'redirection' => 0,
 			'sslverify'   => true,
-			'headers'     => [ 'Content-Type' => $mime, self::KEY_HEADER => 'Bearer ' . self::apiKey() ],
+			'headers'     => [ 'Content-Type' => $mime, self::KEY_HEADER => 'Bearer ' . self::apiKey(), 'X-Invoqk-Site' => \Invoqk\Licensing\Api::domain() ], // the server binds a key to the first shop it is used from
 			'body'        => $bytes,
 		] );
 		if ( is_wp_error( $res ) ) {
