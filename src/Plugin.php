@@ -17,6 +17,8 @@ final class Plugin {
 			Guard\Actions::boot();
 			Admin\SettingsPage::boot();
 			Licensing\Notice::boot();
+			Refund\Dismiss::boot();
+			Refund\Notice::boot();
 			Onboarding\Wizard::boot();
 		}
 		add_action(

@@ -72,4 +72,11 @@ final class OrderColumnTest extends TestCase {
 		$this->assertStringContainsString( 'Held by Invoqk', OrderColumn::render( $o ) );
 		$this->assertStringContainsString( 'status-failed', OrderColumn::render( $o ) );
 	}
+
+	public function test_render_shows_refund_badge_when_open(): void {
+		$o = new WC_Order();
+		$o->update_meta_data( \Invoqk\Refund\Open::META, [ 3 ] );
+		$this->assertStringContainsString( 'Corrective e-invoice open', OrderColumn::render( $o ) );
+		$this->assertStringNotContainsString( 'Corrective', OrderColumn::render( new WC_Order() ) );
+	}
 }

@@ -761,3 +761,25 @@ msgstr "Invoqk: Ihr Export ist fertig"
 #: src/Archive/Export.php
 msgid "Your Steuerberater export is ready for download:"
 msgstr "Ihr Export für die Steuerberatung steht zum Download bereit:"
+
+#: src/Refund/Dismiss.php
+msgid "Invoqk: no corrective e-invoice needed for refund #%1$d, set by %2$s."
+msgstr "Invoqk: Keine Korrektur-E-Rechnung für Erstattung #%1$d nötig, festgelegt von %2$s."
+
+#: src/Refund/Box.php
+msgid "No corrective e-invoice needed"
+msgstr "Keine Korrektur-E-Rechnung nötig"
+
+#: src/Refund/Box.php
+msgid "Corrective e-invoice open"
+msgstr "Korrektur-E-Rechnung offen"
+
+#: src/Refund/Notice.php
+msgid "Open first order"
+msgstr "Erste Bestellung öffnen"
+
+#: src/Refund/Notice.php
+msgid "%d order has a refund without a corrective e-invoice."
+msgid_plural "%d orders have a refund without a corrective e-invoice."
+msgstr[0] "%d Bestellung hat eine Erstattung ohne Korrektur-E-Rechnung."
+msgstr[1] "%d Bestellungen haben eine Erstattung ohne Korrektur-E-Rechnung."

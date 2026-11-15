@@ -151,6 +151,8 @@ if ( ! function_exists( 'wp_date' ) ) {
 	function check_admin_referer( $a, $q = '_wpnonce' ) { $GLOBALS['invoqk_nonce_args'][ $a ] = $q; return $GLOBALS['invoqk_nonce_ok'] ?? true; }
 	function wp_safe_redirect( string $u ): bool { return true; }
 	function wp_get_referer() { return false; }
+	function wc_price( $n ): string { return '<span>' . number_format( (float) $n, 2 ) . '&euro;</span>'; }
+	function wp_strip_all_tags( string $s ): string { return strip_tags( $s ); }
 	function wp_nonce_url( string $u, $a = -1 ): string { return $u . '&_wpnonce=nonce-' . $a; }
 	function settings_errors(): void { $GLOBALS['invoqk_settings_errors'] = ( $GLOBALS['invoqk_settings_errors'] ?? 0 ) + 1; }
 	function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) { return '<input type="hidden" name="' . $n . '" value="nonce" data-action="' . $a . '">'; }

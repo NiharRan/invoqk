@@ -761,3 +761,25 @@ msgstr ""
 #: src/Archive/Export.php
 msgid "Your Steuerberater export is ready for download:"
 msgstr ""
+
+#: src/Refund/Dismiss.php
+msgid "Invoqk: no corrective e-invoice needed for refund #%1$d, set by %2$s."
+msgstr ""
+
+#: src/Refund/Box.php
+msgid "No corrective e-invoice needed"
+msgstr ""
+
+#: src/Refund/Box.php
+msgid "Corrective e-invoice open"
+msgstr ""
+
+#: src/Refund/Notice.php
+msgid "Open first order"
+msgstr ""
+
+#: src/Refund/Notice.php
+msgid "%d order has a refund without a corrective e-invoice."
+msgid_plural "%d orders have a refund without a corrective e-invoice."
+msgstr[0] ""
+msgstr[1] ""
