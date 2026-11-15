@@ -57,6 +57,11 @@ class MemoryIndex implements Index {
 		return $v ? max( $v ) : 0;
 	}
 
+	public function latestForOrder( int $orderId ): ?array {
+		$rows = array_filter( $this->live(), fn( $r ) => $r['order_id'] === $orderId && ( $r['kind'] ?? 'invoice' ) === 'invoice' );
+		return $rows ? end( $rows ) : null;
+	}
+
 	public function keyForHash( string $hash ): ?string {
 		foreach ( $this->live() as $r ) {
 			foreach ( [ 'xml', 'pdf' ] as $t ) {

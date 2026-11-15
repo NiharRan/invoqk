@@ -18,6 +18,8 @@ interface Index {
 	 */
 	public function search( array $f, int $page, int $per ): array;
 	public function maxVersion( int $orderId ): int;
+	/** Newest live row of the order with kind 'invoice' (credit notes and tombstones ignored). */
+	public function latestForOrder( int $orderId ): ?array;
 	/** Key of a live row's xml or pdf with this content hash. */
 	public function keyForHash( string $hash ): ?string;
 	/** Live rows other than $exceptId that reference this key. */

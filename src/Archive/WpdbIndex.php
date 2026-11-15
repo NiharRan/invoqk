@@ -3,12 +3,12 @@ namespace Invoqk\Archive;
 
 /** Index on a custom table. Covered by the live smoke test, not by unit tests. */
 final class WpdbIndex implements Index {
-	public const SCHEMA = '1';
+	public const SCHEMA = '2';
 	private const LOCK  = 'invoqk_archive';
 	private const COLS  = [
 		'order_id', 'version', 'invoice_number', 'invoice_date', 'customer', 'net', 'vat', 'gross', 'currency',
 		'validation_status', 'email_id', 'sent_at', 'sent_confirmed', 'xml_key', 'xml_hash', 'xml_size',
-		'pdf_key', 'pdf_hash', 'pdf_size', 'prev_hash', 'hash', 'deleted_at', 'deleted_by', 'delete_reason',
+		'pdf_key', 'pdf_hash', 'pdf_size', 'prev_hash', 'hash', 'deleted_at', 'deleted_by', 'delete_reason', 'kind', 'parent_id',
 	];
 
 	private static function table(): string {
@@ -50,6 +50,8 @@ final class WpdbIndex implements Index {
 			deleted_at bigint(20) unsigned DEFAULT NULL,
 			deleted_by bigint(20) unsigned DEFAULT NULL,
 			delete_reason text DEFAULT NULL,
+			kind varchar(16) NOT NULL DEFAULT 'invoice',
+			parent_id bigint(20) unsigned DEFAULT NULL,
 			PRIMARY KEY  (id),
 			UNIQUE KEY order_version (order_id,version),
 			KEY invoice_number (invoice_number),
@@ -143,6 +145,13 @@ final class WpdbIndex implements Index {
 		global $wpdb;
 		$t = self::table();
 		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT MAX(version) FROM {$t} WHERE order_id = %d", $orderId ) );
+	}
+
+	public function latestForOrder( int $orderId ): ?array {
+		global $wpdb;
+		$t = self::table();
+		$r = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$t} WHERE order_id = %d AND kind = 'invoice' AND deleted_at IS NULL ORDER BY id DESC LIMIT 1", $orderId ), ARRAY_A );
+		return $r ? Archive::normalise( $r ) : null;
 	}
 
 	public function keyForHash( string $hash ): ?string {

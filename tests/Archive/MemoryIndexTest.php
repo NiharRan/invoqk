@@ -80,4 +80,22 @@ final class MemoryIndexTest extends TestCase {
 		$this->assertSame( 7, $r['order_id'] );
 		$this->assertNull( $r['net'] );
 	}
+
+	public function test_latest_for_order_ignores_credit_notes_and_tombstones(): void {
+		$ix = new MemoryIndex();
+		$ix->append( $this->row( 1 ), fn( $r ) => 'h1' );
+		$ix->append( $this->row( 1, [ 'version' => 2 ] ), fn( $r ) => 'h2' );
+		$ix->append( $this->row( 1, [ 'version' => 3 ] ), fn( $r ) => 'h3' );
+		$ix->append( $this->row( 1, [ 'kind' => 'credit_note', 'parent_id' => 2 ] ), fn( $r ) => 'h4' );
+		$ix->tombstone( 3, 1, 'x', 5 );
+		$this->assertSame( 2, $ix->latestForOrder( 1 )['id'] );
+		$this->assertNull( $ix->latestForOrder( 99 ) );
+	}
+
+	public function test_credit_note_row_roundtrips_kind_and_parent(): void {
+		$ix = new MemoryIndex();
+		$r  = $ix->append( $this->row( 9, [ 'kind' => 'credit_note', 'parent_id' => '4' ] ), fn( $r ) => 'h' );
+		$this->assertSame( 'credit_note', $ix->find( $r['id'] )['kind'] );
+		$this->assertSame( 4, $ix->find( $r['id'] )['parent_id'] );
+	}
 }
