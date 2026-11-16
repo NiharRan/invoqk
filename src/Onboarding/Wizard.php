@@ -97,9 +97,10 @@ final class Wizard {
 	}
 
 	private static function steps( int $on ): string {
-		$h = '<div class="invoqk-steps">';
+		$h = '<div class="invoqk-stepper">';
 		foreach ( [ 1 => __( 'Plugin', 'invoqk' ), 2 => __( 'Turnover', 'invoqk' ), 3 => __( 'Check', 'invoqk' ) ] as $n => $l ) {
-			$h .= '<span class="' . ( $n === $on ? 'on' : ( $n < $on ? 'done' : '' ) ) . '">' . (int) $n . ' ' . esc_html( $l ) . '</span>';
+			$c  = $n === $on ? 'is-on' : ( $n < $on ? 'is-done' : '' );
+			$h .= '<span' . ( '' !== $c ? ' class="' . $c . '"' : '' ) . '>' . (int) $n . ' ' . esc_html( $l ) . '</span>';
 		}
 		return $h . '</div>';
 	}
@@ -137,16 +138,19 @@ final class Wizard {
 			. '<h2>' . esc_html__( 'What was your turnover last year?', 'invoqk' ) . '</h2>'
 			. '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">'
 			. wp_nonce_field( self::NONCE, '_wpnonce', true, false ) . '<input type="hidden" name="action" value="invoqk_wizard_finish">';
+		$h .= '<div class="invoqk-choices">';
 		foreach ( [ 'over' => [ __( 'Over €800,000', 'invoqk' ), '1.1.2027' ], 'under' => [ __( 'Up to €800,000', 'invoqk' ), '1.1.2028' ] ] as $v => [ $label, $date ] ) {
-			$h .= '<p><label><input type="radio" name="turnover" value="' . esc_attr( $v ) . '" required' . ( State::turnover() === $v ? ' checked' : '' ) . '> <strong>' . esc_html( $label ) . '</strong> '
+			$h .= '<label class="invoqk-choice"><input type="radio" name="turnover" value="' . esc_attr( $v ) . '" required' . ( State::turnover() === $v ? ' checked' : '' ) . '>'
+				. '<span><span class="invoqk-choice__title">' . esc_html( $label ) . '</span><span class="invoqk-choice__desc">'
 				/* translators: %s: date such as 1.1.2027 */
-				. esc_html( sprintf( __( 'E-invoice mandatory from %s', 'invoqk' ), $date ) ) . '</label></p>';
+				. esc_html( sprintf( __( 'E-invoice mandatory from %s', 'invoqk' ), $date ) ) . '</span></span></label>';
 		}
+		$h .= '</div>';
 		if ( '' === Client::apiKey() ) {
-			$h .= '<p><label for="invoqk_wiz_key">' . esc_html__( 'API key', 'invoqk' ) . '</label> <small>' . esc_html__( '(only if none is set yet)', 'invoqk' )
-				. '</small><br><input type="password" id="invoqk_wiz_key" name="api_key" value="" autocomplete="off" class="regular-text"></p>';
+			$h .= '<div class="invoqk-field"><label for="invoqk_wiz_key">' . esc_html__( 'API key', 'invoqk' ) . '</label><input type="password" id="invoqk_wiz_key" name="api_key" value="" autocomplete="off">'
+				. '<p class="invoqk-help">' . esc_html__( '(only if none is set yet)', 'invoqk' ) . '</p></div>';
 		}
-		return $h . '<p class="description">' . esc_html__( 'No legal or tax advice.', 'invoqk' ) . '</p><p>'
+		return $h . '<p class="invoqk-note">' . esc_html__( 'No legal or tax advice.', 'invoqk' ) . '</p><p class="invoqk-actions">'
 			. '<a href="' . esc_url( admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ) . '">' . esc_html__( 'Back', 'invoqk' ) . '</a> '
 			. '<button type="submit" class="button button-primary">' . ( null === get_option( 'invoqk_first_report', null ) ? esc_html__( 'Start first check', 'invoqk' ) : esc_html__( 'Go to dashboard', 'invoqk' ) ) . '</button> ' . self::skipLink()
 			. '</p></form></div>';
