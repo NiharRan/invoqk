@@ -6,28 +6,16 @@ use Invoqk\Sources\Registry;
 
 /** Creates the fallback e-invoice for one order: number, XML, file, source detection. */
 final class Generate {
-	private const STALE = 60;
-
 	/** @return array{ok: bool, message: string, number: ?string} */
 	public static function run( int $orderId ): array {
-		// shortcut: same option lock as Numbers (stale takeover is delete+add, so two requests seeing a >60 s old lock at once can both enter); upgrade together with Numbers
-		$key   = 'invoqk_fallback_gen_' . $orderId;
-		$token = time() . ':' . bin2hex( random_bytes( 8 ) );
-		if ( ! add_option( $key, $token, '', false ) ) {
-			if ( time() - (int) get_option( $key, 0 ) <= self::STALE ) {
-				return self::held( $orderId );
-			}
-			delete_option( $key );
-			if ( ! add_option( $key, $token, '', false ) ) {
-				return self::held( $orderId );
-			}
+		$key = 'invoqk_fb_gen_' . $orderId;
+		if ( ! Lock::acquire( $key ) ) {
+			return self::held( $orderId );
 		}
 		try {
 			return self::create( $orderId );
 		} finally {
-			if ( get_option( $key ) === $token ) {
-				delete_option( $key );
-			}
+			Lock::release( $key );
 		}
 	}
 

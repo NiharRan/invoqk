@@ -1,10 +1,14 @@
 <?php
 use Invoqk\Fallback\Numbers;
+use Invoqk\Tests\Fallback\LockDb;
 use PHPUnit\Framework\TestCase;
 
 final class NumbersTest extends TestCase {
+	private LockDb $db;
+
 	protected function setUp(): void {
 		$GLOBALS['invoqk_options'] = [];
+		$GLOBALS['wpdb']           = $this->db = new LockDb();
 	}
 
 	public function test_format_pads_counter_and_fills_year(): void {
@@ -22,28 +26,24 @@ final class NumbersTest extends TestCase {
 		$this->assertSame( 'RE-2027-00002', Numbers::next( 2027 ) );
 		$this->assertSame( 'RE-2027-00003', Numbers::next( 2027 ) );
 		$this->assertSame( 3, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
-		$this->assertArrayNotHasKey( 'invoqk_fallback_lock', $GLOBALS['invoqk_options'] );
+		$this->assertSame( [], $this->db->held, 'lock released' );
+		$this->assertSame( "SELECT GET_LOCK( 'invoqk_fb_num', 0 )", $this->db->queries[0] );
 	}
 
-	public function test_next_refuses_while_lock_held(): void {
-		$GLOBALS['invoqk_options']['invoqk_fallback_lock']    = time();
+	public function test_next_refuses_while_another_connection_holds_the_lock(): void {
+		$this->db->held['invoqk_fb_num']                      = 'other';
 		$GLOBALS['invoqk_options']['invoqk_fallback_counter'] = 4;
 		try {
 			Numbers::next( 2027 );
 			$this->fail( 'expected RuntimeException' );
 		} catch ( \RuntimeException $e ) {
 			$this->assertSame( 4, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
+			$this->assertSame( [ 'invoqk_fb_num' => 'other' ], $this->db->held, 'foreign lock stays' );
 		}
 	}
 
-	public function test_stale_lock_is_taken_over(): void {
-		$GLOBALS['invoqk_options']['invoqk_fallback_lock'] = time() - 31;
-		$this->assertSame( 'RE-2027-00001', Numbers::next( 2027 ) );
-		$this->assertArrayNotHasKey( 'invoqk_fallback_lock', $GLOBALS['invoqk_options'] );
-	}
-
 	protected function tearDown(): void {
-		unset( $GLOBALS['invoqk_fail_update'] );
+		unset( $GLOBALS['invoqk_fail_update'], $GLOBALS['wpdb'] );
 	}
 
 	public function test_build_failure_leaves_counter_and_releases_lock(): void {
@@ -54,7 +54,7 @@ final class NumbersTest extends TestCase {
 			$this->fail( 'expected Throwable' );
 		} catch ( \Throwable $e ) {
 			$this->assertSame( 4, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
-			$this->assertArrayNotHasKey( 'invoqk_fallback_lock', $GLOBALS['invoqk_options'] );
+			$this->assertSame( [], $this->db->held, 'lock released' );
 		}
 	}
 
@@ -66,19 +66,7 @@ final class NumbersTest extends TestCase {
 			$this->fail( 'expected RuntimeException' );
 		} catch ( \RuntimeException $e ) {
 			$this->assertSame( 4, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
-			$this->assertArrayNotHasKey( 'invoqk_fallback_lock', $GLOBALS['invoqk_options'] );
+			$this->assertSame( [], $this->db->held, 'lock released' );
 		}
-	}
-
-	public function test_release_leaves_foreign_lock_alone(): void {
-		// While the number is being built, "another request" replaces the lock.
-		$GLOBALS['invoqk_options']['invoqk_fallback_seller'] = [ 'number_format' => new class() {
-			public function __toString(): string {
-				$GLOBALS['invoqk_options']['invoqk_fallback_lock'] = time() . ':foreign';
-				return 'N-{1}';
-			}
-		} ];
-		Numbers::next( 2027 );
-		$this->assertStringEndsWith( ':foreign', $GLOBALS['invoqk_options']['invoqk_fallback_lock'] );
 	}
 }

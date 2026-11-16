@@ -4,16 +4,19 @@ use Invoqk\Fallback\Generate;
 use Invoqk\Fallback\Seller;
 use Invoqk\Fallback\Store;
 use Invoqk\Sources\FallbackAdapter;
+use Invoqk\Tests\Fallback\LockDb;
 use PHPUnit\Framework\TestCase;
 
 final class GenerateTest extends TestCase {
 	private WC_Order $o;
+	private LockDb $db;
 
 	protected function setUp(): void {
 		$GLOBALS['invoqk_options'] = [];
 		$GLOBALS['invoqk_filters'] = [];
 		$GLOBALS['invoqk_as']      = [];
 		$GLOBALS['invoqk_log']     = [];
+		$GLOBALS['wpdb']           = $this->db = new LockDb();
 		$GLOBALS['invoqk_uploads'] = sys_get_temp_dir() . '/invoqk-gen-' . bin2hex( random_bytes( 4 ) );
 		add_filter( 'invoqk_is_pro', fn() => true );
 		add_filter( 'invoqk_source_adapters', fn() => [ new FallbackAdapter() ] ); // other suites leave a wcpdf stub behind
@@ -38,6 +41,7 @@ final class GenerateTest extends TestCase {
 
 	protected function tearDown(): void {
 		exec( 'rm -rf ' . escapeshellarg( $GLOBALS['invoqk_uploads'] ) );
+		unset( $GLOBALS['wpdb'] );
 	}
 
 	public function test_success_stores_invoice_and_detects_fallback_source(): void {
@@ -47,7 +51,8 @@ final class GenerateTest extends TestCase {
 		$this->assertSame( $r['number'], Store::get( $this->o )['number'] );
 		$this->assertSame( 'invoqk_fallback', Result::fromOrder( $this->o )->source );
 		$this->assertSame( [ 'invoqk_validate_order' ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
-		$this->assertArrayNotHasKey( 'invoqk_fallback_gen_42', $GLOBALS['invoqk_options'] );
+		$this->assertSame( "SELECT GET_LOCK( 'invoqk_fb_gen_42', 0 )", $this->db->queries[0] );
+		$this->assertSame( [], $this->db->held, 'locks released' );
 	}
 
 	public function test_refusal_burns_no_number(): void {
@@ -57,7 +62,7 @@ final class GenerateTest extends TestCase {
 		$this->assertNull( $r['number'] );
 		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
 		$this->assertNull( Store::get( $this->o ) );
-		$this->assertArrayNotHasKey( 'invoqk_fallback_gen_42', $GLOBALS['invoqk_options'] );
+		$this->assertSame( [], $this->db->held, 'lock released after Unsupported' );
 	}
 
 	public function test_builder_refusal_for_missing_email_burns_no_number(): void {
@@ -79,19 +84,24 @@ final class GenerateTest extends TestCase {
 	}
 
 	public function test_second_concurrent_call_creates_nothing(): void {
-		$GLOBALS['invoqk_options']['invoqk_fallback_gen_42'] = time() . ':other';
+		$this->db->held['invoqk_fb_gen_42'] = 'other';
 		$r = Generate::run( 42 );
 		$this->assertFalse( $r['ok'] );
 		$this->assertStringContainsString( 'already being created', $r['message'] );
 		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
 		$this->assertNull( Store::get( $this->o ) );
-		$this->assertSame( time() . ':other', $GLOBALS['invoqk_options']['invoqk_fallback_gen_42'], 'foreign lock stays' );
+		$this->assertSame( [ 'invoqk_fb_gen_42' => 'other' ], $this->db->held, 'foreign lock stays' );
 		$this->assertDirectoryDoesNotExist( $GLOBALS['invoqk_uploads'] . '/invoqk-fallback' );
 	}
 
-	public function test_stale_lock_is_taken_over(): void {
-		$GLOBALS['invoqk_options']['invoqk_fallback_gen_42'] = ( time() - 61 ) . ':old';
-		$this->assertTrue( Generate::run( 42 )['ok'] );
+	public function test_number_lock_held_elsewhere_creates_nothing_and_releases_generation_lock(): void {
+		$this->db->held['invoqk_fb_num'] = 'other';
+		$r = Generate::run( 42 );
+		$this->assertFalse( $r['ok'] );
+		$this->assertNull( $r['number'] );
+		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
+		$this->assertNull( Store::get( $this->o ) );
+		$this->assertSame( [ 'invoqk_fb_num' => 'other' ], $this->db->held );
 	}
 
 	public function test_plugin_invoice_created_after_the_box_was_shown_blocks_generation(): void {
@@ -131,6 +141,6 @@ final class GenerateTest extends TestCase {
 		$n = 'RE-' . wp_date( 'Y' ) . '-00001';
 		$this->assertSame( [ "fallback void number $n for #42: RuntimeException" ], array_values( array_filter( $GLOBALS['invoqk_log'], fn( $l ) => str_starts_with( $l, 'fallback' ) ) ) );
 		$this->assertNull( Store::get( $this->o ) );
-		$this->assertArrayNotHasKey( 'invoqk_fallback_gen_42', $GLOBALS['invoqk_options'] );
+		$this->assertSame( [], $this->db->held, 'locks released after Throwable' );
 	}
 }
