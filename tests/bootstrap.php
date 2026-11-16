@@ -65,13 +65,19 @@ if ( ! class_exists( 'WC_Order' ) ) {
 	}
 }
 
+// Shipping and fee items have no get_quantity() in every WooCommerce version; only the product item does.
 if ( ! class_exists( 'WC_Order_Item_Stub' ) ) {
 	class WC_Order_Item_Stub {
-		public function __construct( public string $name, public string $net, public string $tax, public int $qty = 1, public string $type = 'line_item' ) {}
+		public function __construct( public string $name, public string $net, public string $tax, public string $type = 'line_item' ) {}
 		public function get_name(): string { return $this->name; }
-		public function get_quantity(): int { return $this->qty; }
 		public function get_total(): string { return $this->net; }
 		public function get_total_tax(): string { return $this->tax; }
+	}
+}
+if ( ! class_exists( 'WC_Order_Item_Product' ) ) {
+	class WC_Order_Item_Product extends WC_Order_Item_Stub {
+		public function __construct( string $name, string $net, string $tax, public int $qty = 1 ) { parent::__construct( $name, $net, $tax, 'line_item' ); }
+		public function get_quantity(): int { return $this->qty; }
 	}
 }
 

@@ -28,10 +28,14 @@ final class OrderReader {
 			throw new Unsupported( 'buyer_address' );
 		}
 
-		$lines = [];
+		$lines   = [];
+		$taxed   = false;
+		$untaxed = false;
 		foreach ( $order->get_items( [ 'line_item', 'shipping', 'fee' ] ) as $item ) {
-			$net  = (float) $item->get_total();
-			$tax  = (float) $item->get_total_tax();
+			$cents = self::cents( $item->get_total() );
+			self::cents( $item->get_total_tax() ); // guards a non-numeric tax value
+			$net   = (float) $item->get_total();
+			$tax   = (float) $item->get_total_tax();
 			$rate = 0.0 === $net ? ( 0.0 === $tax ? 0.0 : -1.0 ) : $tax / $net * 100;
 			$line = match ( true ) {
 				abs( $rate - 19 ) < 0.2 => 19,
@@ -39,10 +43,21 @@ final class OrderReader {
 				0.0 === $rate           => 0,
 				default                 => throw new Unsupported( 'tax_rate' ),
 			};
+			if ( 0.0 !== $net ) {
+				if ( 0 !== $line ) {
+					$taxed = true;
+				} else {
+					$untaxed = true;
+				}
+			}
 			if ( '' === trim( $item->get_name() ) ) {
 				throw new Unsupported( 'line_name' );
 			}
-			$lines[] = new InvoiceLine( trim( $item->get_name() ), (string) $item->get_quantity(), self::cents( $item->get_total() ), $line );
+			$lines[] = new InvoiceLine( trim( $item->get_name() ), $item instanceof \WC_Order_Item_Product ? (string) $item->get_quantity() : '1', $cents, $line );
+		}
+		// Never guess tax: untaxed lines with a net amount are only accepted when the whole order is untaxed.
+		if ( $taxed && $untaxed ) {
+			throw new Unsupported( 'tax_rate' );
 		}
 		// One source of truth for the grand total: the same figure the Builder prints.
 		if ( abs( Builder::grandCents( $lines ) - $total ) > 1 ) {
@@ -51,13 +66,17 @@ final class OrderReader {
 
 		$date = $order->get_date_completed() ?? $order->get_date_paid() ?? $order->get_date_created();
 		$company = trim( $order->get_billing_company() );
+		$name    = '' !== $company ? $company : trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() );
+		if ( '' === $name ) {
+			throw new Unsupported( 'buyer_address' );
+		}
 		return new Invoice(
 			(string) $order->get_order_number(),
 			wp_date( 'Y-m-d' ),
 			$date ? $date->format( 'Y-m-d' ) : wp_date( 'Y-m-d' ),
 			$lines,
 			[
-				'name'      => '' !== $company ? $company : trim( $order->get_billing_first_name() . ' ' . $order->get_billing_last_name() ),
+				'name'      => $name,
 				'company'   => $company,
 				'street'    => $street,
 				'postcode'  => $post,
@@ -71,8 +90,11 @@ final class OrderReader {
 		);
 	}
 
-	// shortcut: float rounding, fine for WooCommerce's decimal strings; revisit for amounts beyond 2^53 cents.
+	// shortcut: float rounding; half-cent ties (e.g. 1.005) may round down, absorbed by the 1 cent reconcile tolerance.
 	private static function cents( $v ): int {
+		if ( ! is_numeric( $v ) ) {
+			throw new Unsupported( 'totals' );
+		}
 		return (int) round( (float) $v * 100 );
 	}
 }

@@ -20,9 +20,9 @@ final class OrderReaderTest extends TestCase {
 		$o->tax       = '21.85';
 		$o->created   = strtotime( '2026-11-01 12:00:00 UTC' );
 		$o->items     = [
-			new WC_Order_Item_Stub( 'Widget', '100.00', '19.00', 2 ),
-			new WC_Order_Item_Stub( 'Versand', '10.00', '1.90', 1, 'shipping' ),
-			new WC_Order_Item_Stub( 'Gebühr', '5.00', '0.95', 1, 'fee' ),
+			new WC_Order_Item_Product( 'Widget', '100.00', '19.00', 2 ),
+			new WC_Order_Item_Stub( 'Versand', '10.00', '1.90', 'shipping' ),
+			new WC_Order_Item_Stub( 'Gebühr', '5.00', '0.95', 'fee' ),
 		];
 		foreach ( $over as $k => $v ) {
 			$o->$k = $v;
@@ -74,12 +74,12 @@ final class OrderReaderTest extends TestCase {
 	}
 
 	public function test_untaxed_line_becomes_rate_zero(): void {
-		$o = $this->order( [ 'items' => [ new WC_Order_Item_Stub( 'Export', '100.00', '0.00' ) ], 'total' => '100.00', 'tax' => '0.00' ] );
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Export', '100.00', '0.00' ) ], 'total' => '100.00', 'tax' => '0.00' ] );
 		$this->assertSame( 0, OrderReader::read( $o, true )->lines[0]->ratePercent );
 	}
 
 	public function test_refuses_odd_tax_rate(): void {
-		$o = $this->order( [ 'items' => [ new WC_Order_Item_Stub( 'Widget', '100.00', '16.00' ) ], 'total' => '116.00', 'tax' => '16.00' ] );
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '16.00' ) ], 'total' => '116.00', 'tax' => '16.00' ] );
 		$this->assertSame( 'tax_rate', $this->reason( $o ) );
 	}
 
@@ -88,7 +88,7 @@ final class OrderReaderTest extends TestCase {
 	}
 
 	public function test_refuses_zero_total(): void {
-		$o = $this->order( [ 'total' => '0.00', 'tax' => '0.00', 'items' => [ new WC_Order_Item_Stub( 'Gratis', '0.00', '0.00' ) ] ] );
+		$o = $this->order( [ 'total' => '0.00', 'tax' => '0.00', 'items' => [ new WC_Order_Item_Product( 'Gratis', '0.00', '0.00' ) ] ] );
 		$this->assertSame( 'total', $this->reason( $o, true ) );
 	}
 
@@ -99,7 +99,7 @@ final class OrderReaderTest extends TestCase {
 	}
 
 	public function test_refuses_empty_line_name(): void {
-		$o = $this->order( [ 'items' => [ new WC_Order_Item_Stub( ' ', '100.00', '19.00' ) ], 'total' => '119.00', 'tax' => '19.00' ] );
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( ' ', '100.00', '19.00' ) ], 'total' => '119.00', 'tax' => '19.00' ] );
 		$this->assertSame( 'line_name', $this->reason( $o ) );
 	}
 
@@ -108,7 +108,7 @@ final class OrderReaderTest extends TestCase {
 	}
 
 	public function test_three_decimal_prices_reconcile_or_refuse(): void {
-		$items = [ new WC_Order_Item_Stub( 'A', '0.333', '0.063' ), new WC_Order_Item_Stub( 'B', '0.333', '0.063' ), new WC_Order_Item_Stub( 'C', '0.333', '0.063' ) ];
+		$items = [ new WC_Order_Item_Product( 'A', '0.333', '0.063' ), new WC_Order_Item_Product( 'B', '0.333', '0.063' ), new WC_Order_Item_Product( 'C', '0.333', '0.063' ) ];
 		$this->assertSame( '', $this->reason( $this->order( [ 'items' => $items, 'total' => '1.19', 'tax' => '0.19' ] ) ) );
 		$this->assertSame( 'totals', $this->reason( $this->order( [ 'items' => $items, 'total' => '1.30', 'tax' => '0.19' ] ) ) );
 	}
@@ -118,5 +118,33 @@ final class OrderReaderTest extends TestCase {
 		$this->assertSame( '', OrderReader::read( $o, false )->buyer['reference'] );
 		$o->meta[ Reference::META ] = '991-12345-67';
 		$this->assertSame( '991-12345-67', OrderReader::read( $o, false )->buyer['reference'] );
+	}
+
+	public function test_shipping_item_without_get_quantity_reads_fine(): void {
+		$this->assertFalse( method_exists( new WC_Order_Item_Stub( 'x', '1', '0', 'shipping' ), 'get_quantity' ) );
+		$this->assertSame( '1', OrderReader::read( $this->order(), false )->lines[1]->quantity );
+	}
+
+	public function test_mixed_taxed_and_untaxed_lines_refused(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '19.00' ), new WC_Order_Item_Stub( 'Versand', '10.00', '0.00', 'shipping' ) ], 'total' => '129.00', 'tax' => '19.00' ] );
+		$this->assertSame( 'tax_rate', $this->reason( $o, true ) );
+	}
+
+	public function test_all_untaxed_lines_get_rate_zero(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '0.00' ), new WC_Order_Item_Stub( 'Versand', '10.00', '0.00', 'shipping' ) ], 'total' => '110.00', 'tax' => '0.00' ] );
+		$this->assertSame( [ 0, 0 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, true )->lines ) );
+	}
+
+	public function test_free_shipping_on_taxed_order_is_fine(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '19.00' ), new WC_Order_Item_Stub( 'Versand', '0.00', '0.00', 'shipping' ) ], 'total' => '119.00', 'tax' => '19.00' ] );
+		$this->assertSame( [ 19, 0 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, false )->lines ) );
+	}
+
+	public function test_non_numeric_amount_refused(): void {
+		$this->assertSame( 'totals', $this->reason( $this->order( [ 'total' => 'abc' ] ) ) );
+	}
+
+	public function test_empty_buyer_name_refused(): void {
+		$this->assertSame( 'buyer_address', $this->reason( $this->order( [ 'company' => ' ', 'first' => '', 'last' => ' ' ] ) ) );
 	}
 }
