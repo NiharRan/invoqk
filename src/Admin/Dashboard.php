@@ -8,8 +8,10 @@ use Invoqk\Validation\Limit;
 /** Readiness dashboard markup. Pure: takes Readiness::get() data, returns escaped HTML. */
 final class Dashboard {
 	public static function html( array $d, ?string $turnover, bool $hasKey ): string {
-		$h = '<div class="invoqk-dash"><p class="invoqk-head"><a href="' . esc_url( admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ) . '">'
-			. esc_html__( 'Open setup', 'invoqk' ) . '</a></p>';
+		$h = '<div class="invoqk-dash">';
+		if ( (int) $d['required'] > 0 ) { // the empty state already offers this as its button
+			$h .= '<p class="invoqk-head"><a href="' . esc_url( admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ) . '">' . esc_html__( 'Open setup', 'invoqk' ) . '</a></p>';
+		}
 		if ( ! $hasKey ) {
 			$h .= '<div class="notice notice-warning inline invoqk-nokey"><p>'
 				. esc_html__( 'No API key is set yet.', 'invoqk' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=invoqk&tab=settings' ) ) . '#invoqk_api_key">' . esc_html__( 'Enter it in the settings.', 'invoqk' ) . '</a></p></div>';

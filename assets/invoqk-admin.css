@@ -50,7 +50,7 @@
 .invoqk-box code{background:var(--iq-soft);padding:1px 6px;border-radius:4px;font-size:12px}
 .invoqk-lock{font-size:10px;font-weight:600;letter-spacing:.04em;background:var(--iq-text);color:#fff;padding:2px 6px;border-radius:4px;margin-left:6px}
 .invoqk-pro{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--iq-soft)}
-.invoqk-empty{text-align:center}.invoqk-empty p,.invoqk-empty ul{text-align:left}.invoqk-empty ul{padding-left:18px;list-style:disc}
+.invoqk-empty ul{padding-left:18px;list-style:disc;margin:8px 0}
 .invoqk-turnover{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
 .invoqk-head{text-align:right;margin:0 0 8px}
 .invoqk-note{color:var(--iq-muted);font-size:12px;margin:8px 0 0}
