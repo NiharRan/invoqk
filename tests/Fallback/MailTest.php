@@ -30,12 +30,12 @@ final class MailTest extends TestCase {
 		exec( 'rm -rf ' . escapeshellarg( $this->base ) );
 	}
 
-	private function order( string $status = 'passed', string $source = 'invoqk_fallback' ): \WC_Order {
+	private function order( string $status = 'passed', string $source = 'invoqk_fallback', ?string $hash = null ): \WC_Order {
 		$o = $GLOBALS['invoqk_orders'][5] = new \WC_Order( 5 );
 		Store::save( $o, '<x/>', 'RE-1', 'xrechnung' );
 		$o->update_meta_data( '_invoqk_source', $source );
 		if ( 'pending' !== $status ) {
-			$o->update_meta_data( Record::KEY, [ 'status' => $status ] );
+			$o->update_meta_data( Record::KEY, [ 'status' => $status, 'hash' => $hash ?? Store::get( $o )['hash'] ] );
 		}
 		return $o;
 	}
@@ -98,5 +98,16 @@ final class MailTest extends TestCase {
 		$o    = $this->order();
 		$once = Mail::attach( [], 'customer_completed_order', $o, $this->email() );
 		$this->assertSame( $once, Mail::attach( $once, 'customer_completed_order', $o, $this->email() ) );
+	}
+
+	public function test_stale_or_empty_record_hash_not_attached(): void {
+		$this->assertSame( [], Mail::attach( [], 'customer_completed_order', $this->order( 'passed', 'invoqk_fallback', hash( 'sha256', 'old' ) ), $this->email() ) );
+		$this->assertSame( [], Mail::attach( [], 'customer_completed_order', $this->order( 'passed', 'invoqk_fallback', '' ), $this->email() ) );
+	}
+
+	public function test_modified_file_not_attached(): void {
+		$o = $this->order();
+		file_put_contents( Store::path( $o ), '<tampered/>' );
+		$this->assertSame( [], Mail::attach( [], 'customer_completed_order', $o, $this->email() ) );
 	}
 }

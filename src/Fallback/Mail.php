@@ -23,7 +23,10 @@ final class Mail {
 			return $attachments;
 		}
 		$path = Store::path( $object );
-		if ( null === $path ) {
+		$hash = (string) ( Store::get( $object )['hash'] ?? '' );
+		// the validation must be of this very file, not a stale record of an earlier one
+		if ( null === $path || '' === $hash || ! hash_equals( $hash, (string) ( Record::get( $object )['hash'] ?? '' ) )
+			|| ! hash_equals( $hash, (string) hash_file( 'sha256', $path ) ) ) {
 			return $attachments;
 		}
 		if ( ! in_array( $path, $attachments, true ) ) {
