@@ -135,9 +135,31 @@ final class OrderReaderTest extends TestCase {
 		$this->assertSame( [ 0, 0 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, true )->lines ) );
 	}
 
-	public function test_free_shipping_on_taxed_order_is_fine(): void {
-		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '19.00' ), new WC_Order_Item_Stub( 'Versand', '0.00', '0.00', 'shipping' ) ], 'total' => '119.00', 'tax' => '19.00' ] );
-		$this->assertSame( [ 19, 0 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, false )->lines ) );
+	public function test_free_shipping_and_zero_fee_on_taxed_order_are_skipped(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '19.00' ), new WC_Order_Item_Stub( 'Versand', '0.00', '0.00', 'shipping' ), new WC_Order_Item_Stub( 'Gebühr', '0.00', '0.00', 'fee' ) ], 'total' => '119.00', 'tax' => '19.00' ] );
+		$i = OrderReader::read( $o, false );
+		$this->assertSame( [ 'Widget' ], array_map( fn( $l ) => $l->name, $i->lines ) );
+		$this->assertStringNotContainsString( '<ram:RateApplicablePercent>0</ram:RateApplicablePercent>', Invoqk\Fallback\Builder::build( $i, self::seller(), 'RE-1', 'xrechnung' ) );
+	}
+
+	public function test_free_product_on_taxed_order_takes_the_taxed_rate(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Gratis', '0.00', '0.00' ), new WC_Order_Item_Product( 'Widget', '100.00', '7.00' ) ], 'total' => '107.00', 'tax' => '7.00' ] );
+		$this->assertSame( [ 7, 7 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, false )->lines ) );
+	}
+
+	public function test_free_product_on_untaxed_order_stays_rate_zero(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Export', '100.00', '0.00' ), new WC_Order_Item_Product( 'Gratis', '0.00', '0.00' ) ], 'total' => '100.00', 'tax' => '0.00' ] );
+		$this->assertSame( [ 0, 0 ], array_map( fn( $l ) => $l->ratePercent, OrderReader::read( $o, true )->lines ) );
+	}
+
+	public function test_negative_line_refused_as_discount(): void {
+		$o = $this->order( [ 'items' => [ new WC_Order_Item_Product( 'Widget', '100.00', '19.00' ), new WC_Order_Item_Stub( 'Rabatt', '-10.00', '-1.90', 'fee' ) ], 'total' => '107.10', 'tax' => '17.10' ] );
+		$this->assertSame( 'discount', $this->reason( $o ) );
+	}
+
+	private static function seller(): array {
+		return [ 'name' => 'Shop GmbH', 'street' => 'Weg 1', 'postcode' => '10115', 'city' => 'Berlin', 'vat_id' => 'DE123456789', 'tax_number' => '',
+			'contact_name' => 'Ann', 'contact_phone' => '030 123', 'contact_email' => 'a@example.com', 'iban' => 'DE89370400440532013000', 'bic' => '', 'terms' => '', 'due_days' => 14 ];
 	}
 
 	public function test_non_numeric_amount_refused(): void {

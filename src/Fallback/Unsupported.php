@@ -3,7 +3,7 @@ namespace Invoqk\Fallback;
 
 /** An order the fallback refuses to turn into an e-invoice; $reason is a fixed code, message() the translated text for the order box. */
 final class Unsupported extends \RuntimeException {
-	public const REASONS = [ 'country', 'currency', 'tax_rate', 'refund', 'total', 'totals', 'buyer_address', 'buyer_email', 'line_name', 'settings', 'profile' ];
+	public const REASONS = [ 'country', 'currency', 'tax_rate', 'refund', 'total', 'totals', 'buyer_address', 'buyer_email', 'line_name', 'settings', 'profile', 'discount' ];
 
 	public function __construct( public readonly string $reason ) {
 		parent::__construct( $reason );
@@ -22,6 +22,7 @@ final class Unsupported extends \RuntimeException {
 			'line_name'     => __( 'An order line has no name.', 'invoqk' ),
 			'settings'      => __( 'The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings.', 'invoqk' ),
 			'profile'       => __( 'The selected e-invoice profile is not supported.', 'invoqk' ),
+			'discount'      => __( 'Orders with discount or negative lines are not supported. Use an invoice plugin.', 'invoqk' ),
 			default         => __( 'The fallback e-invoice does not support this order.', 'invoqk' ),
 		};
 	}

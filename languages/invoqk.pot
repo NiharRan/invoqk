@@ -977,6 +977,10 @@ msgid "The selected e-invoice profile is not supported."
 msgstr ""
 
 #: src/Fallback/Unsupported.php
+msgid "Orders with discount or negative lines are not supported. Use an invoice plugin."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
 msgid "The fallback e-invoice does not support this order."
 msgstr ""
 

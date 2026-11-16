@@ -29,13 +29,25 @@ final class OrderReader {
 		}
 
 		$lines   = [];
-		$taxed   = false;
+		$free    = []; // keys of zero-net, zero-tax product lines
+		$taxed   = 0; // rate of the taxed lines, 0 when there are none
 		$untaxed = false;
 		foreach ( $order->get_items( [ 'line_item', 'shipping', 'fee' ] ) as $item ) {
 			$cents = self::cents( $item->get_total() );
 			self::cents( $item->get_total_tax() ); // guards a non-numeric tax value
+			// A negative line would need a document-level allowance; refuse before a number is taken.
+			if ( $cents < 0 ) {
+				throw new Unsupported( 'discount' );
+			}
 			$net   = (float) $item->get_total();
 			$tax   = (float) $item->get_total_tax();
+			$product = $item instanceof \WC_Order_Item_Product;
+			if ( 0.0 === $net && 0.0 === $tax ) {
+				if ( ! $product ) {
+					continue; // free shipping or a zero fee is not an invoice line
+				}
+				$free[] = count( $lines );
+			}
 			$rate = 0.0 === $net ? ( 0.0 === $tax ? 0.0 : -1.0 ) : $tax / $net * 100;
 			$line = match ( true ) {
 				abs( $rate - 19 ) < 0.2 => 19,
@@ -45,7 +57,7 @@ final class OrderReader {
 			};
 			if ( 0.0 !== $net ) {
 				if ( 0 !== $line ) {
-					$taxed = true;
+					$taxed = $line;
 				} else {
 					$untaxed = true;
 				}
@@ -53,11 +65,15 @@ final class OrderReader {
 			if ( '' === trim( $item->get_name() ) ) {
 				throw new Unsupported( 'line_name' );
 			}
-			$lines[] = new InvoiceLine( trim( $item->get_name() ), $item instanceof \WC_Order_Item_Product ? (string) $item->get_quantity() : '1', $cents, $line );
+			$lines[] = new InvoiceLine( trim( $item->get_name() ), $product ? (string) $item->get_quantity() : '1', $cents, $line );
 		}
 		// Never guess tax: untaxed lines with a net amount are only accepted when the whole order is untaxed.
 		if ( $taxed && $untaxed ) {
 			throw new Unsupported( 'tax_rate' );
+		}
+		// A free product on a taxed order joins a taxed rate group (adds nothing to it) instead of forcing a 0 % group.
+		foreach ( $taxed ? $free : [] as $k ) {
+			$lines[ $k ] = new InvoiceLine( $lines[ $k ]->name, $lines[ $k ]->quantity, 0, $taxed );
 		}
 		// One source of truth for the grand total: the same figure the Builder prints.
 		if ( abs( Builder::grandCents( $lines ) - $total ) > 1 ) {

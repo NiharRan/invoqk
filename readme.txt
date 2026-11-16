@@ -54,7 +54,7 @@ If no invoice plugin supplies an e-invoice, Invoqk can create a simple one itsel
 * Small businesses under §19 UStG (Kleinunternehmer) are not supported
 * Orders with a refund are refused
 * Totals must reconcile to the cent
-* Not supported: discounts that need a document-level allowance, multi-currency plugins, subscriptions with split periods, partial deliveries and advance payments
+* Not supported: discounts that need a document-level allowance or negative lines (discount fees), multi-currency plugins, subscriptions with split periods, partial deliveries and advance payments
 * No hybrid PDF: ZUGFeRD is XML only
 * Credit notes are not created by the fallback
 
