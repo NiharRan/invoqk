@@ -50,6 +50,12 @@ final class Actions {
 					return (string) $r['url'];
 				}
 				break;
+			case 'portal':
+				$r = self::portal( $transport );
+				if ( $r['ok'] ) {
+					return (string) $r['url'];
+				}
+				break;
 			default:
 				$r = self::fail( 'unknown' );
 		}
@@ -156,6 +162,21 @@ final class Actions {
 			return self::fail( 200 === $res['http'] ? 'unknown' : Api::error( $res ) );
 		}
 		update_option( self::PENDING, $now, false ); // the purchase arrives by webhook; poll until it does
+		return [ 'ok' => true, 'error' => null, 'url' => $url ];
+	}
+
+	/** Customer portal link (card, invoices, cancel) of the paid license. A trial has none.
+	 * @return array{ok:bool,error:?string,url?:string}
+	 */
+	public static function portal( ?callable $transport = null ): array {
+		if ( '' === Client::apiKey() ) {
+			return self::fail( 'no_key' );
+		}
+		$res = Api::call( 'portal', [], true, $transport );
+		$url = 200 === $res['http'] ? ( $res['body']['url'] ?? null ) : null;
+		if ( ! is_string( $url ) || 'https' !== parse_url( $url, PHP_URL_SCHEME ) ) { // the browser is redirected here: never a javascript: or http: URL
+			return self::fail( 200 === $res['http'] ? 'unknown' : Api::error( $res ) );
+		}
 		return [ 'ok' => true, 'error' => null, 'url' => $url ];
 	}
 

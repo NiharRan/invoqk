@@ -1026,3 +1026,136 @@ msgstr "Einstellungen öffnen"
 #: src/Fallback/Actions.php
 msgid "Create basic e-invoice"
 msgstr "Einfache E-Rechnung erstellen"
+
+msgid "License"
+msgstr "Lizenz"
+
+msgid "Manage billing"
+msgstr "Abrechnung verwalten"
+
+msgid "Deactivate this site"
+msgstr "Diese Website deaktivieren"
+
+#. translators: %s: email address
+#, php-format
+msgid "We sent a 6-digit code to %s. Enter it to start your trial."
+msgstr "Wir haben einen 6-stelligen Code an %s gesendet. Geben Sie ihn ein, um Ihre Testphase zu starten."
+
+msgid "Confirm trial"
+msgstr "Testphase bestätigen"
+
+msgid "Start 14-day trial"
+msgstr "14-Tage-Testphase starten"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Activate"
+msgstr "Aktivieren"
+
+msgid "License key (API key from your account)"
+msgstr "Lizenzschlüssel (API-Schlüssel aus Ihrem Konto)"
+
+msgid "Free plan"
+msgstr "Kostenloser Tarif"
+
+#. translators: %s: date
+#, php-format
+msgid "Your Pro license ended on %s. Archive and export still work; guard and new archiving are paused."
+msgstr "Ihre Pro-Lizenz ist am %s abgelaufen. Archiv und Export funktionieren weiter; Prüfschranke und neue Archivierung sind pausiert."
+
+#. translators: 1: number of days, 2: date
+#, php-format
+msgid "Pro trial, %1$d day left (ends %2$s)"
+msgid_plural "Pro trial, %1$d days left (ends %2$s)"
+msgstr[0] "Pro-Testphase, noch %1$d Tag (endet am %2$s)"
+msgstr[1] "Pro-Testphase, noch %1$d Tage (endet am %2$s)"
+
+#. translators: 1: plan name, 2: shops used, 3: shops allowed, 4: renewal date
+#, php-format
+msgid "%1$s, %2$d of %3$d shops, renews %4$s"
+msgstr "%1$s, %2$d von %3$d Shops, verlängert sich am %4$s"
+
+#, php-format
+msgid "%d shop"
+msgid_plural "%d shops"
+msgstr[0] "%d Shop"
+msgstr[1] "%d Shops"
+
+msgid "year"
+msgstr "Jahr"
+
+msgid "Buy"
+msgstr "Kaufen"
+
+msgid "Check your email for the trial code."
+msgstr "Prüfen Sie Ihr E-Mail-Postfach auf den Testcode."
+
+msgid "This license key was not found."
+msgstr "Dieser Lizenzschlüssel wurde nicht gefunden."
+
+msgid "All seats of this license are in use. Deactivate another site first."
+msgstr "Alle Plätze dieser Lizenz sind belegt. Deaktivieren Sie zuerst eine andere Website."
+
+msgid "The trial was already used for this site."
+msgstr "Die Testphase wurde für diese Website bereits genutzt."
+
+msgid "The Invoqk server could not be reached. Try again later."
+msgstr "Der Invoqk-Server ist nicht erreichbar. Versuchen Sie es später erneut."
+
+msgid "Enter your API key in the settings below first."
+msgstr "Geben Sie zuerst Ihren API-Schlüssel in den Einstellungen unten ein."
+
+msgid "That code is not right or has expired. Request a new one."
+msgstr "Dieser Code ist falsch oder abgelaufen. Fordern Sie einen neuen an."
+
+msgid "Enter your email first to get a code."
+msgstr "Geben Sie zuerst Ihre E-Mail-Adresse ein, um einen Code zu erhalten."
+
+msgid "Enter a valid email address."
+msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+msgid "An invoqk.com account with this email exists. Create an API key in your account and enter it below."
+msgstr "Ein invoqk.com-Konto mit dieser E-Mail-Adresse existiert bereits. Erstellen Sie in Ihrem Konto einen API-Schlüssel und geben Sie ihn unten ein."
+
+msgid "The key is saved, but this account has no active plan. Buy a plan below."
+msgstr "Der Schlüssel ist gespeichert, aber dieses Konto hat keinen aktiven Tarif. Kaufen Sie unten einen Tarif."
+
+msgid "This account already has an Invoqk plugin license. Manage it with the link in your Lemon Squeezy receipt email."
+msgstr "Dieses Konto hat bereits eine Invoqk-Plugin-Lizenz. Verwalten Sie sie über den Link in Ihrer Lemon-Squeezy-Beleg-E-Mail."
+
+msgid "This key is not connected to this shop yet. Enter it in \"License key\" above and click Activate first."
+msgstr "Dieser Schlüssel ist noch nicht mit diesem Shop verbunden. Geben Sie ihn oben unter „Lizenzschlüssel“ ein und klicken Sie zuerst auf „Aktivieren“."
+
+msgid "This key is already connected to another shop. Deactivate it there first."
+msgstr "Dieser Schlüssel ist bereits mit einem anderen Shop verbunden. Deaktivieren Sie ihn dort zuerst."
+
+msgid "Another key of your account is already connected to this shop."
+msgstr "Ein anderer Schlüssel Ihres Kontos ist bereits mit diesem Shop verbunden."
+
+msgid "Something went wrong. Try again later."
+msgstr "Etwas ist schiefgelaufen. Versuchen Sie es später erneut."
+
+msgid "Open Invoqk"
+msgstr "Invoqk öffnen"
+
+msgid "Your Invoqk Pro license ended. Archive and export still work; guard and new archiving are paused."
+msgstr "Ihre Invoqk-Pro-Lizenz ist abgelaufen. Archiv und Export funktionieren weiter; Prüfschranke und neue Archivierung sind pausiert."
+
+msgid "Your Invoqk Pro trial ends tomorrow."
+msgstr "Ihre Invoqk-Pro-Testphase endet morgen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk Pro trial ends in %d days."
+msgstr "Ihre Invoqk-Pro-Testphase endet in %d Tagen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk license ends in %d days. Renew now to keep the guard and archiving running."
+msgstr "Ihre Invoqk-Lizenz endet in %d Tagen. Verlängern Sie jetzt, damit Prüfschranke und Archivierung weiterlaufen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk license renews or ends in %d days."
+msgstr "Ihre Invoqk-Lizenz verlängert sich oder endet in %d Tagen."
