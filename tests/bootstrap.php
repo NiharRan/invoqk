@@ -267,9 +267,16 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 }
 
 if ( ! function_exists( 'wp_mkdir_p' ) ) {
-	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || mkdir( $d, 0777, true ); }
+	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || @mkdir( $d, 0777, true ); }
 }
 
 if ( ! function_exists( 'home_url' ) ) {
 	function home_url( string $path = '' ): string { return 'https://Shop.Example' . $path; }
+}
+
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+	function wp_upload_dir(): array {
+		$base = $GLOBALS['invoqk_uploads'] ??= sys_get_temp_dir() . '/invoqk-uploads-' . getmypid();
+		return [ 'basedir' => $base, 'baseurl' => 'https://shop.example/uploads' ];
+	}
 }

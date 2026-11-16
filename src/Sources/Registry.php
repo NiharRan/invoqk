@@ -17,6 +17,7 @@ final class Registry {
 				$list[] = new $class();
 			}
 		}
+		$list[] = new FallbackAdapter(); // last: any real plugin adapter wins detect()
 		$list = apply_filters( 'invoqk_source_adapters', $list );
 		return new self( ...array_values( array_filter( $list, fn( $a ) => $a instanceof SourceAdapter ) ) );
 	}
