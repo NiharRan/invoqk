@@ -46,6 +46,8 @@ final class Generate {
 	}
 
 	private static function create( int $orderId ): array {
+		// Fresh detection: a plugin may have created its invoice after the box was shown.
+		( new Detector( Registry::default() ) )->run( $orderId, false );
 		$o = wc_get_order( $orderId );
 		if ( ! $o instanceof \WC_Order ) {
 			return self::fail( __( 'The fallback e-invoice is not offered for this order.', 'invoqk' ) );

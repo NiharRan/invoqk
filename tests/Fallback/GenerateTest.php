@@ -94,6 +94,26 @@ final class GenerateTest extends TestCase {
 		$this->assertTrue( Generate::run( 42 )['ok'] );
 	}
 
+	public function test_plugin_invoice_created_after_the_box_was_shown_blocks_generation(): void {
+		$late = new class() implements Invoqk\Sources\SourceAdapter {
+			public int $calls = 0;
+			public function id(): string { return 'late_plugin'; }
+			public function label(): string { return 'Late'; }
+			public function isAvailable(): bool { return true; }
+			public function find( WC_Order $order ): ?Invoqk\Sources\InvoiceFile { return ++$this->calls > 1 ? new Invoqk\Sources\InvoiceFile( '/x.xml', 'application/xml', 'cii', true ) : null; }
+			public function read( WC_Order $order, Invoqk\Sources\InvoiceFile $file ): ?string { return null; }
+			public function findCreditNotes( WC_Order $order ): array { return []; }
+		};
+		$GLOBALS['invoqk_filters']['invoqk_source_adapters'] = [ fn() => [ $late, new FallbackAdapter() ] ];
+		$this->assertTrue( Invoqk\Fallback\Offer::available( $this->o ), 'the box saw no invoice yet' );
+		$r = Generate::run( 42 );
+		$this->assertFalse( $r['ok'] );
+		$this->assertNull( $r['number'] );
+		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
+		$this->assertNull( Store::get( $this->o ) );
+		$this->assertSame( 'late_plugin', Result::fromOrder( $this->o )->source );
+	}
+
 	public function test_second_call_after_success_returns_existing_number(): void {
 		$first  = Generate::run( 42 );
 		$second = Generate::run( 42 );
