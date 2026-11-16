@@ -18,8 +18,18 @@ final class Builder {
 	];
 
 	public static function build( Invoice $i, array $seller, string $number, string $profile ): string {
-		$guideline = self::GUIDELINE[ $profile ] ?? throw new Unsupported( 'settings' );
+		$guideline = self::GUIDELINE[ $profile ] ?? throw new Unsupported( 'profile' );
 		$b         = $i->buyer;
+		$company   = self::clean( (string) ( $b['company'] ?? '' ) );
+		$buyerName = '' !== $company ? $company : self::clean( (string) ( $b['name'] ?? '' ) );
+		if ( '' === $buyerName || '' === self::clean( (string) ( $b['country'] ?? '' ) ) ) {
+			throw new Unsupported( 'buyer_address' );
+		}
+		foreach ( $i->lines as $l ) {
+			if ( '' === self::clean( $l->name ) ) {
+				throw new Unsupported( 'line_name' );
+			}
+		}
 		// XRechnung 3.0 makes the buyer electronic address (BT-49) mandatory.
 		if ( 'xrechnung' === $profile && '' === self::clean( (string) ( $b['email'] ?? '' ) ) ) {
 			throw new Unsupported( 'buyer_email' );
@@ -88,9 +98,8 @@ final class Builder {
 		self::taxId( $sp, $seller['vat_id'], 'VA' );
 		self::taxId( $sp, $seller['tax_number'], 'FC' );
 
-		$bp      = self::el( $ag, 'ram:BuyerTradeParty' );
-		$company = self::clean( (string) ( $b['company'] ?? '' ) );
-		self::el( $bp, 'ram:Name', '' !== $company ? $company : (string) ( $b['name'] ?? '' ) );
+		$bp = self::el( $ag, 'ram:BuyerTradeParty' );
+		self::el( $bp, 'ram:Name', $buyerName );
 		self::address( $bp, $b['street'] ?? '', $b['postcode'] ?? '', $b['city'] ?? '', $b['country'] ?? '' );
 		self::email( $bp, $b['email'] ?? '' );
 		self::taxId( $bp, $b['vat_id'] ?? '', 'VA' );

@@ -1,26 +1,28 @@
 <?php
 namespace Invoqk\Fallback;
 
-/** An order the fallback refuses to turn into an e-invoice; $reason is a fixed code, message() the German text for the order box. */
+/** An order the fallback refuses to turn into an e-invoice; $reason is a fixed code, message() the translated text for the order box. */
 final class Unsupported extends \RuntimeException {
-	public const MESSAGES = [
-		'country'       => 'Die Rechnungsadresse liegt nicht in Deutschland. Der Fallback erstellt nur Inlandsrechnungen.',
-		'currency'      => 'Die Bestellung ist nicht in Euro. Der Fallback erstellt nur Rechnungen in EUR.',
-		'tax_rate'      => 'Die Bestellung enthält einen Steuersatz außer 19 % oder 7 %. Bitte ein Rechnungs-Plugin verwenden.',
-		'refund'        => 'Die Bestellung hat eine Erstattung. Bitte die Rechnung mit einem Rechnungs-Plugin erstellen.',
-		'total'         => 'Der Bestellbetrag ist null oder negativ.',
-		'totals'        => 'Die Positionsbeträge ergeben nicht centgenau die Bestellsumme.',
-		'buyer_address' => 'Die Rechnungsadresse ist unvollständig (Name, Straße, PLZ und Ort werden benötigt).',
-		'buyer_email'   => 'Für eine XRechnung fehlt die E-Mail-Adresse des Kunden.',
-		'line_name'     => 'Eine Position hat keine Bezeichnung.',
-		'settings'      => 'Die Bestellung enthält Positionen mit 0 % Steuer. Das geht nur, wenn in den Einstellungen „Nullsatz“ aktiviert ist.',
-	];
+	public const REASONS = [ 'country', 'currency', 'tax_rate', 'refund', 'total', 'totals', 'buyer_address', 'buyer_email', 'line_name', 'settings', 'profile' ];
 
 	public function __construct( public readonly string $reason ) {
 		parent::__construct( $reason );
 	}
 
 	public function message(): string {
-		return self::MESSAGES[ $this->reason ] ?? 'Diese Bestellung wird vom Fallback nicht unterstützt.';
+		return match ( $this->reason ) {
+			'country'       => __( 'The billing address is not in Germany. The fallback e-invoice is for domestic orders only.', 'invoqk' ),
+			'currency'      => __( 'The order is not in euros. The fallback e-invoice supports EUR only.', 'invoqk' ),
+			'tax_rate'      => __( 'The order has a tax rate other than 19 % or 7 %. Use an invoice plugin for this order.', 'invoqk' ),
+			'refund'        => __( 'The order has a refund. Create the invoice with an invoice plugin.', 'invoqk' ),
+			'total'         => __( 'The order total is zero or negative.', 'invoqk' ),
+			'totals'        => __( 'The line amounts do not add up to the order total to the cent.', 'invoqk' ),
+			'buyer_address' => __( 'The billing address is incomplete (name, street, postcode, city and country are needed).', 'invoqk' ),
+			'buyer_email'   => __( 'An XRechnung needs the customer email address, and it is missing.', 'invoqk' ),
+			'line_name'     => __( 'An order line has no name.', 'invoqk' ),
+			'settings'      => __( 'The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings.', 'invoqk' ),
+			'profile'       => __( 'The selected e-invoice profile is not supported.', 'invoqk' ),
+			default         => __( 'The fallback e-invoice does not support this order.', 'invoqk' ),
+		};
 	}
 }

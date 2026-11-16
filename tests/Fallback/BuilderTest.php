@@ -113,6 +113,31 @@ final class BuilderTest extends TestCase {
 		$this->assertSame( 0, preg_match( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', $xml ) );
 		$this->assertSame( $name, $this->text( $xml, '//ram:SpecifiedTradeProduct/ram:Name' ) );
 		$this->assertSame( 'Evil Co', $this->text( $xml, '//ram:BuyerTradeParty/ram:Name' ) );
+		// Invalid UTF-8 (\xC3\x28) and the XML-forbidden U+FFFE: still well-formed, no throw.
+		$xml = $this->build( $this->invoice( [ new InvoiceLine( "Bad \xC3\x28 x\u{FFFE}y", '1', 100, 19 ) ], [ 'street' => "Weg \xC3\x28 1" ] ) );
+		$this->assertSame( 1, preg_match( '//u', $xml ) );
+		$this->assertStringNotContainsString( "\u{FFFE}", $xml );
+		$this->assertStringStartsWith( 'Bad ', $this->text( $xml, '//ram:SpecifiedTradeProduct/ram:Name' ) );
+	}
+
+	/** @dataProvider emptyAfterClean */
+	public function test_values_empty_after_clean_are_refused( array $buyer, string $line, string $reason ): void {
+		$this->expectExceptionObject( new Unsupported( $reason ) );
+		$this->build( $this->invoice( [ new InvoiceLine( $line, '1', 100, 19 ) ], $buyer ) );
+	}
+
+	public static function emptyAfterClean(): array {
+		return [
+			'line name of control chars' => [ [], "\0\f\x01", 'line_name' ],
+			'empty line name'            => [ [], '  ', 'line_name' ],
+			'buyer name of control chars' => [ [ 'company' => '', 'name' => "\x02\0" ], 'x', 'buyer_address' ],
+			'empty buyer country'        => [ [ 'country' => "\f" ], 'x', 'buyer_address' ],
+		];
+	}
+
+	public function test_unknown_profile_is_refused(): void {
+		$this->expectExceptionObject( new Unsupported( 'profile' ) );
+		$this->build( $this->standard(), 'zugferd-extended' );
 	}
 
 	public function test_buyer_reference_falls_back_to_order_number(): void {
@@ -168,11 +193,18 @@ final class BuilderTest extends TestCase {
 		$this->assertSame( 0, $this->xp( $this->build( $this->standard() ) )->query( '//ram:SellerTradeParty/ram:ID' )->length );
 	}
 
-	public function test_every_reason_has_german_text(): void {
-		foreach ( [ 'country', 'currency', 'tax_rate', 'refund', 'total', 'totals', 'buyer_address', 'buyer_email', 'line_name', 'settings' ] as $r ) {
-			$m = ( new Unsupported( $r ) )->message();
-			$this->assertNotSame( '', $m, $r );
-			$this->assertNotSame( $r, $m );
+	public function test_every_reason_has_a_message(): void {
+		foreach ( Unsupported::REASONS as $r ) {
+			$this->assertNotSame( '', ( new Unsupported( $r ) )->message(), $r );
+		}
+	}
+
+	public function test_every_reason_message_has_german_in_po(): void {
+		preg_match_all( '/^msgid "(.*)"\nmsgstr "(.*)"$/m', file_get_contents( dirname( __DIR__, 2 ) . '/languages/invoqk-de_DE.po' ), $m );
+		$po = array_combine( $m[1], $m[2] );
+		foreach ( Unsupported::REASONS as $r ) {
+			$en = ( new Unsupported( $r ) )->message();
+			$this->assertNotSame( '', $po[ $en ] ?? '', "$r: $en" );
 		}
 	}
 }

@@ -927,3 +927,51 @@ msgstr ""
 #: src/Fallback/Seller.php
 msgid "Still missing:"
 msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is not in Germany. The fallback e-invoice is for domestic orders only."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The order is not in euros. The fallback e-invoice supports EUR only."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a tax rate other than 19 % or 7 %. Use an invoice plugin for this order."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a refund. Create the invoice with an invoice plugin."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The order total is zero or negative."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The line amounts do not add up to the order total to the cent."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is incomplete (name, street, postcode, city and country are needed)."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "An XRechnung needs the customer email address, and it is missing."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "An order line has no name."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The selected e-invoice profile is not supported."
+msgstr ""
+
+#: src/Fallback/Unsupported.php
+msgid "The fallback e-invoice does not support this order."
+msgstr ""

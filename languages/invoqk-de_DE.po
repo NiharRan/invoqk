@@ -925,3 +925,51 @@ msgstr "Einfache E-Rechnung für normale Inlandsbestellungen. Nutze für komplex
 #: src/Fallback/Seller.php
 msgid "Still missing:"
 msgstr "Es fehlt noch:"
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is not in Germany. The fallback e-invoice is for domestic orders only."
+msgstr "Die Rechnungsadresse liegt nicht in Deutschland. Die Ersatz-E-Rechnung gibt es nur für Inlandsbestellungen."
+
+#: src/Fallback/Unsupported.php
+msgid "The order is not in euros. The fallback e-invoice supports EUR only."
+msgstr "Die Bestellung ist nicht in Euro. Die Ersatz-E-Rechnung unterstützt nur EUR."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a tax rate other than 19 % or 7 %. Use an invoice plugin for this order."
+msgstr "Die Bestellung hat einen anderen Steuersatz als 19 % oder 7 %. Nutze für diese Bestellung ein Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a refund. Create the invoice with an invoice plugin."
+msgstr "Die Bestellung hat eine Erstattung. Erstelle die Rechnung mit einem Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order total is zero or negative."
+msgstr "Der Bestellbetrag ist null oder negativ."
+
+#: src/Fallback/Unsupported.php
+msgid "The line amounts do not add up to the order total to the cent."
+msgstr "Die Positionsbeträge ergeben nicht centgenau die Bestellsumme."
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is incomplete (name, street, postcode, city and country are needed)."
+msgstr "Die Rechnungsadresse ist unvollständig (Name, Straße, PLZ, Ort und Land werden benötigt)."
+
+#: src/Fallback/Unsupported.php
+msgid "An XRechnung needs the customer email address, and it is missing."
+msgstr "Für eine XRechnung fehlt die E-Mail-Adresse des Kunden."
+
+#: src/Fallback/Unsupported.php
+msgid "An order line has no name."
+msgstr "Eine Bestellposition hat keine Bezeichnung."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings."
+msgstr "Die Bestellung hat Positionen mit 0 % Steuer. Das geht nur, wenn in den Einstellungen „Nullsatz“ aktiviert ist."
+
+#: src/Fallback/Unsupported.php
+msgid "The selected e-invoice profile is not supported."
+msgstr "Das gewählte E-Rechnungsprofil wird nicht unterstützt."
+
+#: src/Fallback/Unsupported.php
+msgid "The fallback e-invoice does not support this order."
+msgstr "Die Ersatz-E-Rechnung unterstützt diese Bestellung nicht."
