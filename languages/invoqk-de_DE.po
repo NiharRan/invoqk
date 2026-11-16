@@ -973,3 +973,27 @@ msgstr "Das gewählte E-Rechnungsprofil wird nicht unterstützt."
 #: src/Fallback/Unsupported.php
 msgid "The fallback e-invoice does not support this order."
 msgstr "Die Ersatz-E-Rechnung unterstützt diese Bestellung nicht."
+
+#: src/Fallback/Generate.php
+msgid "An invoice is already being created for this order. Please try again in a moment."
+msgstr "Für diese Bestellung wird gerade eine Rechnung erstellt. Bitte versuche es gleich noch einmal."
+
+#: src/Fallback/Generate.php
+msgid "The invoice already exists: %s"
+msgstr "Die Rechnung existiert bereits: %s"
+
+#: src/Fallback/Generate.php
+msgid "The fallback e-invoice is not offered for this order."
+msgstr "Für diese Bestellung wird keine Ersatz-E-Rechnung angeboten."
+
+#: src/Fallback/Generate.php
+msgid "Missing seller data: %s"
+msgstr "Fehlende Verkäuferdaten: %s"
+
+#: src/Fallback/Generate.php
+msgid "The invoice could not be created. Nothing was saved."
+msgstr "Die Rechnung konnte nicht erstellt werden. Es wurde nichts gespeichert."
+
+#: src/Fallback/Generate.php
+msgid "Invoice %s created."
+msgstr "Rechnung %s erstellt."

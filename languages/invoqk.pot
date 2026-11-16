@@ -975,3 +975,27 @@ msgstr ""
 #: src/Fallback/Unsupported.php
 msgid "The fallback e-invoice does not support this order."
 msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "An invoice is already being created for this order. Please try again in a moment."
+msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "The invoice already exists: %s"
+msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "The fallback e-invoice is not offered for this order."
+msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "Missing seller data: %s"
+msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "The invoice could not be created. Nothing was saved."
+msgstr ""
+
+#: src/Fallback/Generate.php
+msgid "Invoice %s created."
+msgstr ""
