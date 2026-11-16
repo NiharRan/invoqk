@@ -128,3 +128,6 @@
 @media (prefers-reduced-motion:reduce){
 	.invoqk-tab,.invoqk-choice{transition:none}
 }
+.invoqk-progress + .invoqk-help{margin:12px 0}
+.invoqk-grid2 + .invoqk-card__title{margin:24px 0 12px}
+.invoqk-choices + .invoqk-field{margin-top:16px}

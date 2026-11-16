@@ -74,14 +74,19 @@ final class SettingsPage {
 
 	private static function fallbackSection(): string {
 		$s     = Seller::get();
+		$sug   = Seller::suggest( $s );
+		$s     = array_replace( $s, $sug ); // keeps field order; progress counts what the form shows
 		$o     = Seller::OPTION;
 		$total = count( Seller::needed() );
-		$done  = $total - count( Seller::missing() );
+		$done  = $total - count( Seller::missing( $s ) );
 		$h     = '<div class="invoqk-progress' . ( $done >= $total ? ' is-done' : '' ) . '"><div class="invoqk-progress__label">'
 			/* translators: 1: filled required details, 2: total required details */
 			. esc_html( sprintf( __( '%1$d of %2$d required details filled in', 'invoqk' ), $done, $total ) ) . '</div>'
-			. '<div class="invoqk-progress__track"><span class="invoqk-progress__fill" style="width:' . (int) round( 100 * $done / $total ) . '%"></span></div></div>'
-			. '<div class="invoqk-grid2">';
+			. '<div class="invoqk-progress__track"><span class="invoqk-progress__fill" style="width:' . (int) round( 100 * $done / $total ) . '%"></span></div></div>';
+		if ( $sug ) {
+			$h .= '<p class="invoqk-help">' . esc_html__( 'Empty fields were prefilled from WooCommerce and WordPress. Check them, then save.', 'invoqk' ) . '</p>';
+		}
+		$h    .= '<div class="invoqk-grid2">';
 		$auto  = [ 'name' => 'organization', 'street' => 'address-line1', 'postcode' => 'postal-code', 'city' => 'address-level2', 'contact_phone' => 'tel', 'contact_email' => 'email' ];
 		foreach ( array_diff( array_keys( $s ), [ 'profile', 'nullsatz' ] ) as $k ) {
 			$id    = $o . '_' . $k;

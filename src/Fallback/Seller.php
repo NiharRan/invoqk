@@ -21,9 +21,26 @@ final class Seller {
 		return array_intersect_key( ( is_array( $saved ) ? $saved : [] ) + $defaults, $defaults );
 	}
 
+	/** Values found in WooCommerce for keys still empty in $saved; only suggestions, never saved by themselves. */
+	public static function suggest( array $saved ): array {
+		$bacs  = get_option( 'woocommerce_bacs_accounts' );
+		$bank  = is_array( $bacs ) && is_array( reset( $bacs ) ) ? reset( $bacs ) : [];
+		$found = [
+			'name'          => (string) get_option( 'blogname' ),
+			'street'        => (string) get_option( 'woocommerce_store_address' ),
+			'postcode'      => (string) get_option( 'woocommerce_store_postcode' ),
+			'city'          => (string) get_option( 'woocommerce_store_city' ),
+			'contact_email' => (string) get_option( 'admin_email' ),
+			'iban'          => (string) ( $bank['iban'] ?? '' ),
+			'bic'           => (string) ( $bank['bic'] ?? '' ),
+		];
+		$found['iban'] = strtoupper( preg_replace( '/\s+/', '', $found['iban'] ) );
+		return array_filter( array_diff_key( $found, array_filter( $saved, 'strlen' ) ), 'strlen' );
+	}
+
 	/** Required keys that are empty or malformed. A tax number alone satisfies the vat_id requirement. */
-	public static function missing(): array {
-		$s   = self::get();
+	public static function missing( ?array $s = null ): array {
+		$s ??= self::get();
 		$bad = [];
 		foreach ( self::NEEDED as $k ) {
 			$v  = (string) $s[ $k ];
