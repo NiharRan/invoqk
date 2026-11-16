@@ -1,7 +1,10 @@
 <?php
 namespace Invoqk\Sources;
 
-/** Reads the e-invoice of one invoice plugin. Read only: never generate invoices. */
+/**
+ * Reads the e-invoice of one invoice plugin. Read only: source plugin adapters never generate invoices.
+ * The one exception is Invoqk's own FallbackAdapter, the only place Invoqk writes an invoice.
+ */
 interface SourceAdapter {
 	/** Stable machine id, stored in order meta (e.g. `germanized_pro`). */
 	public function id(): string;

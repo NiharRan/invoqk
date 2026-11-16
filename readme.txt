@@ -22,7 +22,7 @@ Invoqk finds the e-invoice (XRechnung, ZUGFeRD, Factur-X, UBL or CII) that your 
 * Germanized Pro (planned)
 * German Market (planned)
 
-Invoqk reads the invoice that these plugins already create. Today it detects invoices from WP Overnight only. It does not create invoices itself. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
+Invoqk reads the invoice that these plugins already create. Today it detects invoices from WP Overnight only. It does not create invoices from these plugins; only the Pro fallback below can create a simple e-invoice. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
 
 = Free =
 
@@ -44,6 +44,18 @@ Invoqk reads the invoice that these plugins already create. Today it detects inv
 If Pro ends, the guard and new archiving stop. Your existing archive stays readable and exportable.
 
 Plans and the trial: https://invoqk.com/plugin
+
+= Fallback e-invoice (Pro) =
+
+If no invoice plugin supplies an e-invoice, Invoqk can create a simple one itself: XML only, as XRechnung 3.0 or EN 16931 (ZUGFeRD XML). It is checked like any other invoice. Limits:
+
+* Only domestic (DE) orders in EUR
+* Tax rates 19 % and 7 %; 0 % only with the Nullsatz setting
+* Orders with a refund are refused
+* Totals must reconcile to the cent
+* Not supported: discounts that need a document-level allowance, multi-currency plugins, subscriptions with split periods, partial deliveries and advance payments
+* No hybrid PDF: ZUGFeRD is XML only
+* Credit notes are not created by the fallback
 
 = Requirements =
 
