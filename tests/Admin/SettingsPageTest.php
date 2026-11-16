@@ -244,4 +244,42 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'value="checkout"', $h );
 		$this->assertStringNotContainsString( 'name="option_page"', $h );
 	}
+
+	public function test_free_site_has_no_pro_fields(): void {
+		$this->reset( 'done' );
+		$h = $this->page();
+		foreach ( [ 'invoqk_guard_mode', 'invoqk_fallback_seller', 'invoqk_leitweg_mode', 'invoqk-progress' ] as $needle ) {
+			$this->assertStringNotContainsString( $needle, $h );
+		}
+		$this->assertStringContainsString( 'invoqk-savebar', $h );
+	}
+
+	public function test_pro_site_renders_seller_progress(): void {
+		$this->reset( 'done' );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$h = $this->page();
+		$this->assertStringContainsString( '0 of 9 required details', $h );
+		$this->assertStringContainsString( 'name="invoqk_fallback_seller[name]"', $h );
+		$GLOBALS['invoqk_options']['invoqk_fallback_seller'] = [
+			'name' => 'A', 'street' => 'B 1', 'postcode' => '10115', 'city' => 'Berlin', 'vat_id' => 'DE123456789',
+			'contact_name' => 'C', 'contact_phone' => '1', 'contact_email' => 'a@b.de', 'iban' => 'DE89370400440532013000',
+		];
+		$h = $this->page();
+		$this->assertStringContainsString( '9 of 9 required details', $h );
+		$this->assertStringContainsString( 'invoqk-progress is-done', $h );
+		$this->assertStringNotContainsString( 'Still missing', $h );
+	}
+
+	public function test_choice_marks_checked_and_escapes(): void {
+		$on  = SettingsPage::choice( 'n', 'v', '<b>T</b>', 'D', true );
+		$off = SettingsPage::choice( 'n', 'v', 'T', 'D', false );
+		$this->assertStringContainsString( 'name="n" value="v" checked', $on );
+		$this->assertStringContainsString( '&lt;b&gt;T&lt;/b&gt;', $on );
+		$this->assertStringNotContainsString( 'checked', $off );
+	}
+
+	public function test_disclaimer_once_on_settings_tab(): void {
+		$this->reset( 'done' );
+		$this->assertSame( 1, substr_count( $this->page(), 'technical check and not legal or tax advice' ) );
+	}
 }

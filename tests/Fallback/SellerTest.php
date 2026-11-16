@@ -74,4 +74,9 @@ final class SellerTest extends TestCase {
 		$this->assertSame( [ 'xrechnung', 14, 'RE-{YYYY}-{00001}', false ], [ $g['profile'], $g['due_days'], $g['number_format'], $g['nullsatz'] ] );
 		$this->assertNotSame( '', Seller::label( 'iban' ) );
 	}
+
+	public function test_needed_lists_nine_required_keys(): void {
+		$this->assertCount( 9, Seller::needed() );
+		$this->assertContains( 'iban', Seller::needed() );
+	}
 }
