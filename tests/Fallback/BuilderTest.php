@@ -73,6 +73,13 @@ final class BuilderTest extends TestCase {
 		$this->assertHeader( $xml, self::EN );
 	}
 
+	public function test_shipping_and_fee_lines_match_golden(): void {
+		$lines = [ new InvoiceLine( 'Kaffeebohnen 1 kg', '2', 10000, 19 ), new InvoiceLine( 'Versand', '1', 490, 19 ), new InvoiceLine( 'Expressgebühr', '1', 250, 19 ) ];
+		$xml   = $this->build( $this->invoice( $lines ) );
+		$this->assertGolden( 'shipping-fee.xml', $xml );
+		$this->assertSame( '127.81', $this->text( $xml, '//ram:SpecifiedTradeSettlementHeaderMonetarySummation/ram:GrandTotalAmount' ) );
+	}
+
 	public function test_mixed_rates_group_tax_per_rate(): void {
 		$lines = [ new InvoiceLine( 'Buch', '1', 1000, 7 ), new InvoiceLine( 'Tasse', '1', 1000, 19 ) ];
 		$this->assertSame( 2260, Builder::grandCents( $lines ) );
