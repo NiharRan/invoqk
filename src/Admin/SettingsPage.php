@@ -74,11 +74,36 @@ final class SettingsPage {
 		return $out;
 	}
 
+	private const TABS = [ 'overview' => 'Overview', 'settings' => 'Settings', 'license' => 'License' ];
+
+	/** The active tab; anything unknown falls back to the overview. */
+	public static function tab(): string {
+		$t = sanitize_key( (string) ( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only routing
+		return isset( self::TABS[ $t ] ) ? $t : 'overview';
+	}
+
+	public static function tabs( string $active ): string {
+		$labels = [ 'overview' => __( 'Overview', 'invoqk' ), 'settings' => __( 'Settings', 'invoqk' ), 'license' => __( 'License', 'invoqk' ) ];
+		$h      = '<nav class="invoqk-tabs" aria-label="Invoqk">';
+		foreach ( $labels as $slug => $label ) {
+			$on  = $slug === $active;
+			$h  .= '<a class="invoqk-tab' . ( $on ? ' is-active' : '' ) . '" href="' . esc_url( admin_url( 'admin.php?page=invoqk&tab=' . $slug ) ) . '"'
+				. ( $on ? ' aria-current="page"' : '' ) . '>' . esc_html( $label ) . '</a>';
+		}
+		return $h . '</nav>';
+	}
+
 	public static function render(): void {
-		$set   = '' !== (string) get_option( 'invoqk_api_key', '' );
-		$state = State::get();
-		echo '<div class="wrap"><h1>Invoqk</h1>';
+		$tab = self::tab();
+		echo '<div class="wrap invoqk-app"><h1>Invoqk</h1>';
 		settings_errors();
+		echo self::tabs( $tab ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in tabs()
+		'settings' === $tab ? self::renderSettings() : ( 'license' === $tab ? self::renderLicense() : self::renderOverview() );
+		echo '</div>';
+	}
+
+	private static function renderOverview(): void {
+		$state = State::get();
 		if ( 'new' === $state || isset( $_GET['invoqk_wizard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification -- read-only routing
 			$step = absint( $_GET['step'] ?? 1 ); // phpcs:ignore WordPress.Security.NonceVerification
 			echo Wizard::render( 2 === $step ? 2 : 1 ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Wizard
@@ -87,9 +112,16 @@ final class SettingsPage {
 		} else {
 			echo Dashboard::html( Readiness::get( get_locale() ), State::turnover(), '' !== Client::apiKey() ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
+	}
+
+	private static function renderLicense(): void {
 		\Invoqk\Licensing\Actions::refreshIfStale( time() );
 		\Invoqk\Licensing\Actions::refreshOnOpen( time() );
 		echo \Invoqk\Licensing\Box::html( \Invoqk\Licensing\License::get(), time(), sanitize_key( (string) ( $_GET['invoqk_license'] ?? '' ) ), (string) get_option( \Invoqk\Licensing\Actions::TRIAL_PENDING, '' ) ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- read-only flash code; escaped in Box
+	}
+
+	private static function renderSettings(): void {
+		$set = '' !== (string) get_option( 'invoqk_api_key', '' );
 		echo '<div class="invoqk-box invoqk-settings"><h2>' . esc_html__( 'Settings', 'invoqk' ) . '</h2>';
 		echo '<div class="notice notice-info inline"><p>'
 			. esc_html__( 'Invoqk is a technical check and not legal or tax advice. Ask your tax advisor what applies to your business.', 'invoqk' )
@@ -131,6 +163,6 @@ final class SettingsPage {
 				. '</p></div>';
 		}
 		submit_button();
-		echo '</form></div></div>';
+		echo '</form></div>';
 	}
 }

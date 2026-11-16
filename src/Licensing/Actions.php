@@ -60,7 +60,7 @@ final class Actions {
 				$r = self::fail( 'unknown' );
 		}
 		$flash = $r['ok'] ? ( 'trial' === $act ? 'check_email' : 'ok' ) : (string) $r['error'];
-		return admin_url( 'admin.php?page=invoqk' ) . '&invoqk_license=' . $flash;
+		return admin_url( 'admin.php?page=invoqk&tab=license' ) . '&invoqk_license=' . $flash;
 	}
 
 	/** @return array{ok:bool,error:?string} */

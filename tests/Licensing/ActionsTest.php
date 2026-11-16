@@ -261,11 +261,11 @@ final class ActionsTest extends TestCase {
 	public function test_handle_trial_redirects_to_settings_with_ok(): void {
 		$this->reply( 202, [ 'status' => 'check_email' ] );
 		$url = Actions::handle( [ 'license_action' => 'trial', 'email' => 'a@b.de' ], 1000, $this->t() );
-		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=check_email', $url );
+		$this->assertSame( '/wp-admin/admin.php?page=invoqk&tab=license&invoqk_license=check_email', $url );
 		$GLOBALS['invoqk_options']['invoqk_trial_pending'] = 'a@b.de';
 		$this->reply( 200, $this->lic( [ 'plan' => 'trial', 'key' => '' ] ) );
 		$url = Actions::handle( [ 'license_action' => 'trial_confirm', 'code' => ' 123456 ' ], 1000, $this->t() );
-		$this->assertSame( '/wp-admin/admin.php?page=invoqk&invoqk_license=ok', $url );
+		$this->assertSame( '/wp-admin/admin.php?page=invoqk&tab=license&invoqk_license=ok', $url );
 	}
 
 	public function test_handle_activate_sanitizes_and_passes_key(): void {
