@@ -83,7 +83,7 @@ final class DashboardTest extends TestCase {
 	}
 
 	public function test_verdict_states(): void {
-		$good = Dashboard::html( $this->data( [ 'failed' => 0, 'missing' => 0, 'passed' => 21, 'score' => 100 ] ), 'under', true );
+		$good = Dashboard::html( $this->data( [ 'failed' => 0, 'missing' => 0, 'unchecked' => 0, 'passed' => 21, 'score' => 100 ] ), 'under', true );
 		$this->assertStringContainsString( 'invoqk-hero is-good', $good );
 		$top = [ [ 'code' => 'BT-31', 'text' => 'No VAT id', 'count' => 4, 'raw' => 'r', 'fix' => [ 'label' => 'Fix it', 'url' => '/f' ] ] ];
 		$bad = Dashboard::html( $this->data( [ 'top' => $top ] ), 'under', true );
@@ -118,5 +118,13 @@ final class DashboardTest extends TestCase {
 			\Invoqk\Archive\Archive::reset();
 		}
 		$this->assertStringNotContainsString( 'Archive: 0,0', Dashboard::html( $this->data(), 'under', true ) );
+	}
+
+	public function test_unchecked_orders_never_show_the_all_valid_verdict(): void {
+		$h = Dashboard::html( $this->data( [ 'passed' => 0, 'failed' => 0, 'missing' => 0, 'unchecked' => 10, 'required' => 10, 'score' => 0 ] ), 'under', true );
+		$this->assertStringNotContainsString( 'is-good', $h );
+		$this->assertStringNotContainsString( 'All your B2B e-invoices are valid', $h );
+		$this->assertStringContainsString( 'invoqk-hero is-warn', $h );
+		$this->assertStringContainsString( '10 B2B orders are not checked yet.', $h );
 	}
 }

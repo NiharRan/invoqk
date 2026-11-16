@@ -7,7 +7,7 @@ final class Notice {
 		add_action( 'admin_notices', static function (): void {
 			$m = self::message( License::get(), time() );
 			if ( null !== $m && current_user_can( 'manage_woocommerce' ) ) {
-				echo '<div class="notice notice-warning"><p>' . esc_html( $m ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=invoqk' ) ) . '">' . esc_html__( 'Open Invoqk', 'invoqk' ) . '</a></p></div>';
+				echo '<div class="notice notice-warning"><p>' . esc_html( $m ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=invoqk&tab=license' ) ) . '">' . esc_html__( 'Open Invoqk', 'invoqk' ) . '</a></p></div>';
 			}
 		} );
 	}

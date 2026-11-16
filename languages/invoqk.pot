@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T22:05:03+00:00\n"
+"POT-Creation-Date: 2026-11-16T22:09:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: invoqk\n"
@@ -54,30 +54,30 @@ msgstr ""
 msgid "Checking"
 msgstr ""
 
-#: src/Admin/Dashboard.php:12
-#: src/Admin/Dashboard.php:27
+#: src/Admin/Dashboard.php:13
+#: src/Admin/Dashboard.php:29
 msgid "Open setup"
 msgstr ""
 
-#: src/Admin/Dashboard.php:15
+#: src/Admin/Dashboard.php:17
 msgid "No API key is set yet."
 msgstr ""
 
-#: src/Admin/Dashboard.php:15
+#: src/Admin/Dashboard.php:17
 msgid "Enter it in the settings."
 msgstr ""
 
-#: src/Admin/Dashboard.php:20
+#: src/Admin/Dashboard.php:22
 #, php-format
 msgid "Archive: %s"
 msgstr ""
 
-#: src/Admin/Dashboard.php:29
+#: src/Admin/Dashboard.php:31
 msgid "No B2B invoices found yet"
 msgstr ""
 
 #. translators: %d: number of faulty e-invoices
-#: src/Admin/Dashboard.php:34
+#: src/Admin/Dashboard.php:36
 #, php-format
 msgid "%d e-invoice has errors and needs fixing."
 msgid_plural "%d e-invoices have errors and need fixing."
@@ -85,122 +85,130 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of B2B orders without an e-invoice
-#: src/Admin/Dashboard.php:38
+#: src/Admin/Dashboard.php:40
 #, php-format
 msgid "%d B2B order has no e-invoice yet."
 msgid_plural "%d B2B orders have no e-invoice yet."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Admin/Dashboard.php:40
+#. translators: %d: number of B2B orders not checked yet
+#: src/Admin/Dashboard.php:44
+#, php-format
+msgid "%d B2B order is not checked yet."
+msgid_plural "%d B2B orders are not checked yet."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/Dashboard.php:46
 msgid "All your B2B e-invoices are valid."
 msgstr ""
 
-#: src/Admin/Dashboard.php:47
+#: src/Admin/Dashboard.php:53
 msgid "B2B orders with a valid e-invoice · last 30 days"
 msgstr ""
 
 #. translators: 1: valid orders, 2: B2B orders checked
-#: src/Admin/Dashboard.php:51
+#: src/Admin/Dashboard.php:57
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
 
-#: src/Admin/Dashboard.php:55
+#: src/Admin/Dashboard.php:61
 msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
 msgstr ""
 
-#: src/Admin/Dashboard.php:56
+#: src/Admin/Dashboard.php:62
 msgid "Does your invoice plugin already create e-invoices? Open its settings."
 msgstr ""
 
-#: src/Admin/Dashboard.php:57
+#: src/Admin/Dashboard.php:63
 msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
 msgstr ""
 
-#: src/Admin/Dashboard.php:65
+#: src/Admin/Dashboard.php:71
 msgid "valid"
 msgstr ""
 
-#: src/Admin/Dashboard.php:66
+#: src/Admin/Dashboard.php:72
 msgid "faulty"
 msgstr ""
 
-#: src/Admin/Dashboard.php:67
+#: src/Admin/Dashboard.php:73
 msgid "missing"
 msgstr ""
 
-#: src/Admin/Dashboard.php:68
+#: src/Admin/Dashboard.php:74
 msgid "not checked yet"
 msgstr ""
 
-#: src/Admin/Dashboard.php:72
+#: src/Admin/Dashboard.php:78
 msgid "not needed"
 msgstr ""
 
-#: src/Admin/Dashboard.php:75
+#: src/Admin/Dashboard.php:81
 msgid "Basis: newest 2,000 orders"
 msgstr ""
 
-#: src/Admin/Dashboard.php:84
+#: src/Admin/Dashboard.php:90
 msgid "Your obligation starts"
 msgstr ""
 
-#: src/Admin/Dashboard.php:92
+#: src/Admin/Dashboard.php:98
 msgid "Turnover last year"
 msgstr ""
 
-#: src/Admin/Dashboard.php:94
+#: src/Admin/Dashboard.php:100
 msgid "Select turnover"
 msgstr ""
 
-#: src/Admin/Dashboard.php:96
+#: src/Admin/Dashboard.php:102
 #: src/Onboarding/Wizard.php:140
 msgid "Over €800,000"
 msgstr ""
 
-#: src/Admin/Dashboard.php:96
+#: src/Admin/Dashboard.php:102
 #: src/Onboarding/Wizard.php:140
 msgid "Up to €800,000"
 msgstr ""
 
-#: src/Admin/Dashboard.php:99
+#: src/Admin/Dashboard.php:105
 msgid "Save"
 msgstr ""
 
-#: src/Admin/Dashboard.php:100
+#: src/Admin/Dashboard.php:106
 #: src/Onboarding/Wizard.php:149
 msgid "No legal or tax advice."
 msgstr ""
 
-#: src/Admin/Dashboard.php:107
+#: src/Admin/Dashboard.php:113
 msgid "Most common errors"
 msgstr ""
 
-#: src/Admin/Dashboard.php:108
+#: src/Admin/Dashboard.php:114
 #: src/Licensing/Box.php:17
 msgid "Code"
 msgstr ""
 
-#: src/Admin/Dashboard.php:108
+#: src/Admin/Dashboard.php:114
 #: src/Admin/Report.php:77
 msgid "Error"
 msgstr ""
 
-#: src/Admin/Dashboard.php:120
+#: src/Admin/Dashboard.php:126
 msgid "Stop errors before the invoice goes out"
 msgstr ""
 
-#: src/Admin/Dashboard.php:121
+#: src/Admin/Dashboard.php:127
 msgid "Dispatch guard"
 msgstr ""
 
-#: src/Admin/Dashboard.php:122
+#: src/Admin/Dashboard.php:128
 #: src/Admin/SettingsPage.php:185
 msgid "Archive"
 msgstr ""
 
-#: src/Admin/Dashboard.php:123
+#: src/Admin/Dashboard.php:129
 msgid "Try Pro for 14 days"
 msgstr ""
 

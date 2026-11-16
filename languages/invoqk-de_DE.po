@@ -1220,3 +1220,8 @@ msgid "%d B2B order has no e-invoice yet."
 msgid_plural "%d B2B orders have no e-invoice yet."
 msgstr[0] "%d B2B-Bestellung hat noch keine E-Rechnung."
 msgstr[1] "%d B2B-Bestellungen haben noch keine E-Rechnung."
+
+msgid "%d B2B order is not checked yet."
+msgid_plural "%d B2B orders are not checked yet."
+msgstr[0] "%d B2B-Bestellung wurde noch nicht geprüft."
+msgstr[1] "%d B2B-Bestellungen wurden noch nicht geprüft."

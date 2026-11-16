@@ -39,6 +39,10 @@ final class Dashboard {
 			/* translators: %d: number of B2B orders without an e-invoice */
 			return [ 'warn', sprintf( _n( '%d B2B order has no e-invoice yet.', '%d B2B orders have no e-invoice yet.', (int) $d['missing'], 'invoqk' ), (int) $d['missing'] ), null ];
 		}
+		if ( (int) $d['unchecked'] > 0 ) { // not yet checked is not the same as valid
+			/* translators: %d: number of B2B orders not checked yet */
+			return [ 'warn', sprintf( _n( '%d B2B order is not checked yet.', '%d B2B orders are not checked yet.', (int) $d['unchecked'], 'invoqk' ), (int) $d['unchecked'] ), null ];
+		}
 		return [ 'good', __( 'All your B2B e-invoices are valid.', 'invoqk' ), null ];
 	}
 

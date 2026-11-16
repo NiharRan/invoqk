@@ -43,7 +43,7 @@ final class SettingsPage {
 
 	public static function enqueue( string $hook ): void {
 		if ( 'woocommerce_page_invoqk' === $hook ) {
-			wp_enqueue_style( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.css', INVOQK_FILE ), [], INVOQK_VERSION );
+			wp_enqueue_style( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.css', INVOQK_FILE ), [], INVOQK_VERSION . '.' . (int) @filemtime( dirname( INVOQK_FILE ) . '/assets/invoqk-admin.css' ) ); // file time busts caches when the CSS changes
 		}
 	}
 

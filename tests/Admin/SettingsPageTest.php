@@ -282,4 +282,11 @@ final class SettingsPageTest extends TestCase {
 		$this->reset( 'done' );
 		$this->assertSame( 1, substr_count( $this->page(), 'technical check and not legal or tax advice' ) );
 	}
+
+	public function test_css_version_changes_with_file_contents(): void {
+		$GLOBALS['invoqk_style_ver'] = [];
+		SettingsPage::enqueue( 'woocommerce_page_invoqk' );
+		$this->assertNotSame( INVOQK_VERSION, $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
+		$this->assertStringContainsString( INVOQK_VERSION, (string) $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
+	}
 }

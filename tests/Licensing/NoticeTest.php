@@ -40,4 +40,15 @@ final class NoticeTest extends TestCase {
 		$l = [ 'plan' => 'pro', 'valid_until' => self::NOW - 100, 'check_failed' => true ] + License::get();
 		$this->assertNull( Notice::message( $l, self::NOW ) );
 	}
+
+	public function test_notice_links_to_the_license_tab(): void {
+		$GLOBALS['invoqk_actions'] = [];
+		$GLOBALS['invoqk_options']['invoqk_license'] = [ 'plan' => 'pro', 'valid_until' => 1 ] + License::get();
+		Notice::boot();
+		ob_start();
+		do_action( 'admin_notices' );
+		$h = ob_get_clean();
+		$this->assertStringContainsString( 'page=invoqk&amp;tab=license', $h );
+		unset( $GLOBALS['invoqk_options']['invoqk_license'] );
+	}
 }
