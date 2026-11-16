@@ -22,9 +22,7 @@ final class SettingsPageTest extends TestCase {
 
 	public function test_form_uses_options_flow_and_never_echoes_key(): void {
 		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_live_SECRET123';
-		ob_start();
-		SettingsPage::render();
-		$h = ob_get_clean();
+		$h = $this->page();
 		$this->assertStringContainsString( 'name="option_page" value="invoqk"', $h );
 		$this->assertStringContainsString( 'type="password"', $h );
 		$this->assertStringContainsString( 'name="invoqk_api_key"', $h );
@@ -54,9 +52,7 @@ final class SettingsPageTest extends TestCase {
 
 	public function test_no_placeholder_when_unset(): void {
 		unset( $GLOBALS['invoqk_options']['invoqk_api_key'] );
-		ob_start();
-		SettingsPage::render();
-		$this->assertStringNotContainsString( 'placeholder=', ob_get_clean() );
+		$this->assertStringNotContainsString( 'placeholder=', $this->page() );
 	}
 
 	public function test_untouched_form_keeps_existing_key(): void {
@@ -80,19 +76,17 @@ final class SettingsPageTest extends TestCase {
 		$h = ob_get_clean();
 		$this->assertStringContainsString( 'invoqk_wizard_finish', $h );
 		$this->assertStringNotContainsString( 'invoqk-dash', $h );
-		$this->assertStringContainsString( 'name="invoqk_api_key"', $h );
+		$this->assertStringContainsString( 'name="api_key"', $h ); // the wizard has its own key field; the settings form is on its own tab
 		$_GET = [];
 	}
 
-	public function test_render_routes_dashboard_when_done_and_keeps_key_form(): void {
+	public function test_render_routes_dashboard_when_done(): void {
 		$this->reset( 'done' );
 		ob_start();
 		SettingsPage::render();
 		$h = ob_get_clean();
 		$this->assertStringContainsString( 'invoqk-dash', $h );
-		$this->assertStringContainsString( 'name="option_page" value="invoqk"', $h );
-		$this->assertStringContainsString( 'name="invoqk_api_key"', $h );
-		$this->assertGreaterThan( strpos( $h, 'invoqk-dash' ), strpos( $h, 'name="invoqk_api_key"' ) );
+		$this->assertStringNotContainsString( 'name="option_page" value="invoqk"', $h ); // the form lives on the Settings tab
 
 		$this->reset( 'done' );
 		$_GET['invoqk_wizard'] = '1';
@@ -121,10 +115,13 @@ final class SettingsPageTest extends TestCase {
 		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
 	}
 
-	private function page(): string {
+	private function page( string $tab = 'settings' ): string {
+		$_GET['tab'] = $tab;
 		ob_start();
 		SettingsPage::render();
-		return ob_get_clean();
+		$h = ob_get_clean();
+		unset( $_GET['tab'] );
+		return $h;
 	}
 
 	public function test_mode_radios_only_on_pro(): void {
@@ -210,10 +207,86 @@ final class SettingsPageTest extends TestCase {
 
 	public function test_render_shows_licensing_box_for_free_site(): void {
 		$GLOBALS['invoqk_options'] = [];
-		ob_start();
-		SettingsPage::render();
-		$h = ob_get_clean();
+		$h = $this->page( 'license' );
 		$this->assertStringContainsString( 'Free plan', $h );
 		$this->assertStringContainsString( 'value="checkout"', $h );
+	}
+
+	public function test_unknown_tab_falls_back_to_overview(): void {
+		$this->reset( 'done' );
+		$h = $this->page( '<x>' );
+		$this->assertStringNotContainsString( '<x>', $h );
+		$this->assertMatchesRegularExpression( '/class="invoqk-tab is-active"[^>]*aria-current="page"[^>]*>Overview/', $h );
+		$this->assertStringContainsString( 'invoqk-dash', $h );
+	}
+
+	public function test_tab_bar_links_and_active_state(): void {
+		$this->reset( 'done' );
+		foreach ( [ 'settings' => 'Settings', 'license' => 'License' ] as $slug => $label ) {
+			$h = $this->page( $slug );
+			$this->assertStringContainsString( 'page=invoqk&amp;tab=' . $slug, $h );
+			$this->assertMatchesRegularExpression( '/href="[^"]*tab=' . $slug . '"[^>]*class="invoqk-tab is-active"|class="invoqk-tab is-active"[^>]*href="[^"]*tab=' . $slug . '"/', $h );
+			$this->assertSame( 1, substr_count( $h, 'is-active' ) );
+		}
+	}
+
+	public function test_settings_tab_has_form_not_license(): void {
+		$this->reset( 'done' );
+		$h = $this->page( 'settings' );
+		$this->assertStringContainsString( 'name="option_page" value="invoqk"', $h );
+		$this->assertStringNotContainsString( 'value="checkout"', $h );
+		$this->assertStringNotContainsString( 'invoqk-dash', $h );
+	}
+
+	public function test_license_tab_has_license_not_form(): void {
+		$this->reset( 'done' );
+		$h = $this->page( 'license' );
+		$this->assertStringContainsString( 'value="checkout"', $h );
+		$this->assertStringNotContainsString( 'name="option_page"', $h );
+	}
+
+	public function test_free_site_has_no_pro_fields(): void {
+		$this->reset( 'done' );
+		$h = $this->page();
+		foreach ( [ 'invoqk_guard_mode', 'invoqk_fallback_seller', 'invoqk_leitweg_mode', 'invoqk-progress' ] as $needle ) {
+			$this->assertStringNotContainsString( $needle, $h );
+		}
+		$this->assertStringContainsString( 'invoqk-savebar', $h );
+	}
+
+	public function test_pro_site_renders_seller_progress(): void {
+		$this->reset( 'done' );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$h = $this->page();
+		$this->assertStringContainsString( '0 of 9 required details', $h );
+		$this->assertStringContainsString( 'name="invoqk_fallback_seller[name]"', $h );
+		$GLOBALS['invoqk_options']['invoqk_fallback_seller'] = [
+			'name' => 'A', 'street' => 'B 1', 'postcode' => '10115', 'city' => 'Berlin', 'vat_id' => 'DE123456789',
+			'contact_name' => 'C', 'contact_phone' => '1', 'contact_email' => 'a@b.de', 'iban' => 'DE89370400440532013000',
+		];
+		$h = $this->page();
+		$this->assertStringContainsString( '9 of 9 required details', $h );
+		$this->assertStringContainsString( 'invoqk-progress is-done', $h );
+		$this->assertStringNotContainsString( 'Still missing', $h );
+	}
+
+	public function test_choice_marks_checked_and_escapes(): void {
+		$on  = SettingsPage::choice( 'n', 'v', '<b>T</b>', 'D', true );
+		$off = SettingsPage::choice( 'n', 'v', 'T', 'D', false );
+		$this->assertStringContainsString( 'name="n" value="v" checked', $on );
+		$this->assertStringContainsString( '&lt;b&gt;T&lt;/b&gt;', $on );
+		$this->assertStringNotContainsString( 'checked', $off );
+	}
+
+	public function test_disclaimer_once_on_settings_tab(): void {
+		$this->reset( 'done' );
+		$this->assertSame( 1, substr_count( $this->page(), 'technical check and not legal or tax advice' ) );
+	}
+
+	public function test_css_version_changes_with_file_contents(): void {
+		$GLOBALS['invoqk_style_ver'] = [];
+		SettingsPage::enqueue( 'woocommerce_page_invoqk' );
+		$this->assertNotSame( INVOQK_VERSION, $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
+		$this->assertStringContainsString( INVOQK_VERSION, (string) $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
 	}
 }

@@ -9,6 +9,11 @@ final class Seller {
 	private const KEYS   = [ 'name', 'street', 'postcode', 'city', 'vat_id', 'tax_number', 'contact_name', 'contact_phone', 'contact_email', 'iban', 'bic', 'terms', 'due_days', 'number_format', 'profile', 'nullsatz' ];
 	private const NEEDED = [ 'name', 'street', 'postcode', 'city', 'vat_id', 'contact_name', 'contact_phone', 'contact_email', 'iban' ];
 
+	/** Keys that must be filled in for an invoice to be generated. */
+	public static function needed(): array {
+		return self::NEEDED;
+	}
+
 	public static function get(): array {
 		$saved    = get_option( self::OPTION, [] );
 		$defaults = array_fill_keys( self::KEYS, '' );

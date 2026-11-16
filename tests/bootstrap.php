@@ -223,7 +223,7 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_doing_ajax(): bool { return $GLOBALS['invoqk_ajax'] ?? false; }
 	function plugins_url( string $p = '', string $f = '' ): string { return '/plugins/' . $p; }
 	function wp_enqueue_script( string $h, string $src = '', array $deps = [], $ver = false, $foot = false ): void { $GLOBALS['invoqk_scripts'][ $h ] = $src; }
-	function wp_enqueue_style( string $h, string $src = '', array $deps = [], $ver = false ): void { $GLOBALS['invoqk_styles'][ $h ] = $src; }
+	function wp_enqueue_style( string $h, string $src = '', array $deps = [], $ver = false ): void { $GLOBALS['invoqk_styles'][ $h ] = $src; $GLOBALS['invoqk_style_ver'][ $h ] = $ver; }
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
 	if ( ! function_exists( 'sanitize_email' ) ) {

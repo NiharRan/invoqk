@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T16:42:16+00:00\n"
+"POT-Creation-Date: 2026-11-16T22:09:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: invoqk\n"
@@ -54,131 +54,161 @@ msgstr ""
 msgid "Checking"
 msgstr ""
 
-#: src/Admin/Dashboard.php:12
+#: src/Admin/Dashboard.php:13
+#: src/Admin/Dashboard.php:29
 msgid "Open setup"
 msgstr ""
 
-#: src/Admin/Dashboard.php:15
+#: src/Admin/Dashboard.php:17
 msgid "No API key is set yet."
 msgstr ""
 
-#: src/Admin/Dashboard.php:15
-msgid "Enter it in the settings below."
+#: src/Admin/Dashboard.php:17
+msgid "Enter it in the settings."
 msgstr ""
 
-#: src/Admin/Dashboard.php:20
+#: src/Admin/Dashboard.php:22
 #, php-format
 msgid "Archive: %s"
 msgstr ""
 
-#: src/Admin/Dashboard.php:27
+#: src/Admin/Dashboard.php:31
+msgid "No B2B invoices found yet"
+msgstr ""
+
+#. translators: %d: number of faulty e-invoices
+#: src/Admin/Dashboard.php:36
+#, php-format
+msgid "%d e-invoice has errors and needs fixing."
+msgid_plural "%d e-invoices have errors and need fixing."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of B2B orders without an e-invoice
+#: src/Admin/Dashboard.php:40
+#, php-format
+msgid "%d B2B order has no e-invoice yet."
+msgid_plural "%d B2B orders have no e-invoice yet."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %d: number of B2B orders not checked yet
+#: src/Admin/Dashboard.php:44
+#, php-format
+msgid "%d B2B order is not checked yet."
+msgid_plural "%d B2B orders are not checked yet."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/Dashboard.php:46
+msgid "All your B2B e-invoices are valid."
+msgstr ""
+
+#: src/Admin/Dashboard.php:53
 msgid "B2B orders with a valid e-invoice · last 30 days"
 msgstr ""
 
 #. translators: 1: valid orders, 2: B2B orders checked
-#: src/Admin/Dashboard.php:30
+#: src/Admin/Dashboard.php:57
 #, php-format
 msgid "%1$d of %2$d"
 msgstr ""
 
-#: src/Admin/Dashboard.php:40
-msgid "valid"
+#: src/Admin/Dashboard.php:61
+msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
 msgstr ""
 
-#: src/Admin/Dashboard.php:41
-msgid "faulty"
-msgstr ""
-
-#: src/Admin/Dashboard.php:42
-msgid "missing"
-msgstr ""
-
-#: src/Admin/Dashboard.php:43
-msgid "not checked yet"
-msgstr ""
-
-#: src/Admin/Dashboard.php:47
-msgid "not needed"
-msgstr ""
-
-#: src/Admin/Dashboard.php:49
-msgid "Basis: newest 2,000 orders"
-msgstr ""
-
-#: src/Admin/Dashboard.php:55
-msgid "Your obligation starts"
+#: src/Admin/Dashboard.php:62
+msgid "Does your invoice plugin already create e-invoices? Open its settings."
 msgstr ""
 
 #: src/Admin/Dashboard.php:63
+msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
+msgstr ""
+
+#: src/Admin/Dashboard.php:71
+msgid "valid"
+msgstr ""
+
+#: src/Admin/Dashboard.php:72
+msgid "faulty"
+msgstr ""
+
+#: src/Admin/Dashboard.php:73
+msgid "missing"
+msgstr ""
+
+#: src/Admin/Dashboard.php:74
+msgid "not checked yet"
+msgstr ""
+
+#: src/Admin/Dashboard.php:78
+msgid "not needed"
+msgstr ""
+
+#: src/Admin/Dashboard.php:81
+msgid "Basis: newest 2,000 orders"
+msgstr ""
+
+#: src/Admin/Dashboard.php:90
+msgid "Your obligation starts"
+msgstr ""
+
+#: src/Admin/Dashboard.php:98
 msgid "Turnover last year"
 msgstr ""
 
-#: src/Admin/Dashboard.php:65
+#: src/Admin/Dashboard.php:100
 msgid "Select turnover"
 msgstr ""
 
-#: src/Admin/Dashboard.php:67
+#: src/Admin/Dashboard.php:102
 #: src/Onboarding/Wizard.php:140
 msgid "Over €800,000"
 msgstr ""
 
-#: src/Admin/Dashboard.php:67
+#: src/Admin/Dashboard.php:102
 #: src/Onboarding/Wizard.php:140
 msgid "Up to €800,000"
 msgstr ""
 
-#: src/Admin/Dashboard.php:70
+#: src/Admin/Dashboard.php:105
 msgid "Save"
 msgstr ""
 
-#: src/Admin/Dashboard.php:71
+#: src/Admin/Dashboard.php:106
 #: src/Onboarding/Wizard.php:149
 msgid "No legal or tax advice."
 msgstr ""
 
-#: src/Admin/Dashboard.php:78
+#: src/Admin/Dashboard.php:113
 msgid "Most common errors"
 msgstr ""
 
-#: src/Admin/Dashboard.php:79
+#: src/Admin/Dashboard.php:114
 #: src/Licensing/Box.php:17
 msgid "Code"
 msgstr ""
 
-#: src/Admin/Dashboard.php:79
+#: src/Admin/Dashboard.php:114
 #: src/Admin/Report.php:77
 msgid "Error"
 msgstr ""
 
-#: src/Admin/Dashboard.php:88
-msgid "No B2B invoices found yet"
-msgstr ""
-
-#: src/Admin/Dashboard.php:89
-msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
-msgstr ""
-
-#: src/Admin/Dashboard.php:90
-msgid "Does your invoice plugin already create e-invoices? Open its settings."
-msgstr ""
-
-#: src/Admin/Dashboard.php:91
-msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
-msgstr ""
-
-#: src/Admin/Dashboard.php:95
+#: src/Admin/Dashboard.php:126
 msgid "Stop errors before the invoice goes out"
 msgstr ""
 
-#: src/Admin/Dashboard.php:96
+#: src/Admin/Dashboard.php:127
 msgid "Dispatch guard"
 msgstr ""
 
-#: src/Admin/Dashboard.php:97
+#: src/Admin/Dashboard.php:128
+#: src/Admin/SettingsPage.php:185
 msgid "Archive"
 msgstr ""
 
-#: src/Admin/Dashboard.php:98
+#: src/Admin/Dashboard.php:129
 msgid "Try Pro for 14 days"
 msgstr ""
 
@@ -360,82 +390,141 @@ msgstr ""
 msgid "Validate again"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:53
-msgid "Fallback e-invoice"
+#. translators: 1: filled required details, 2: total required details
+#: src/Admin/SettingsPage.php:82
+#, php-format
+msgid "%1$d of %2$d required details filled in"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:54
-#: src/Fallback/Actions.php:84
-msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
-msgstr ""
-
-#: src/Admin/SettingsPage.php:57
-msgid "Still missing:"
-msgstr ""
-
-#: src/Admin/SettingsPage.php:73
+#: src/Admin/SettingsPage.php:101
 msgid "Small businesses under §19 UStG (Kleinunternehmer) are not supported."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:92
+#: src/Admin/SettingsPage.php:113
+msgid "Overview"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:113
 msgid "Settings"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:94
-msgid "Invoqk is a technical check and not legal or tax advice. Ask your tax advisor what applies to your business."
+#: src/Admin/SettingsPage.php:113
+#: src/Licensing/Box.php:8
+msgid "License"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:98
+#: src/Admin/SettingsPage.php:156
 msgid "Invoices with errors are now held until you fix or release them."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:103
+#: src/Admin/SettingsPage.php:161
 #: src/Onboarding/Wizard.php:146
 msgid "API key"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:108
+#: src/Admin/SettingsPage.php:163
+msgid "A key is saved. Enter a new one only to replace it."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:163
+msgid "Paste the API key from your invoqk.com account."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:165
+msgid "Connection"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:165
+msgid "Links this shop to your Invoqk account so invoices can be checked."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:167
 msgid "Invoices with errors"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:109
+#: src/Admin/SettingsPage.php:168
 msgid "Hold invoices with errors"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:109
+#: src/Admin/SettingsPage.php:168
+msgid "The invoice waits until you fix it or release it."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:169
 msgid "Only warn me"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:114
+#: src/Admin/SettingsPage.php:169
+msgid "The invoice goes out anyway and you get a warning."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:171
 msgid "Ask for Leitweg-ID"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:115
+#: src/Admin/SettingsPage.php:172
 msgid "Off"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:115
+#: src/Admin/SettingsPage.php:172
+msgid "Checkout does not ask for it."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:173
 msgid "Always"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:115
+#: src/Admin/SettingsPage.php:173
+msgid "Every customer sees the field."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:174
 msgid "Only for business customers (company name or VAT ID filled in)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:118
+#: src/Admin/SettingsPage.php:174
+msgid "Private customers do not see it."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:176
 msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:120
+#: src/Admin/SettingsPage.php:177
+msgid "Invoice checks"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:177
+msgid "What happens when Invoqk finds an error, and who is asked for a Leitweg-ID."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:181
 msgid "Archive retention (years)"
 msgstr ""
 
-#: src/Admin/SettingsPage.php:122
+#: src/Admin/SettingsPage.php:183
 msgid "This is not tax advice. Check the retention period with your tax advisor."
 msgstr ""
 
-#: src/Admin/SettingsPage.php:129
+#: src/Admin/SettingsPage.php:185
+msgid "How long archived invoices are kept."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:187
+msgid "Fallback e-invoice"
+msgstr ""
+
+#: src/Admin/SettingsPage.php:187
+#: src/Fallback/Actions.php:84
+msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:191
 msgid "Your server ignores .htaccess. Add a rule that denies web access to uploads/invoqk-archive/, or set INVOQK_ARCHIVE_DIR outside the web root."
+msgstr ""
+
+#: src/Admin/SettingsPage.php:194
+msgid "Invoqk is a technical check and not legal or tax advice. Ask your tax advisor what applies to your business."
 msgstr ""
 
 #: src/Archive/Actions.php:30
@@ -805,67 +894,67 @@ msgstr ""
 msgid "Invoice %s created."
 msgstr ""
 
-#: src/Fallback/Seller.php:59
+#: src/Fallback/Seller.php:64
 msgid "Company name"
 msgstr ""
 
-#: src/Fallback/Seller.php:60
+#: src/Fallback/Seller.php:65
 msgid "Street and number"
 msgstr ""
 
-#: src/Fallback/Seller.php:61
+#: src/Fallback/Seller.php:66
 msgid "Postcode"
 msgstr ""
 
-#: src/Fallback/Seller.php:62
+#: src/Fallback/Seller.php:67
 msgid "City"
 msgstr ""
 
-#: src/Fallback/Seller.php:63
+#: src/Fallback/Seller.php:68
 msgid "VAT ID"
 msgstr ""
 
-#: src/Fallback/Seller.php:64
+#: src/Fallback/Seller.php:69
 msgid "Tax number"
 msgstr ""
 
-#: src/Fallback/Seller.php:65
+#: src/Fallback/Seller.php:70
 msgid "Contact person"
 msgstr ""
 
-#: src/Fallback/Seller.php:66
+#: src/Fallback/Seller.php:71
 msgid "Contact phone"
 msgstr ""
 
-#: src/Fallback/Seller.php:67
+#: src/Fallback/Seller.php:72
 msgid "Contact email"
 msgstr ""
 
-#: src/Fallback/Seller.php:68
+#: src/Fallback/Seller.php:73
 msgid "IBAN"
 msgstr ""
 
-#: src/Fallback/Seller.php:69
+#: src/Fallback/Seller.php:74
 msgid "BIC"
 msgstr ""
 
-#: src/Fallback/Seller.php:70
+#: src/Fallback/Seller.php:75
 msgid "Payment terms text"
 msgstr ""
 
-#: src/Fallback/Seller.php:71
+#: src/Fallback/Seller.php:76
 msgid "Payment due (days)"
 msgstr ""
 
-#: src/Fallback/Seller.php:72
+#: src/Fallback/Seller.php:77
 msgid "Invoice number pattern"
 msgstr ""
 
-#: src/Fallback/Seller.php:73
+#: src/Fallback/Seller.php:78
 msgid "E-invoice profile"
 msgstr ""
 
-#: src/Fallback/Seller.php:74
+#: src/Fallback/Seller.php:79
 msgid "0 % lines are zero-rated (Nullsatz), not tax-exempt"
 msgstr ""
 
@@ -994,10 +1083,6 @@ msgstr[1] ""
 msgid "Your invoice will follow in a separate email."
 msgstr ""
 
-#: src/Licensing/Box.php:8
-msgid "License"
-msgstr ""
-
 #: src/Licensing/Box.php:11
 msgid "Manage billing"
 msgstr ""
@@ -1065,75 +1150,75 @@ msgid_plural "%d shops"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Licensing/Box.php:57
+#: src/Licensing/Box.php:58
 msgid "year"
 msgstr ""
 
-#: src/Licensing/Box.php:58
+#: src/Licensing/Box.php:59
 msgid "Buy"
 msgstr ""
 
-#: src/Licensing/Box.php:74
+#: src/Licensing/Box.php:75
 msgid "Check your email for the trial code."
 msgstr ""
 
-#: src/Licensing/Box.php:77
+#: src/Licensing/Box.php:78
 msgid "This license key was not found."
 msgstr ""
 
-#: src/Licensing/Box.php:78
+#: src/Licensing/Box.php:79
 msgid "All seats of this license are in use. Deactivate another site first."
 msgstr ""
 
-#: src/Licensing/Box.php:79
+#: src/Licensing/Box.php:80
 msgid "The trial was already used for this site."
 msgstr ""
 
-#: src/Licensing/Box.php:80
+#: src/Licensing/Box.php:81
 msgid "The Invoqk server could not be reached. Try again later."
 msgstr ""
 
-#: src/Licensing/Box.php:81
-msgid "Enter your API key in the settings below first."
-msgstr ""
-
 #: src/Licensing/Box.php:82
-msgid "That code is not right or has expired. Request a new one."
+msgid "Enter your API key in the Settings tab first."
 msgstr ""
 
 #: src/Licensing/Box.php:83
-msgid "Enter your email first to get a code."
+msgid "That code is not right or has expired. Request a new one."
 msgstr ""
 
 #: src/Licensing/Box.php:84
-msgid "Enter a valid email address."
+msgid "Enter your email first to get a code."
 msgstr ""
 
 #: src/Licensing/Box.php:85
-msgid "An invoqk.com account with this email exists. Create an API key in your account and enter it below."
+msgid "Enter a valid email address."
 msgstr ""
 
 #: src/Licensing/Box.php:86
-msgid "The key is saved, but this account has no active plan. Buy a plan below."
+msgid "An invoqk.com account with this email exists. Create an API key in your account and enter it below."
 msgstr ""
 
 #: src/Licensing/Box.php:87
-msgid "This account already has an Invoqk plugin license. Manage it with the link in your Lemon Squeezy receipt email."
+msgid "The key is saved, but this account has no active plan. Buy a plan below."
 msgstr ""
 
 #: src/Licensing/Box.php:88
-msgid "This key is not connected to this shop yet. Enter it in \"License key\" above and click Activate first."
+msgid "This account already has an Invoqk plugin license. Manage it with the link in your Lemon Squeezy receipt email."
 msgstr ""
 
 #: src/Licensing/Box.php:89
-msgid "This key is already connected to another shop. Deactivate it there first."
+msgid "This key is not connected to this shop yet. Enter it in \"License key\" above and click Activate first."
 msgstr ""
 
 #: src/Licensing/Box.php:90
+msgid "This key is already connected to another shop. Deactivate it there first."
+msgstr ""
+
+#: src/Licensing/Box.php:91
 msgid "Another key of your account is already connected to this shop."
 msgstr ""
 
-#: src/Licensing/Box.php:92
+#: src/Licensing/Box.php:93
 msgid "Something went wrong. Try again later."
 msgstr ""
 
