@@ -17,14 +17,15 @@ final class DashboardTest extends TestCase {
 		foreach ( [ 'invoqk-pill ok">13', 'invoqk-pill bad">5', 'invoqk-pill warn">3', 'invoqk-pill na">48' ] as $p ) {
 			$this->assertStringContainsString( $p, $h );
 		}
-		$this->assertStringNotContainsString( 'invoqk-empty', $h );
+		$this->assertStringNotContainsString( 'is-empty', $h );
 		$this->assertStringContainsString( 'invoqk_wizard=1', $h );
 	}
 
 	public function test_null_score_shows_dash_and_empty_state(): void {
 		$h = Dashboard::html( $this->data( [ 'required' => 0, 'passed' => 0, 'failed' => 0, 'missing' => 0, 'score' => null ] ), null, true );
-		$this->assertStringContainsString( '–', $h );
-		$this->assertStringContainsString( 'invoqk-empty', $h );
+		$this->assertStringContainsString( 'invoqk-hero is-empty', $h );
+		$this->assertStringNotContainsString( '–', $h );
+		$this->assertStringNotContainsString( 'invoqk-pill', $h );
 		$this->assertStringContainsString( 'No B2B invoices found yet', $h );
 		$this->assertStringNotContainsString( 'NAN', $h );
 		$this->assertStringNotContainsString( 'width:', $h );
@@ -68,6 +69,32 @@ final class DashboardTest extends TestCase {
 		$this->assertSame( 2, substr_count( $h, 'invoqk-lock">PRO' ) );
 	}
 
+	public function test_pro_site_has_no_upsell(): void {
+		$GLOBALS['invoqk_filters']['invoqk_is_pro'] = [ static fn() => true ];
+		\Invoqk\Archive\Archive::$index = new \Invoqk\Tests\Archive\MemoryIndex();
+		try {
+			$h = Dashboard::html( $this->data(), 'under', true );
+			$this->assertStringNotContainsString( 'Try Pro for 14 days', $h );
+			$this->assertStringNotContainsString( 'invoqk-pro', $h );
+		} finally {
+			unset( $GLOBALS['invoqk_filters']['invoqk_is_pro'] );
+			\Invoqk\Archive\Archive::reset();
+		}
+	}
+
+	public function test_verdict_states(): void {
+		$good = Dashboard::html( $this->data( [ 'failed' => 0, 'missing' => 0, 'passed' => 21, 'score' => 100 ] ), 'under', true );
+		$this->assertStringContainsString( 'invoqk-hero is-good', $good );
+		$top = [ [ 'code' => 'BT-31', 'text' => 'No VAT id', 'count' => 4, 'raw' => 'r', 'fix' => [ 'label' => 'Fix it', 'url' => '/f' ] ] ];
+		$bad = Dashboard::html( $this->data( [ 'top' => $top ] ), 'under', true );
+		$this->assertStringContainsString( 'invoqk-hero is-bad', $bad );
+		$this->assertStringContainsString( 'class="button button-primary" href="/f"', $bad );
+		$warn = Dashboard::html( $this->data( [ 'failed' => 0 ] ), 'under', true );
+		$this->assertStringContainsString( 'invoqk-hero is-warn', $warn );
+		$empty = Dashboard::html( $this->data( [ 'required' => 0, 'passed' => 0, 'failed' => 0, 'missing' => 0, 'score' => null ] ), null, true );
+		$this->assertStringContainsString( 'invoqk_wizard=1', $empty );
+	}
+
 	public function test_capped_note_and_no_key_notice(): void {
 		$this->assertStringNotContainsString( 'newest 2,000', Dashboard::html( $this->data(), 'under', true ) );
 		$this->assertStringContainsString( 'newest 2,000', Dashboard::html( $this->data( [ 'capped' => true ] ), 'under', true ) );
@@ -77,7 +104,7 @@ final class DashboardTest extends TestCase {
 
 	public function test_no_key_notice_links_to_key_field(): void {
 		$h = Dashboard::html( $this->data(), 'under', false );
-		$this->assertStringContainsString( 'href="#invoqk_api_key"', $h );
+		$this->assertStringContainsString( 'tab=settings#invoqk_api_key', $h );
 		$this->assertStringNotContainsString( 'WooCommerce &gt; Invoqk', $h );
 	}
 

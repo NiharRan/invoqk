@@ -12,41 +12,70 @@ final class Dashboard {
 			. esc_html__( 'Open setup', 'invoqk' ) . '</a></p>';
 		if ( ! $hasKey ) {
 			$h .= '<div class="notice notice-warning inline invoqk-nokey"><p>'
-				. esc_html__( 'No API key is set yet.', 'invoqk' ) . ' <a href="#invoqk_api_key">' . esc_html__( 'Enter it in the settings below.', 'invoqk' ) . '</a></p></div>';
+				. esc_html__( 'No API key is set yet.', 'invoqk' ) . ' <a href="' . esc_url( admin_url( 'admin.php?page=invoqk&tab=settings' ) ) . '#invoqk_api_key">' . esc_html__( 'Enter it in the settings.', 'invoqk' ) . '</a></p></div>';
 		}
 		$h .= '<div class="invoqk-grid">' . self::readiness( $d ) . self::deadline( $turnover ) . '</div>';
-		$h .= 0 === (int) $d['required'] ? self::empty() : self::top( $d['top'] );
+		$h .= self::top( $d['top'] );
 		if ( Limit::isPro() ) {
 			$h .= '<p class="invoqk-muted">' . esc_html( sprintf( __( 'Archive: %s', 'invoqk' ), Usage::label( Usage::used() ) ) ) . '</p>';
 		}
 		return $h . self::pro() . '</div>';
 	}
 
+	/** @return array{0:string,1:string,2:?array{label:string,url:string}} state, sentence, action */
+	private static function verdict( array $d ): array {
+		$setup = [ 'label' => __( 'Open setup', 'invoqk' ), 'url' => admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ];
+		if ( 0 === (int) $d['required'] ) {
+			return [ 'empty', __( 'No B2B invoices found yet', 'invoqk' ), $setup ];
+		}
+		$fix = $d['top'][0]['fix'] ?? null;
+		if ( (int) $d['failed'] > 0 ) {
+			/* translators: %d: number of faulty e-invoices */
+			return [ 'bad', sprintf( _n( '%d e-invoice has errors and needs fixing.', '%d e-invoices have errors and need fixing.', (int) $d['failed'], 'invoqk' ), (int) $d['failed'] ), $fix ];
+		}
+		if ( (int) $d['missing'] > 0 ) {
+			/* translators: %d: number of B2B orders without an e-invoice */
+			return [ 'warn', sprintf( _n( '%d B2B order has no e-invoice yet.', '%d B2B orders have no e-invoice yet.', (int) $d['missing'], 'invoqk' ), (int) $d['missing'] ), null ];
+		}
+		return [ 'good', __( 'All your B2B e-invoices are valid.', 'invoqk' ), null ];
+	}
+
 	private static function readiness( array $d ): string {
-		$req = (int) $d['required'];
-		$h   = '<div class="invoqk-box"><div class="invoqk-muted">' . esc_html__( 'B2B orders with a valid e-invoice · last 30 days', 'invoqk' ) . '</div>'
-			. '<div class="invoqk-score"><span class="invoqk-big">' . ( null === $d['score'] ? '–' : esc_html( (int) $d['score'] . ' %' ) ) . '</span>'
-			/* translators: 1: valid orders, 2: B2B orders checked */
-			. '<span class="invoqk-muted">' . esc_html( sprintf( __( '%1$d of %2$d', 'invoqk' ), $d['passed'], $req ) ) . '</span></div>';
-		if ( $req > 0 ) {
+		$req                    = (int) $d['required'];
+		[ $state, $text, $act ] = self::verdict( $d );
+		$h                      = '<div class="invoqk-box invoqk-hero is-' . $state . ( 'empty' === $state ? ' invoqk-empty' : '' ) . '">'
+			. '<div class="invoqk-muted">' . esc_html__( 'B2B orders with a valid e-invoice · last 30 days', 'invoqk' ) . '</div>';
+		if ( 'empty' !== $state ) {
+			$h .= '<div class="invoqk-score"><span class="invoqk-big">' . ( null === $d['score'] ? '–' : esc_html( (int) $d['score'] . ' %' ) ) . '</span>'
+				/* translators: 1: valid orders, 2: B2B orders checked */
+				. '<span class="invoqk-muted">' . esc_html( sprintf( __( '%1$d of %2$d', 'invoqk' ), $d['passed'], $req ) ) . '</span></div>';
+		}
+		$h .= '<p class="invoqk-hero__verdict">' . esc_html( $text ) . '</p>';
+		if ( 'empty' === $state ) {
+			$h .= '<p class="invoqk-muted">' . esc_html__( 'We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250.', 'invoqk' )
+				. '</p><ul class="invoqk-muted"><li>' . esc_html__( 'Does your invoice plugin already create e-invoices? Open its settings.', 'invoqk' )
+				. '</li><li>' . esc_html__( 'Is an order B2B? Mark it as "e-invoice required" in the order.', 'invoqk' ) . '</li></ul>';
+		} else {
 			$h .= '<div class="invoqk-bar">';
 			foreach ( [ 'passed' => 'ok', 'failed' => 'bad', 'missing' => 'warn' ] as $k => $c ) {
 				$h .= '<span class="' . $c . '" style="width:' . (int) round( 100 * $d[ $k ] / $req ) . '%"></span>';
 			}
-			$h .= '</div>';
+			$h .= '</div><div class="invoqk-pills">';
+			foreach ( [
+				'ok'   => [ 'passed', __( 'valid', 'invoqk' ) ],
+				'bad'  => [ 'failed', __( 'faulty', 'invoqk' ) ],
+				'warn' => [ 'missing', __( 'missing', 'invoqk' ) ],
+				'na'   => [ 'unchecked', __( 'not checked yet', 'invoqk' ) ],
+			] as $c => [ $k, $l ] ) {
+				$h .= '<span><span class="invoqk-pill ' . $c . '">' . (int) $d[ $k ] . '</span> ' . esc_html( $l ) . '</span>';
+			}
+			$h .= '<span><span class="invoqk-pill na">' . (int) $d['notRequired'] . '</span> ' . esc_html__( 'not needed', 'invoqk' ) . '</span></div>';
 		}
-		$h .= '<div class="invoqk-pills">';
-		foreach ( [
-			'ok'   => [ 'passed', __( 'valid', 'invoqk' ) ],
-			'bad'  => [ 'failed', __( 'faulty', 'invoqk' ) ],
-			'warn' => [ 'missing', __( 'missing', 'invoqk' ) ],
-			'na'   => [ 'unchecked', __( 'not checked yet', 'invoqk' ) ],
-		] as $c => [ $k, $l ] ) {
-			$h .= '<span><span class="invoqk-pill ' . $c . '">' . (int) $d[ $k ] . '</span> ' . esc_html( $l ) . '</span>';
-		}
-		$h .= '<span><span class="invoqk-pill na">' . (int) $d['notRequired'] . '</span> ' . esc_html__( 'not needed', 'invoqk' ) . '</span></div>';
 		if ( $d['capped'] ) {
 			$h .= '<p class="invoqk-muted">' . esc_html__( 'Basis: newest 2,000 orders', 'invoqk' ) . '</p>';
+		}
+		if ( $act ) {
+			$h .= '<a class="button button-primary" href="' . esc_url( $act['url'] ) . '">' . esc_html( $act['label'] ) . '</a>';
 		}
 		return $h . '</div>';
 	}
@@ -84,14 +113,10 @@ final class Dashboard {
 		return $h . '</table></div>';
 	}
 
-	private static function empty(): string {
-		return '<div class="invoqk-box invoqk-empty"><strong>' . esc_html__( 'No B2B invoices found yet', 'invoqk' ) . '</strong><p class="invoqk-muted">'
-			. esc_html__( 'We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250.', 'invoqk' )
-			. '</p><ul class="invoqk-muted"><li>' . esc_html__( 'Does your invoice plugin already create e-invoices? Open its settings.', 'invoqk' )
-			. '</li><li>' . esc_html__( 'Is an order B2B? Mark it as "e-invoice required" in the order.', 'invoqk' ) . '</li></ul></div>';
-	}
-
 	private static function pro(): string {
+		if ( Limit::isPro() ) {
+			return '';
+		}
 		return '<div class="invoqk-box invoqk-pro"><div><strong>' . esc_html__( 'Stop errors before the invoice goes out', 'invoqk' )
 			. '</strong><br><span class="invoqk-muted">' . esc_html__( 'Dispatch guard', 'invoqk' ) . '<span class="invoqk-lock">PRO</span> · '
 			. esc_html__( 'Archive', 'invoqk' ) . '<span class="invoqk-lock">PRO</span></span></div><a class="button button-primary" href="'
