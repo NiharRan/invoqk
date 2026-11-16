@@ -79,7 +79,7 @@ final class Box {
 			'seats_full'  => __( 'All seats of this license are in use. Deactivate another site first.', 'invoqk' ),
 			'trial_used'  => __( 'The trial was already used for this site.', 'invoqk' ),
 			'unreachable' => __( 'The Invoqk server could not be reached. Try again later.', 'invoqk' ),
-			'no_key'      => __( 'Enter your API key in the settings below first.', 'invoqk' ),
+			'no_key'      => __( 'Enter your API key in the Settings tab first.', 'invoqk' ),
 			'invalid_code' => __( 'That code is not right or has expired. Request a new one.', 'invoqk' ),
 			'no_pending'  => __( 'Enter your email first to get a code.', 'invoqk' ),
 			'invalid_email' => __( 'Enter a valid email address.', 'invoqk' ),

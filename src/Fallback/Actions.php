@@ -78,7 +78,7 @@ final class Actions {
 		if ( $missing ) {
 			return $out . '<p>' . esc_html__( 'Complete these seller details to create a basic e-invoice:', 'invoqk' ) . ' '
 				. esc_html( implode( ', ', array_map( [ Seller::class, 'label' ], $missing ) ) ) . ' '
-				. '<a href="' . esc_url( admin_url( 'admin.php?page=invoqk' ) ) . '">' . esc_html__( 'Open settings', 'invoqk' ) . '</a></p>';
+				. '<a href="' . esc_url( admin_url( 'admin.php?page=invoqk&tab=settings' ) ) . '">' . esc_html__( 'Open settings', 'invoqk' ) . '</a></p>';
 		}
 		return $out . '<p><a href="' . $link( self::GENERATE ) . '">' . esc_html__( 'Create basic e-invoice', 'invoqk' ) . '</a></p><p>'
 			. esc_html__( 'Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin.', 'invoqk' ) . '</p>';

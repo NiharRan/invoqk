@@ -1,0 +1,1161 @@
+# Copyright (C) 2026 
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Invoqk – E-Rechnung Check & Archiv for WooCommerce 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/invoqk\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-14T16:51:52+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: invoqk\n"
+
+#. Plugin Name of the plugin
+#: invoqk.php
+msgid "Invoqk – E-Rechnung Check & Archiv for WooCommerce"
+msgstr "Invoqk – E-Rechnung Check & Archiv für WooCommerce"
+
+#. Description of the plugin
+#: invoqk.php
+msgid "Finds and checks the e-invoice of every WooCommerce order. Not legal or tax advice."
+msgstr "Findet und prüft die E-Rechnung jeder WooCommerce-Bestellung. Keine Rechts- oder Steuerberatung."
+
+#: src/Admin/OrderBox.php:10
+msgid "E-Rechnung (Invoqk)"
+msgstr "E-Rechnung (Invoqk)"
+
+#: src/Admin/OrderBox.php:24
+msgid "Format"
+msgstr "Format"
+
+#: src/Admin/OrderBox.php:27
+msgid "Checked"
+msgstr "Geprüft"
+
+#: src/Admin/OrderColumn.php:17
+msgid "E-Rechnung"
+msgstr "E-Rechnung"
+
+#: src/Admin/OrderColumn.php:32
+msgid "No e-invoice"
+msgstr "Keine E-Rechnung"
+
+#: src/Admin/SettingsPage.php:13
+msgid "Invoqk is a technical check and not legal or tax advice. Ask your tax advisor what applies to your business."
+msgstr "Invoqk ist eine technische Prüfung und keine Rechts- oder Steuerberatung. Fragen Sie Ihre Steuerberatung, was für Ihr Unternehmen gilt."
+
+#: src/Requirements.php:13
+#, php-format
+msgid "Invoqk needs WordPress %s or newer."
+msgstr "Invoqk benötigt WordPress %s oder neuer."
+
+#: src/Requirements.php:16
+#, php-format
+msgid "Invoqk needs PHP %s or newer."
+msgstr "Invoqk benötigt PHP %s oder neuer."
+
+#: src/Requirements.php:19
+#, php-format
+msgid "Invoqk needs WooCommerce %s or newer, which is not active."
+msgstr "Invoqk benötigt WooCommerce %s oder neuer; WooCommerce ist nicht aktiv."
+
+#: src/Requirements.php:21
+#, php-format
+msgid "Invoqk needs WooCommerce %s or newer."
+msgstr "Invoqk benötigt WooCommerce %s oder neuer."
+
+msgid "Could not check"
+msgstr "Nicht geprüft"
+
+msgid "Valid"
+msgstr "Gültig"
+
+msgid "Invalid"
+msgstr "Fehlerhaft"
+
+msgid "Limit reached"
+msgstr "Limit erreicht"
+
+msgid "Checking"
+msgstr "Wird geprüft"
+
+msgid "Validated"
+msgstr "Validiert"
+
+msgid "Rule set"
+msgstr "Regelwerk"
+
+msgid "Warning"
+msgstr "Warnung"
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Original text (English)"
+msgstr "Originaltext (Englisch)"
+
+msgid "Validate again"
+msgstr "Erneut prüfen"
+
+msgid "Upgrade"
+msgstr "Upgrade"
+
+#, php-format
+msgid "and %d more"
+msgstr "und %d weitere"
+
+#, php-format
+msgid "Free includes %d invoices. With Pro you check them all."
+msgstr "Free enthält %d Rechnungen. Mit Pro prüfst du alle."
+
+msgid "No API key is set yet. Enter it under WooCommerce > Invoqk."
+msgstr "Es ist noch kein API-Schlüssel hinterlegt. Trage ihn unter WooCommerce → Invoqk ein."
+
+msgid "The API key is invalid or was revoked."
+msgstr "Der API-Schlüssel ist ungültig oder wurde widerrufen."
+
+msgid "This API key belongs to a different domain."
+msgstr "Dieser API-Schlüssel gehört zu einer anderen Domain."
+
+msgid "The check quota is used up. We will try again later."
+msgstr "Das Prüfkontingent ist aufgebraucht. Wir versuchen es später erneut."
+
+msgid "The check quota is used up. Please click “Validate again” later."
+msgstr "Das Prüfkontingent ist aufgebraucht. Bitte später auf „Erneut prüfen“ klicken."
+
+msgid "The invoice file could not be read."
+msgstr "Die Rechnungsdatei konnte nicht gelesen werden."
+
+msgid "The file is not a supported e-invoice format."
+msgstr "Die Datei ist kein unterstütztes E-Rechnungsformat."
+
+msgid "The validation service is not reachable right now. We will try again."
+msgstr "Der Prüfdienst ist gerade nicht erreichbar. Wir versuchen es erneut."
+
+msgid "The validation service is not reachable right now. Please click “Validate again” later."
+msgstr "Der Prüfdienst ist gerade nicht erreichbar. Bitte später auf „Erneut prüfen“ klicken."
+
+msgid "Edit the order billing details"
+msgstr "Rechnungsdaten der Bestellung bearbeiten"
+
+msgid "Open WooCommerce store settings"
+msgstr "WooCommerce-Shopeinstellungen öffnen"
+
+msgid "Open WooCommerce payment settings"
+msgstr "WooCommerce-Zahlungseinstellungen öffnen"
+
+msgid "Open the invoice plugin settings"
+msgstr "Einstellungen des Rechnungs-Plugins öffnen"
+
+msgid "API key"
+msgstr "API-Schlüssel"
+
+#, php-format
+msgid "%d note"
+msgid_plural "%d notes"
+msgstr[0] "%d Hinweis"
+msgstr[1] "%d Hinweise"
+
+#, php-format
+msgid "Domestic customer with VAT ID, amount over %s €."
+msgstr "Inlandskunde mit USt-IdNr., Betrag über %s €."
+
+#, php-format
+msgid "Domestic customer with company name, amount over %s €."
+msgstr "Inlandskunde mit Firmenname, Betrag über %s €."
+
+msgid "No VAT ID, no company name."
+msgstr "Keine USt-IdNr., kein Firmenname."
+
+msgid "Billing country is not Germany."
+msgstr "Rechnungsland ist nicht Deutschland."
+
+#, php-format
+msgid "Total of %s € or less (small amount invoice)."
+msgstr "Gesamtbetrag %s € oder weniger (Kleinbetragsrechnung)."
+
+msgid "Order total is 0 €."
+msgstr "Bestellwert 0 €."
+
+msgid "No billing country given."
+msgstr "Kein Rechnungsland angegeben."
+
+msgid "Note: no VAT ID given."
+msgstr "Hinweis: Keine USt-IdNr. angegeben."
+
+msgid "Note: the VAT ID does not have a German format (DE and 9 digits)."
+msgstr "Hinweis: Die USt-IdNr. hat kein deutsches Format (DE und 9 Ziffern)."
+
+msgid "manual"
+msgstr "manuell"
+
+msgid "Not required"
+msgstr "Nicht erforderlich"
+
+msgid "E-invoice required"
+msgstr "E-Rechnung erforderlich"
+
+msgid "E-invoice not required"
+msgstr "E-Rechnung nicht erforderlich"
+
+#, php-format
+msgid "Set manually by %1$s on %2$s."
+msgstr "Manuell festgelegt von %1$s am %2$s."
+
+#, php-format
+msgid "Automatic result: %s"
+msgstr "Automatisches Ergebnis: %s"
+
+msgid "required"
+msgstr "erforderlich"
+
+msgid "not required"
+msgstr "nicht erforderlich"
+
+msgid "Automatic"
+msgstr "Automatisch"
+
+msgid "Required"
+msgstr "Erforderlich"
+
+msgid "Override"
+msgstr "Überschreiben"
+
+msgid "Not allowed."
+msgstr "Nicht erlaubt."
+
+#, php-format
+msgid "Invoqk: override removed, automatic result: %s."
+msgstr "Invoqk: Überschreibung entfernt, automatisches Ergebnis: %s."
+
+#, php-format
+msgid "Invoqk: e-invoice set to %1$s by %2$s."
+msgstr "Invoqk: E-Rechnung auf „%1$s“ gesetzt von %2$s."
+
+#: src/Onboarding/Wizard.php
+msgid "Plugin"
+msgstr "Plugin"
+
+#: src/Onboarding/Wizard.php
+msgid "Turnover"
+msgstr "Umsatz"
+
+#: src/Onboarding/Wizard.php
+msgid "Check"
+msgstr "Prüfung"
+
+#: src/Onboarding/Wizard.php
+msgid "Set up later"
+msgstr "Später einrichten"
+
+#: src/Onboarding/Wizard.php
+msgid "Continue"
+msgstr "Weiter"
+
+#: src/Onboarding/Wizard.php
+msgid "We found your invoice plugin"
+msgstr "Wir haben Ihr Rechnungs-Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
+msgstr "E-Rechnungen (XRechnung/ZUGFeRD) werden daraus gelesen."
+
+#: src/Onboarding/Wizard.php
+msgid "No invoice plugin found"
+msgstr "Kein Plugin gefunden"
+
+#: src/Onboarding/Wizard.php
+msgid "These plugins are supported:"
+msgstr "Diese Plugins werden unterstützt:"
+
+#: src/Onboarding/Wizard.php
+msgid "What was your turnover last year?"
+msgstr "Wie hoch war Ihr Umsatz im Vorjahr?"
+
+#: src/Onboarding/Wizard.php
+msgid "Over €800,000"
+msgstr "Über 800.000 €"
+
+#: src/Onboarding/Wizard.php
+msgid "Up to €800,000"
+msgstr "Bis 800.000 €"
+
+#: src/Onboarding/Wizard.php
+#, php-format
+msgid "E-invoice mandatory from %s"
+msgstr "E-Rechnung Pflicht ab %s"
+
+#: src/Onboarding/Wizard.php
+msgid "(only if none is set yet)"
+msgstr "(nur wenn noch keiner gesetzt)"
+
+#: src/Onboarding/Wizard.php
+msgid "No legal or tax advice."
+msgstr "Keine Rechts- oder Steuerberatung."
+
+#: src/Onboarding/Wizard.php
+msgid "Back"
+msgstr "Zurück"
+
+#: src/Onboarding/Wizard.php
+msgid "Start first check"
+msgstr "Erste Prüfung starten"
+
+#: src/Onboarding/Wizard.php
+msgid "We are checking your latest B2B invoices"
+msgstr "Wir prüfen Ihre letzten B2B-Rechnungen"
+
+#: src/Onboarding/Wizard.php
+msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
+msgstr "Sie können die Seite verlassen. Die Prüfung läuft im Hintergrund weiter; das Dashboard öffnet sich, sobald Ergebnisse da sind."
+
+#: src/Admin/Dashboard.php
+msgid "Open setup"
+msgstr "Einrichtung öffnen"
+
+#: src/Admin/Dashboard.php
+msgid "B2B orders with a valid e-invoice · last 30 days"
+msgstr "B2B-Bestellungen mit gültiger E-Rechnung · letzte 30 Tage"
+
+#. translators: 1: valid orders, 2: B2B orders checked
+#: src/Admin/Dashboard.php
+#, php-format
+msgid "%1$d of %2$d"
+msgstr "%1$d von %2$d"
+
+#: src/Admin/Dashboard.php
+msgid "valid"
+msgstr "gültig"
+
+#: src/Admin/Dashboard.php
+msgid "faulty"
+msgstr "fehlerhaft"
+
+#: src/Admin/Dashboard.php
+msgid "missing"
+msgstr "fehlt"
+
+#: src/Admin/Dashboard.php
+msgid "not checked yet"
+msgstr "noch nicht geprüft"
+
+#: src/Admin/Dashboard.php
+msgid "not needed"
+msgstr "nicht nötig"
+
+#: src/Admin/Dashboard.php
+msgid "Basis: newest 2,000 orders"
+msgstr "Basis: neueste 2.000 Bestellungen"
+
+#: src/Admin/Dashboard.php
+msgid "Your obligation starts"
+msgstr "Ihre Pflicht ab"
+
+#: src/Admin/Dashboard.php
+msgid "Turnover last year"
+msgstr "Umsatz im letzten Jahr"
+
+#: src/Admin/Dashboard.php
+msgid "Select turnover"
+msgstr "Umsatz wählen"
+
+#: src/Admin/Dashboard.php
+msgid "Save"
+msgstr "Speichern"
+
+#: src/Admin/Dashboard.php
+msgid "Most common errors"
+msgstr "Häufigste Fehler"
+
+#: src/Admin/Dashboard.php
+msgid "Code"
+msgstr "Code"
+
+#: src/Admin/Dashboard.php
+msgid "No B2B invoices found yet"
+msgstr "Noch keine B2B-Rechnungen gefunden"
+
+#: src/Admin/Dashboard.php
+msgid "We only check orders that need an e-invoice: customer in Germany with a VAT ID or company name, over €250."
+msgstr "Wir prüfen nur Bestellungen, die eine E-Rechnung brauchen: Kunde in Deutschland mit USt-IdNr. oder Firmenname, über 250 €."
+
+#: src/Admin/Dashboard.php
+msgid "Does your invoice plugin already create e-invoices? Open its settings."
+msgstr "Erstellt Ihr Rechnungs-Plugin bereits E-Rechnungen? Einstellungen öffnen."
+
+#: src/Admin/Dashboard.php
+msgid "Is an order B2B? Mark it as \"e-invoice required\" in the order."
+msgstr "Eine Bestellung ist B2B? In der Bestellung als „E-Rechnung nötig“ markieren."
+
+#: src/Admin/Dashboard.php
+msgid "Stop errors before the invoice goes out"
+msgstr "Fehler stoppen, bevor die Rechnung rausgeht"
+
+#: src/Admin/Dashboard.php
+msgid "Dispatch guard"
+msgstr "Versand-Wächter"
+
+#: src/Admin/Dashboard.php
+msgid "Archive"
+msgstr "Archiv"
+
+#: src/Admin/Dashboard.php
+msgid "Try Pro for 14 days"
+msgstr "Pro 14 Tage testen"
+
+#: src/Admin/Dashboard.php
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/Onboarding/Wizard.php
+msgid "Go to dashboard"
+msgstr "Zum Dashboard"
+
+#: src/Admin/Dashboard.php
+msgid "No API key is set yet."
+msgstr "Es ist noch kein API-Schlüssel hinterlegt."
+
+#: src/Admin/Dashboard.php
+msgid "Enter it in the settings below."
+msgstr "Geben Sie ihn unten in den Einstellungen ein."
+
+#: src/Guard/Guard.php
+msgid "Your invoice will follow in a separate email."
+msgstr "Ihre Rechnung folgt in einer separaten E-Mail."
+
+#: src/Guard/Digest.php
+msgid "Invoice held back because validation failed:"
+msgstr "Rechnung zurückgehalten, da die Validierung fehlgeschlagen ist:"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent although validation failed:"
+msgstr "Rechnung trotz fehlgeschlagener Validierung versendet:"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without validation (validation unavailable):"
+msgstr "Rechnung ohne Validierung versendet (Validierung nicht verfügbar):"
+
+#: src/Guard/Digest.php
+msgid "Invoice sent without an e-invoice:"
+msgstr "Rechnung ohne E-Rechnung versendet:"
+
+#. translators: %d: number of invoices
+#: src/Guard/Digest.php
+#, php-format
+msgid "Invoqk: %d invoice needs attention"
+msgid_plural "Invoqk: %d invoices need attention"
+msgstr[0] "Invoqk: %d Rechnung braucht Aufmerksamkeit"
+msgstr[1] "Invoqk: %d Rechnungen brauchen Aufmerksamkeit"
+
+#. translators: %s: user name
+#: src/Guard/Actions.php
+#, php-format
+msgid "Invoice sent despite validation errors by %s."
+msgstr "Rechnung trotz Validierungsfehlern von %s versendet."
+
+#: src/Guard/Actions.php
+msgid "Held by Invoqk"
+msgstr "Von Invoqk zurückgehalten"
+
+#: src/Guard/Actions.php
+msgid "Fix and resend"
+msgstr "Korrigieren und senden"
+
+#: src/Guard/Actions.php
+msgid "Send anyway…"
+msgstr "Trotzdem senden…"
+
+#: src/Guard/Actions.php
+msgid "Send this invoice although it failed validation?"
+msgstr "Diese Rechnung senden, obwohl die Validierung fehlgeschlagen ist?"
+
+#. translators: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Invoice sent on %s"
+msgstr "Rechnung gesendet am %s"
+
+#: src/Guard/Actions.php
+msgid "Check skipped – invoice sent without validation"
+msgstr "Prüfung übersprungen – Rechnung ohne Prüfung gesendet"
+
+#. translators: 1: user name, 2: date
+#: src/Guard/Actions.php
+#, php-format
+msgid "Sent despite errors by %1$s on %2$s"
+msgstr "Trotz Fehlern von %1$s am %2$s gesendet"
+
+#: src/Guard/Actions.php
+msgid "Waiting for validation"
+msgstr "Warten auf Validierung"
+
+#. translators: number of orders
+#: src/Guard/Actions.php
+#, php-format
+msgid "%d invoice held by Invoqk"
+msgid_plural "%d invoices held by Invoqk"
+msgstr[0] "%d Rechnung von Invoqk zurückgehalten"
+msgstr[1] "%d Rechnungen von Invoqk zurückgehalten"
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors are now held until you fix or release them."
+msgstr "Rechnungen mit Fehlern werden jetzt zurückgehalten, bis Sie sie korrigieren oder freigeben."
+
+#: src/Admin/SettingsPage.php
+msgid "Invoices with errors"
+msgstr "Rechnungen mit Fehlern"
+
+#: src/Admin/SettingsPage.php
+msgid "Hold invoices with errors"
+msgstr "Rechnungen mit Fehlern zurückhalten"
+
+#: src/Admin/SettingsPage.php
+msgid "Only warn me"
+msgstr "Nur mich warnen"
+
+#: src/Admin/Dashboard.php:20
+#, php-format
+msgid "Archive: %s"
+msgstr "Archiv: %s"
+
+#: src/Admin/SettingsPage.php:81
+msgid "Archive retention (years)"
+msgstr "Aufbewahrungsfrist des Archivs (Jahre)"
+
+#: src/Admin/SettingsPage.php:83
+msgid "This is not tax advice. Check the retention period with your tax advisor."
+msgstr "Das ist keine Steuerberatung. Prüfen Sie die Aufbewahrungsfrist mit Ihrer Steuerberatung."
+
+#: src/Admin/SettingsPage.php:87
+msgid "Your server ignores .htaccess. Add a rule that denies web access to uploads/invoqk-archive/, or set INVOQK_ARCHIVE_DIR outside the web root."
+msgstr "Ihr Server ignoriert .htaccess. Fügen Sie eine Regel hinzu, die den Webzugriff auf uploads/invoqk-archive/ sperrt, oder legen Sie INVOQK_ARCHIVE_DIR außerhalb des Web-Roots fest."
+
+#: src/Archive/Actions.php:30
+msgid "File not found."
+msgstr "Datei nicht gefunden."
+
+#: src/Archive/Actions.php:79 src/Archive/Page.php:109
+msgid "DELETE"
+msgstr "LÖSCHEN"
+
+#: src/Archive/Page.php:13 src/Archive/Page.php:137
+msgid "Invoqk Archive"
+msgstr "Invoqk-Archiv"
+
+#: src/Archive/Page.php:46
+msgid "Delivery unconfirmed"
+msgstr "Zustellung unbestätigt"
+
+#: src/Archive/Page.php:49
+msgid "deletable"
+msgstr "löschbar"
+
+#. translators: 1: date, 2: user name
+#: src/Archive/Page.php:56
+#, php-format
+msgid "Deleted on %1$s by %2$s"
+msgstr "Gelöscht am %1$s von %2$s"
+
+#: src/Archive/Page.php:91
+msgid "Check running"
+msgstr "Prüfung läuft"
+
+#. translators: %s: date
+#: src/Archive/Page.php:93
+#, php-format
+msgid "Last check: %s, no changes detected"
+msgstr "Letzte Prüfung: %s, keine Änderungen erkannt"
+
+#. translators: 1: date, 2: entry id, 3: kind of change
+#: src/Archive/Page.php:95
+#, php-format
+msgid "Last check: %1$s, changes detected at entry #%2$d (%3$s)"
+msgstr "Letzte Prüfung: %1$s, Änderungen erkannt bei Eintrag #%2$d (%3$s)"
+
+#: src/Archive/Page.php:96
+msgid "No check run yet"
+msgstr "Noch keine Prüfung durchgeführt"
+
+#: src/Archive/Page.php:100
+msgid "Check archive"
+msgstr "Archiv prüfen"
+
+#: src/Archive/Page.php:112
+msgid "Reason"
+msgstr "Grund"
+
+#: src/Archive/Page.php:113
+msgid "Delete selected"
+msgstr "Auswahl löschen"
+
+#. translators: %s: confirm word
+#: src/Archive/Page.php:115
+#, php-format
+msgid "Entries before the retention date are only deleted when you type %s and give a reason."
+msgstr "Einträge vor Ablauf der Aufbewahrungsfrist werden nur gelöscht, wenn Sie %s eingeben und einen Grund angeben."
+
+#. translators: %d: count
+#: src/Archive/Page.php:124
+#, php-format
+msgid "%d entry deleted."
+msgid_plural "%d entries deleted."
+msgstr[0] "%d Eintrag gelöscht."
+msgstr[1] "%d Einträge gelöscht."
+
+#. translators: %d: count
+#: src/Archive/Page.php:128
+#, php-format
+msgid "%d entry kept: before the retention date it needs the confirm word and a reason."
+msgid_plural "%d entries kept: before the retention date they need the confirm word and a reason."
+msgstr[0] "%d Eintrag behalten: Vor Ablauf der Aufbewahrungsfrist braucht er das Bestätigungswort und einen Grund."
+msgstr[1] "%d Einträge behalten: Vor Ablauf der Aufbewahrungsfrist brauchen sie das Bestätigungswort und einen Grund."
+
+#: src/Archive/Page.php:144
+msgid "The archive stores every e-invoice you send. Available in Invoqk Pro."
+msgstr "Das Archiv speichert jede E-Rechnung, die Sie versenden. Verfügbar in Invoqk Pro."
+
+#: src/Archive/Page.php:145
+msgid "Upgrade to Pro"
+msgstr "Auf Pro upgraden"
+
+#: src/Archive/Page.php:153
+msgid "Only deletable"
+msgstr "Nur löschbare"
+
+#: src/Archive/Page.php:154
+msgid "Filter"
+msgstr "Filtern"
+
+#: src/Archive/Page.php:163
+msgid "Number"
+msgstr "Nummer"
+
+#: src/Archive/Page.php:164
+msgid "Date"
+msgstr "Datum"
+
+#: src/Archive/Page.php:165
+msgid "Customer"
+msgstr "Kunde"
+
+#: src/Archive/Page.php:166
+msgid "Net"
+msgstr "Netto"
+
+#: src/Archive/Page.php:167
+msgid "VAT"
+msgstr "USt."
+
+#: src/Archive/Page.php:168
+msgid "Gross"
+msgstr "Brutto"
+
+#: src/Archive/Page.php:169
+msgid "Status"
+msgstr "Status"
+
+#: src/Archive/Page.php:170
+msgid "Files"
+msgstr "Dateien"
+
+#: src/Archive/Page.php:171
+msgid "Version"
+msgstr "Version"
+
+#. translators: 1: used GB, 2: limit GB
+#: src/Archive/Usage.php:15
+#, php-format
+msgid "%1$s GB of %2$s GB"
+msgstr "%1$s GB von %2$s GB"
+
+#. translators: %d: percent
+#: src/Archive/Usage.php:28
+#, php-format
+msgid "Invoqk: archive at %d %%"
+msgstr "Invoqk: Archiv zu %d %% voll"
+
+#. translators: %s: "1,2 GB of 5 GB"
+#: src/Archive/Usage.php:54
+#, php-format
+msgid "Invoqk archive uses %s."
+msgstr "Das Invoqk-Archiv belegt %s."
+
+#: src/Archive/Usage.php:56
+msgid "Archiving continues; consider your storage plan."
+msgstr "Die Archivierung läuft weiter; prüfen Sie Ihren Speicherplatz."
+
+#: src/Archive/Page.php:117
+msgid "Delete the selected archive entries? This cannot be undone."
+msgstr "Ausgewählte Archiveinträge löschen? Dies kann nicht rückgängig gemacht werden."
+
+#. translators: %d: count
+#: src/Archive/Page.php:104
+#, php-format
+msgid "%d invoice waiting to be archived"
+msgid_plural "%d invoices waiting to be archived"
+msgstr[0] "%d Rechnung wartet auf die Archivierung"
+msgstr[1] "%d Rechnungen warten auf die Archivierung"
+
+#: src/Archive/Page.php
+msgid "Export for Steuerberater"
+msgstr "Export für die Steuerberatung"
+
+#: src/Archive/Page.php
+msgid "The PHP zip extension is missing. Ask your host to enable it."
+msgstr "Die PHP-Erweiterung zip fehlt. Bitten Sie Ihren Hoster, sie zu aktivieren."
+
+#: src/Archive/Page.php
+msgid "Export range"
+msgstr "Zeitraum exportieren"
+
+#: src/Archive/Page.php
+msgid "This month"
+msgstr "Dieser Monat"
+
+#: src/Archive/Page.php
+msgid "Last month"
+msgstr "Letzter Monat"
+
+#: src/Archive/Page.php
+msgid "Export running. Reload this page later."
+msgstr "Export läuft. Laden Sie die Seite später neu."
+
+#. translators: 1: invoice count, 2: first date, 3: last date
+#: src/Archive/Page.php
+#, php-format
+msgid "%1$d invoice, %2$s to %3$s"
+msgid_plural "%1$d invoices, %2$s to %3$s"
+msgstr[0] "%1$d Rechnung, %2$s bis %3$s"
+msgstr[1] "%1$d Rechnungen, %2$s bis %3$s"
+
+#: src/Archive/Page.php
+msgid "Export failed. Check the archive check, then try again."
+msgstr "Export fehlgeschlagen. Prüfen Sie das Archiv und versuchen Sie es erneut."
+
+#: src/Archive/Page.php
+msgid "Export started. It runs in the background."
+msgstr "Export gestartet. Er läuft im Hintergrund."
+
+#: src/Archive/Page.php
+msgid "An export is already running."
+msgstr "Es läuft bereits ein Export."
+
+#: src/Archive/Page.php
+msgid "Choose a valid date range."
+msgstr "Bitte wählen Sie einen gültigen Zeitraum."
+
+#: src/Archive/Page.php
+msgid "The PHP zip extension is missing."
+msgstr "Die PHP-Erweiterung zip fehlt."
+
+#: src/Archive/Export.php
+msgid "Invoqk: your export is ready"
+msgstr "Invoqk: Ihr Export ist fertig"
+
+#: src/Archive/Export.php
+msgid "Your Steuerberater export is ready for download:"
+msgstr "Ihr Export für die Steuerberatung steht zum Download bereit:"
+
+#: src/Refund/Dismiss.php
+msgid "Invoqk: no corrective e-invoice needed for refund #%1$d, set by %2$s."
+msgstr "Invoqk: Keine Korrektur-E-Rechnung für Erstattung #%1$d nötig, festgelegt von %2$s."
+
+#: src/Refund/Box.php
+msgid "No corrective e-invoice needed"
+msgstr "Keine Korrektur-E-Rechnung nötig"
+
+#: src/Refund/Box.php
+msgid "Corrective e-invoice open"
+msgstr "Korrektur-E-Rechnung offen"
+
+#: src/Refund/Notice.php
+msgid "Open first order"
+msgstr "Erste Bestellung öffnen"
+
+#: src/Refund/Notice.php
+msgid "%d order has a refund without a corrective e-invoice."
+msgid_plural "%d orders have a refund without a corrective e-invoice."
+msgstr[0] "%d Bestellung hat eine Erstattung ohne Korrektur-E-Rechnung."
+msgstr[1] "%d Bestellungen haben eine Erstattung ohne Korrektur-E-Rechnung."
+
+#: src/Archive/Page.php
+msgid "Credit note"
+msgstr "Gutschrift"
+
+#: src/CreditNote/Box.php
+msgid "Refund #%1$d: credit note %2$s"
+msgstr "Erstattung #%1$d: Gutschrift %2$s"
+
+#: src/CreditNote/Box.php
+msgid "refers to invoice %s"
+msgstr "bezieht sich auf Rechnung %s"
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID may only contain letters, digits and hyphens, for example 04011000-12345-67."
+msgstr "Die Leitweg-ID darf nur Buchstaben, Ziffern und Bindestriche enthalten, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The first part of the Leitweg-ID needs 2 to 12 digits and the optional middle part at most 30 characters, for example 04011000-12345-67."
+msgstr "Der erste Teil der Leitweg-ID braucht 2 bis 12 Ziffern, der optionale mittlere Teil höchstens 30 Zeichen, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
+msgstr "Die Leitweg-ID muss so aussehen: 04011000-12345-67. Ziffern, ein optionaler mittlerer Teil und eine zweistellige Prüfziffer, getrennt durch Bindestriche."
+
+#: src/B2g/Field.php, src/Admin/OrderBox.php
+msgid "Leitweg-ID / Buyer reference"
+msgstr "Leitweg-ID / Käuferreferenz"
+
+#: src/B2g/Field.php
+msgid "Only for orders with a company name or VAT ID."
+msgstr "Nur für Bestellungen mit Firmenname oder USt-IdNr."
+
+#: src/Admin/SettingsPage.php
+msgid "Ask for Leitweg-ID"
+msgstr "Leitweg-ID abfragen"
+
+#: src/Admin/SettingsPage.php
+msgid "Off"
+msgstr "Aus"
+
+#: src/Admin/SettingsPage.php
+msgid "Always"
+msgstr "Immer"
+
+#: src/Admin/SettingsPage.php
+msgid "Only for business customers (company name or VAT ID filled in)"
+msgstr "Nur für Geschäftskunden (Firmenname oder USt-IdNr. ausgefüllt)"
+
+#: src/Admin/SettingsPage.php
+msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
+msgstr "Der Block-Checkout zeigt das Feld immer an. Nur der klassische Checkout kann es auf Geschäftskunden beschränken."
+
+#: src/B2g/Delivery.php
+#, php-format
+msgid "%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht in das eingestellte E-Rechnungsformat schreiben. Wenn der Käufer eine Leitweg-ID braucht, stelle das E-Rechnungsformat in %1$s vor dem Versand auf UBL oder PEPPOL BIS um."
+
+#: src/B2g/Delivery.php
+#, php-format
+msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem Versand der E-Rechnung in %1$s als Käuferreferenz eingetragen werden."
+
+#: src/B2g/Delivery.php
+msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
+msgstr "Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden."
+
+#: src/Fallback/Seller.php
+msgid "Company name"
+msgstr "Firmenname"
+
+#: src/Fallback/Seller.php
+msgid "Street and number"
+msgstr "Straße und Hausnummer"
+
+#: src/Fallback/Seller.php
+msgid "Postcode"
+msgstr "Postleitzahl"
+
+#: src/Fallback/Seller.php
+msgid "City"
+msgstr "Ort"
+
+#: src/Fallback/Seller.php
+msgid "VAT ID"
+msgstr "USt-IdNr."
+
+#: src/Fallback/Seller.php
+msgid "Tax number"
+msgstr "Steuernummer"
+
+#: src/Fallback/Seller.php
+msgid "Contact person"
+msgstr "Ansprechpartner"
+
+#: src/Fallback/Seller.php
+msgid "Contact phone"
+msgstr "Telefon des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "Contact email"
+msgstr "E-Mail des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "IBAN"
+msgstr "IBAN"
+
+#: src/Fallback/Seller.php
+msgid "BIC"
+msgstr "BIC"
+
+#: src/Fallback/Seller.php
+msgid "Payment terms text"
+msgstr "Zahlungsbedingungen (Text)"
+
+#: src/Fallback/Seller.php
+msgid "Payment due (days)"
+msgstr "Zahlungsziel (Tage)"
+
+#: src/Fallback/Seller.php
+msgid "Invoice number pattern"
+msgstr "Muster der Rechnungsnummer"
+
+#: src/Fallback/Seller.php
+msgid "E-invoice profile"
+msgstr "E-Rechnungsprofil"
+
+#: src/Fallback/Seller.php
+msgid "0 % lines are zero-rated (Nullsatz), not tax-exempt"
+msgstr "0-%-Positionen sind Nullsatz (steuerpflichtig zu 0 %), keine Steuerbefreiung"
+
+#: src/Admin/SettingsPage.php
+msgid "Small businesses under §19 UStG (Kleinunternehmer) are not supported."
+msgstr "Kleinunternehmer nach §19 UStG werden nicht unterstützt."
+
+#: src/Fallback/Seller.php
+msgid "Fallback e-invoice"
+msgstr "Ersatz-E-Rechnung"
+
+#: src/Fallback/Seller.php
+msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
+msgstr "Einfache E-Rechnung für normale Inlandsbestellungen. Nutze für komplexe Steuerfälle, Rabatte oder andere Währungen ein Rechnungsplugin."
+
+#: src/Fallback/Seller.php
+msgid "Still missing:"
+msgstr "Es fehlt noch:"
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is not in Germany. The fallback e-invoice is for domestic orders only."
+msgstr "Die Rechnungsadresse liegt nicht in Deutschland. Die Ersatz-E-Rechnung gibt es nur für Inlandsbestellungen."
+
+#: src/Fallback/Unsupported.php
+msgid "The order is not in euros. The fallback e-invoice supports EUR only."
+msgstr "Die Bestellung ist nicht in Euro. Die Ersatz-E-Rechnung unterstützt nur EUR."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a tax rate other than 19 % or 7 %. Use an invoice plugin for this order."
+msgstr "Die Bestellung hat einen anderen Steuersatz als 19 % oder 7 %. Nutze für diese Bestellung ein Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a refund. Create the invoice with an invoice plugin."
+msgstr "Die Bestellung hat eine Erstattung. Erstelle die Rechnung mit einem Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order total is zero or negative."
+msgstr "Der Bestellbetrag ist null oder negativ."
+
+#: src/Fallback/Unsupported.php
+msgid "The line amounts do not add up to the order total to the cent."
+msgstr "Die Positionsbeträge ergeben nicht centgenau die Bestellsumme."
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is incomplete (name, street, postcode, city and country are needed)."
+msgstr "Die Rechnungsadresse ist unvollständig (Name, Straße, PLZ, Ort und Land werden benötigt)."
+
+#: src/Fallback/Unsupported.php
+msgid "An XRechnung needs the customer email address, and it is missing."
+msgstr "Für eine XRechnung fehlt die E-Mail-Adresse des Kunden."
+
+#: src/Fallback/Unsupported.php
+msgid "An order line has no name."
+msgstr "Eine Bestellposition hat keine Bezeichnung."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings."
+msgstr "Die Bestellung hat Positionen mit 0 % Steuer. Das geht nur, wenn in den Einstellungen „Nullsatz“ aktiviert ist."
+
+#: src/Fallback/Unsupported.php
+msgid "The selected e-invoice profile is not supported."
+msgstr "Das gewählte E-Rechnungsprofil wird nicht unterstützt."
+
+#: src/Fallback/Unsupported.php
+msgid "Orders with discount or negative lines are not supported. Use an invoice plugin."
+msgstr "Bestellungen mit Rabatt oder negativen Positionen werden nicht unterstützt. Nutze ein Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The fallback e-invoice does not support this order."
+msgstr "Die Ersatz-E-Rechnung unterstützt diese Bestellung nicht."
+
+#: src/Fallback/Generate.php
+msgid "An invoice is already being created for this order. Please try again in a moment."
+msgstr "Für diese Bestellung wird gerade eine Rechnung erstellt. Bitte versuche es gleich noch einmal."
+
+#: src/Fallback/Generate.php
+msgid "The invoice already exists: %s"
+msgstr "Die Rechnung existiert bereits: %s"
+
+#: src/Fallback/Generate.php
+msgid "The fallback e-invoice is not offered for this order."
+msgstr "Für diese Bestellung wird keine Ersatz-E-Rechnung angeboten."
+
+#: src/Fallback/Generate.php
+msgid "Missing seller data: %s"
+msgstr "Fehlende Verkäuferdaten: %s"
+
+#: src/Fallback/Generate.php
+msgid "The invoice could not be created. Nothing was saved."
+msgstr "Die Rechnung konnte nicht erstellt werden. Es wurde nichts gespeichert."
+
+#: src/Fallback/Generate.php
+msgid "Invoice %s created."
+msgstr "Rechnung %s erstellt."
+
+#: src/Fallback/Actions.php
+#. translators: 1: invoice number, 2: profile
+msgid "Basic e-invoice %1$s (%2$s)"
+msgstr "Einfache E-Rechnung %1$s (%2$s)"
+
+#: src/Fallback/Actions.php
+msgid "Download XML"
+msgstr "XML herunterladen"
+
+#: src/Fallback/Actions.php
+msgid "Complete these seller details to create a basic e-invoice:"
+msgstr "Ergänze diese Verkäuferangaben, um eine einfache E-Rechnung zu erstellen:"
+
+#: src/Fallback/Actions.php
+msgid "Open settings"
+msgstr "Einstellungen öffnen"
+
+#: src/Fallback/Actions.php
+msgid "Create basic e-invoice"
+msgstr "Einfache E-Rechnung erstellen"
+
+msgid "License"
+msgstr "Lizenz"
+
+msgid "Manage billing"
+msgstr "Abrechnung verwalten"
+
+msgid "Deactivate this site"
+msgstr "Diese Website deaktivieren"
+
+#. translators: %s: email address
+#, php-format
+msgid "We sent a 6-digit code to %s. Enter it to start your trial."
+msgstr "Wir haben einen 6-stelligen Code an %s gesendet. Geben Sie ihn ein, um Ihre Testphase zu starten."
+
+msgid "Confirm trial"
+msgstr "Testphase bestätigen"
+
+msgid "Start 14-day trial"
+msgstr "14-Tage-Testphase starten"
+
+msgid "Email"
+msgstr "E-Mail"
+
+msgid "Activate"
+msgstr "Aktivieren"
+
+msgid "License key (API key from your account)"
+msgstr "Lizenzschlüssel (API-Schlüssel aus Ihrem Konto)"
+
+msgid "Free plan"
+msgstr "Kostenloser Tarif"
+
+#. translators: %s: date
+#, php-format
+msgid "Your Pro license ended on %s. Archive and export still work; guard and new archiving are paused."
+msgstr "Ihre Pro-Lizenz ist am %s abgelaufen. Archiv und Export funktionieren weiter; Prüfschranke und neue Archivierung sind pausiert."
+
+#. translators: 1: number of days, 2: date
+#, php-format
+msgid "Pro trial, %1$d day left (ends %2$s)"
+msgid_plural "Pro trial, %1$d days left (ends %2$s)"
+msgstr[0] "Pro-Testphase, noch %1$d Tag (endet am %2$s)"
+msgstr[1] "Pro-Testphase, noch %1$d Tage (endet am %2$s)"
+
+#. translators: 1: plan name, 2: shops used, 3: shops allowed, 4: renewal date
+#, php-format
+msgid "%1$s, %2$d of %3$d shops, renews %4$s"
+msgstr "%1$s, %2$d von %3$d Shops, verlängert sich am %4$s"
+
+#, php-format
+msgid "%d shop"
+msgid_plural "%d shops"
+msgstr[0] "%d Shop"
+msgstr[1] "%d Shops"
+
+msgid "year"
+msgstr "Jahr"
+
+msgid "Buy"
+msgstr "Kaufen"
+
+msgid "Check your email for the trial code."
+msgstr "Prüfen Sie Ihr E-Mail-Postfach auf den Testcode."
+
+msgid "This license key was not found."
+msgstr "Dieser Lizenzschlüssel wurde nicht gefunden."
+
+msgid "All seats of this license are in use. Deactivate another site first."
+msgstr "Alle Plätze dieser Lizenz sind belegt. Deaktivieren Sie zuerst eine andere Website."
+
+msgid "The trial was already used for this site."
+msgstr "Die Testphase wurde für diese Website bereits genutzt."
+
+msgid "The Invoqk server could not be reached. Try again later."
+msgstr "Der Invoqk-Server ist nicht erreichbar. Versuchen Sie es später erneut."
+
+msgid "Enter your API key in the settings below first."
+msgstr "Geben Sie zuerst Ihren API-Schlüssel in den Einstellungen unten ein."
+
+msgid "That code is not right or has expired. Request a new one."
+msgstr "Dieser Code ist falsch oder abgelaufen. Fordern Sie einen neuen an."
+
+msgid "Enter your email first to get a code."
+msgstr "Geben Sie zuerst Ihre E-Mail-Adresse ein, um einen Code zu erhalten."
+
+msgid "Enter a valid email address."
+msgstr "Geben Sie eine gültige E-Mail-Adresse ein."
+
+msgid "An invoqk.com account with this email exists. Create an API key in your account and enter it below."
+msgstr "Ein invoqk.com-Konto mit dieser E-Mail-Adresse existiert bereits. Erstellen Sie in Ihrem Konto einen API-Schlüssel und geben Sie ihn unten ein."
+
+msgid "The key is saved, but this account has no active plan. Buy a plan below."
+msgstr "Der Schlüssel ist gespeichert, aber dieses Konto hat keinen aktiven Tarif. Kaufen Sie unten einen Tarif."
+
+msgid "This account already has an Invoqk plugin license. Manage it with the link in your Lemon Squeezy receipt email."
+msgstr "Dieses Konto hat bereits eine Invoqk-Plugin-Lizenz. Verwalten Sie sie über den Link in Ihrer Lemon-Squeezy-Beleg-E-Mail."
+
+msgid "This key is not connected to this shop yet. Enter it in \"License key\" above and click Activate first."
+msgstr "Dieser Schlüssel ist noch nicht mit diesem Shop verbunden. Geben Sie ihn oben unter „Lizenzschlüssel“ ein und klicken Sie zuerst auf „Aktivieren“."
+
+msgid "This key is already connected to another shop. Deactivate it there first."
+msgstr "Dieser Schlüssel ist bereits mit einem anderen Shop verbunden. Deaktivieren Sie ihn dort zuerst."
+
+msgid "Another key of your account is already connected to this shop."
+msgstr "Ein anderer Schlüssel Ihres Kontos ist bereits mit diesem Shop verbunden."
+
+msgid "Something went wrong. Try again later."
+msgstr "Etwas ist schiefgelaufen. Versuchen Sie es später erneut."
+
+msgid "Open Invoqk"
+msgstr "Invoqk öffnen"
+
+msgid "Your Invoqk Pro license ended. Archive and export still work; guard and new archiving are paused."
+msgstr "Ihre Invoqk-Pro-Lizenz ist abgelaufen. Archiv und Export funktionieren weiter; Prüfschranke und neue Archivierung sind pausiert."
+
+msgid "Your Invoqk Pro trial ends tomorrow."
+msgstr "Ihre Invoqk-Pro-Testphase endet morgen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk Pro trial ends in %d days."
+msgstr "Ihre Invoqk-Pro-Testphase endet in %d Tagen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk license ends in %d days. Renew now to keep the guard and archiving running."
+msgstr "Ihre Invoqk-Lizenz endet in %d Tagen. Verlängern Sie jetzt, damit Prüfschranke und Archivierung weiterlaufen."
+
+#. translators: %d: days
+#, php-format
+msgid "Your Invoqk license renews or ends in %d days."
+msgstr "Ihre Invoqk-Lizenz verlängert sich oder endet in %d Tagen."

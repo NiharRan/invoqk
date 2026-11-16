@@ -1159,3 +1159,64 @@ msgstr "Ihre Invoqk-Lizenz endet in %d Tagen. Verlängern Sie jetzt, damit Prüf
 #, php-format
 msgid "Your Invoqk license renews or ends in %d days."
 msgstr "Ihre Invoqk-Lizenz verlängert sich oder endet in %d Tagen."
+
+msgid "Enter it in the settings."
+msgstr "Geben Sie ihn in den Einstellungen ein."
+
+msgid "All your B2B e-invoices are valid."
+msgstr "Alle Ihre B2B-E-Rechnungen sind gültig."
+
+msgid "%1$d of %2$d required details filled in"
+msgstr "%1$d von %2$d Pflichtangaben ausgefüllt"
+
+msgid "Overview"
+msgstr "Übersicht"
+
+msgid "A key is saved. Enter a new one only to replace it."
+msgstr "Ein Schlüssel ist gespeichert. Geben Sie nur dann einen neuen ein, wenn Sie ihn ersetzen möchten."
+
+msgid "Paste the API key from your invoqk.com account."
+msgstr "Fügen Sie den API-Schlüssel aus Ihrem invoqk.com-Konto ein."
+
+msgid "Connection"
+msgstr "Verbindung"
+
+msgid "Links this shop to your Invoqk account so invoices can be checked."
+msgstr "Verbindet diesen Shop mit Ihrem Invoqk-Konto, damit Rechnungen geprüft werden können."
+
+msgid "The invoice waits until you fix it or release it."
+msgstr "Die Rechnung wartet, bis Sie sie korrigieren oder freigeben."
+
+msgid "The invoice goes out anyway and you get a warning."
+msgstr "Die Rechnung wird trotzdem versendet und Sie erhalten eine Warnung."
+
+msgid "Checkout does not ask for it."
+msgstr "Der Checkout fragt nicht danach."
+
+msgid "Every customer sees the field."
+msgstr "Alle Kunden sehen das Feld."
+
+msgid "Private customers do not see it."
+msgstr "Privatkunden sehen es nicht."
+
+msgid "Invoice checks"
+msgstr "Rechnungsprüfung"
+
+msgid "What happens when Invoqk finds an error, and who is asked for a Leitweg-ID."
+msgstr "Was passiert, wenn Invoqk einen Fehler findet, und wer nach einer Leitweg-ID gefragt wird."
+
+msgid "How long archived invoices are kept."
+msgstr "Wie lange archivierte Rechnungen aufbewahrt werden."
+
+msgid "Enter your API key in the Settings tab first."
+msgstr "Geben Sie zuerst Ihren API-Schlüssel im Tab „Einstellungen“ ein."
+
+msgid "%d e-invoice has errors and needs fixing."
+msgid_plural "%d e-invoices have errors and need fixing."
+msgstr[0] "%d E-Rechnung hat Fehler und muss korrigiert werden."
+msgstr[1] "%d E-Rechnungen haben Fehler und müssen korrigiert werden."
+
+msgid "%d B2B order has no e-invoice yet."
+msgid_plural "%d B2B orders have no e-invoice yet."
+msgstr[0] "%d B2B-Bestellung hat noch keine E-Rechnung."
+msgstr[1] "%d B2B-Bestellungen haben noch keine E-Rechnung."

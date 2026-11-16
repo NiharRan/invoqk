@@ -89,7 +89,7 @@ final class I18nTest extends TestCase {
 			'Try Pro for 14 days'     => 'Pro 14 Tage testen',
 			'Go to dashboard'         => 'Zum Dashboard',
 			'No API key is set yet.'  => 'Es ist noch kein API-Schlüssel hinterlegt.',
-			'Enter it in the settings below.' => 'Geben Sie ihn unten in den Einstellungen ein.',
+			'Enter it in the settings.' => 'Geben Sie ihn in den Einstellungen ein.',
 		] as $id => $de ) {
 			$this->assertSame( $de, $mo[ $id ] ?? null, $id );
 		}
