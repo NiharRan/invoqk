@@ -45,7 +45,33 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_billing_last_name(): string { return $this->last; }
 		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
+		public string $street = '';
+		public string $postcode = '';
+		public string $city = '';
+		public string $email = '';
+		public string $number = '';
+		public ?DateTimeImmutable $completed = null;
+		public ?DateTimeImmutable $paid = null;
+		public array $items = [];
+		public function get_billing_address_1(): string { return $this->street; }
+		public function get_billing_postcode(): string { return $this->postcode; }
+		public function get_billing_city(): string { return $this->city; }
+		public function get_billing_email(): string { return $this->email; }
+		public function get_order_number(): string { return '' !== $this->number ? $this->number : (string) $this->id; }
+		public function get_date_completed(): ?DateTimeImmutable { return $this->completed; }
+		public function get_date_paid(): ?DateTimeImmutable { return $this->paid; }
+		public function get_items( $types = 'line_item' ): array { return array_values( array_filter( $this->items, fn( $i ) => in_array( $i->type, (array) $types, true ) ) ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
+	}
+}
+
+if ( ! class_exists( 'WC_Order_Item_Stub' ) ) {
+	class WC_Order_Item_Stub {
+		public function __construct( public string $name, public string $net, public string $tax, public int $qty = 1, public string $type = 'line_item' ) {}
+		public function get_name(): string { return $this->name; }
+		public function get_quantity(): int { return $this->qty; }
+		public function get_total(): string { return $this->net; }
+		public function get_total_tax(): string { return $this->tax; }
 	}
 }
 

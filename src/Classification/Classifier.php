@@ -127,7 +127,7 @@ final class Classifier {
 		return array_map( 'strval', (array) apply_filters( 'invoqk_vat_id_meta_keys', [ '_billing_vat_id', '_billing_eu_vat_number', '_billing_vat_number', '_vat_number' ] ) );
 	}
 
-	private static function vatId( \WC_Order $order ): string {
+	public static function vatId( \WC_Order $order ): string {
 		foreach ( self::vatKeys() as $k ) {
 			$v = trim( (string) $order->get_meta( (string) $k ) );
 			if ( '' !== $v ) {
