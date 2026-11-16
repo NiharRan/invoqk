@@ -851,3 +851,79 @@ msgstr ""
 #: src/B2g/Delivery.php
 msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
 msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Company name"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Street and number"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Postcode"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "City"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "VAT ID"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Tax number"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Contact person"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Contact phone"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Contact email"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "IBAN"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "BIC"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Payment terms text"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Payment due (days)"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Invoice number pattern"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "E-invoice profile"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Small business, no VAT charged"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Fallback e-invoice"
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
+msgstr ""
+
+#: src/Fallback/Seller.php
+msgid "Still missing:"
+msgstr ""

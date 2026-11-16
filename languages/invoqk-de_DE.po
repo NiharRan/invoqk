@@ -849,3 +849,79 @@ msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem
 #: src/B2g/Delivery.php
 msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
 msgstr "Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden."
+
+#: src/Fallback/Seller.php
+msgid "Company name"
+msgstr "Firmenname"
+
+#: src/Fallback/Seller.php
+msgid "Street and number"
+msgstr "Straße und Hausnummer"
+
+#: src/Fallback/Seller.php
+msgid "Postcode"
+msgstr "Postleitzahl"
+
+#: src/Fallback/Seller.php
+msgid "City"
+msgstr "Ort"
+
+#: src/Fallback/Seller.php
+msgid "VAT ID"
+msgstr "USt-IdNr."
+
+#: src/Fallback/Seller.php
+msgid "Tax number"
+msgstr "Steuernummer"
+
+#: src/Fallback/Seller.php
+msgid "Contact person"
+msgstr "Ansprechpartner"
+
+#: src/Fallback/Seller.php
+msgid "Contact phone"
+msgstr "Telefon des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "Contact email"
+msgstr "E-Mail des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "IBAN"
+msgstr "IBAN"
+
+#: src/Fallback/Seller.php
+msgid "BIC"
+msgstr "BIC"
+
+#: src/Fallback/Seller.php
+msgid "Payment terms text"
+msgstr "Zahlungsbedingungen (Text)"
+
+#: src/Fallback/Seller.php
+msgid "Payment due (days)"
+msgstr "Zahlungsziel (Tage)"
+
+#: src/Fallback/Seller.php
+msgid "Invoice number pattern"
+msgstr "Muster der Rechnungsnummer"
+
+#: src/Fallback/Seller.php
+msgid "E-invoice profile"
+msgstr "E-Rechnungsprofil"
+
+#: src/Fallback/Seller.php
+msgid "Small business, no VAT charged"
+msgstr "Kleinunternehmer, keine Umsatzsteuer berechnet"
+
+#: src/Fallback/Seller.php
+msgid "Fallback e-invoice"
+msgstr "Ersatz-E-Rechnung"
+
+#: src/Fallback/Seller.php
+msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
+msgstr "Einfache E-Rechnung für normale Inlandsbestellungen. Nutze für komplexe Steuerfälle, Rabatte oder andere Währungen ein Rechnungsplugin."
+
+#: src/Fallback/Seller.php
+msgid "Still missing:"
+msgstr "Es fehlt noch:"
