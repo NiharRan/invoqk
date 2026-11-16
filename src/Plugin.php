@@ -10,6 +10,7 @@ final class Plugin {
 		Refund\Open::boot();
 		CreditNote\Detect::boot();
 		Licensing\Actions::boot();
+		Agency\Sync::boot();
 		B2g\Field::boot(); // checkout is front end
 		Sources\WpOvernightAdapter::boot(); // WP Overnight builds EDI for emails and downloads too, not only in admin
 		if ( is_admin() ) {
