@@ -6,6 +6,7 @@ final class Plugin {
 		Jobs\Scheduler::boot();
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
+		Fallback\Mail::boot(); // mail runs in cron and on the front end
 		Archive\Hooks::boot();
 		Refund\Open::boot();
 		CreditNote\Detect::boot();
