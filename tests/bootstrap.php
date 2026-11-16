@@ -193,6 +193,9 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_enqueue_style( string $h, string $src = '', array $deps = [], $ver = false ): void { $GLOBALS['invoqk_styles'][ $h ] = $src; }
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
+	if ( ! function_exists( 'sanitize_email' ) ) {
+		function sanitize_email( $s ): string { return (string) filter_var( trim( (string) $s ), FILTER_SANITIZE_EMAIL ); }
+	}
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
 	function get_userdata( $id ) { return (object) [ 'ID' => $id, 'display_name' => $GLOBALS['invoqk_user_name'] ?? 'T', 'user_email' => $GLOBALS['invoqk_user_email'] ?? '' ]; }
 	function esc_js( $s ): string { return str_replace( "'", "\\'", (string) $s ); }

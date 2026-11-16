@@ -60,9 +60,10 @@ final class SettingsPage {
 		$out .= '<table class="form-table">';
 		foreach ( array_diff( array_keys( $s ), [ 'profile', 'nullsatz' ] ) as $k ) {
 			$id   = $o . '_' . $k;
-			$type = 'due_days' === $k ? 'number" min="0" max="365' : 'text';
+			$type = 'due_days' === $k ? 'number' : 'text';
+			$attr = 'due_days' === $k ? ' min="0" max="365"' : '';
 			$out .= '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( Seller::label( $k ) ) . '</label></th>'
-				. '<td><input type="' . $type . '" id="' . esc_attr( $id ) . '" name="' . esc_attr( $o . '[' . $k . ']' ) . '" value="' . esc_attr( (string) $s[ $k ] ) . '" class="regular-text"></td></tr>';
+				. '<td><input type="' . $type . '" id="' . esc_attr( $id ) . '"' . $attr . ' name="' . esc_attr( $o . '[' . $k . ']' ) . '" value="' . esc_attr( (string) $s[ $k ] ) . '" class="regular-text"></td></tr>';
 		}
 		$out .= '<tr><th scope="row">' . esc_html( Seller::label( 'profile' ) ) . '</th><td>';
 		foreach ( [ 'xrechnung' => 'XRechnung', 'en16931' => 'EN 16931' ] as $v => $label ) {

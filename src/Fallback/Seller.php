@@ -45,10 +45,10 @@ final class Seller {
 		}
 		$out['vat_id']        = strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( (string) ( $raw['vat_id'] ?? '' ) ) ) );
 		$out['iban']          = strtoupper( preg_replace( '/\s+/', '', sanitize_text_field( (string) ( $raw['iban'] ?? '' ) ) ) );
-		$out['contact_email'] = sanitize_text_field( (string) ( $raw['contact_email'] ?? '' ) );
+		$out['contact_email'] = sanitize_email( (string) ( $raw['contact_email'] ?? '' ) );
 		$out['due_days']      = max( 0, min( 365, (int) ( $raw['due_days'] ?? 14 ) ) );
 		$fmt                  = sanitize_text_field( (string) ( $raw['number_format'] ?? '' ) );
-		$out['number_format'] = 1 === preg_match( '/\{0+\}/', $fmt ) ? $fmt : self::DEFAULT_FORMAT;
+		$out['number_format'] = 1 === preg_match( '/\{0+1?\}/', $fmt ) ? $fmt : self::DEFAULT_FORMAT;
 		$out['profile']       = 'en16931' === ( $raw['profile'] ?? '' ) ? 'en16931' : 'xrechnung';
 		$out['nullsatz']      = ! empty( $raw['nullsatz'] );
 		return $out;

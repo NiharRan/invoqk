@@ -57,6 +57,16 @@ final class SellerTest extends TestCase {
 	public function test_number_format_must_contain_counter_token(): void {
 		$this->assertSame( 'RE-{YYYY}-{00001}', Seller::sanitize( [ 'number_format' => 'INV-2026' ] )['number_format'] );
 		$this->assertSame( 'X{000}', Seller::sanitize( [ 'number_format' => 'X{000}' ] )['number_format'] );
+		foreach ( [ 'RE-{0001}', 'RE-{YYYY}-{00001}' ] as $f ) {
+			$this->assertSame( $f, Seller::sanitize( [ 'number_format' => $f ] )['number_format'] );
+		}
+	}
+
+	public function test_invalid_email_flagged(): void {
+		$this->store( [ 'contact_email' => 'not an email' ] );
+		$this->assertContains( 'contact_email', Seller::missing() );
+		$this->store( [ 'contact_email' => 'a@example.com' ] );
+		$this->assertNotContains( 'contact_email', Seller::missing() );
 	}
 
 	public function test_defaults(): void {
