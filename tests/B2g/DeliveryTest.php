@@ -127,4 +127,10 @@ final class DeliveryTest extends TestCase {
 		$this->assertStringNotContainsString( 'No invoice plugin', $n );
 		$this->assertStringContainsString( 'must be entered', $n );
 	}
+
+	public function test_pro_with_only_the_fallback_available_has_no_plugin(): void {
+		$GLOBALS['invoqk_options']['invoqk_fallback_used'] = 1;
+		$this->assertSame( 'unsupported', Delivery::status( $this->fresh() ) );
+		$this->assertStringContainsString( 'No invoice plugin', Delivery::notice( $this->fresh() ) );
+	}
 }

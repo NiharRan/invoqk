@@ -2,6 +2,8 @@
 
 One class per invoice plugin. If that plugin changes where it keeps its e-invoice, only its adapter changes.
 
+Adapters for source plugins only read: they never generate, save, send or attach an invoice. The one exception is `Invoqk\Sources\FallbackAdapter`, Invoqk's own generator (Pro, XML only) and the only place Invoqk writes an invoice. Third-party adapters must not follow it.
+
 ## Contract (`Invoqk\Sources\SourceAdapter`)
 
 | Method | Returns | Notes |

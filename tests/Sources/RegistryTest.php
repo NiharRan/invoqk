@@ -76,4 +76,28 @@ final class RegistryTest extends TestCase {
 	public function test_credit_notes_returns_null_when_none_found(): void {
 		$this->assertNull( ( new Registry( new FakeAdapter( 'a' ) ) )->creditNotes( new WC_Order() ) );
 	}
+
+	public function test_plugin_adapter_beats_fallback(): void {
+		$GLOBALS['invoqk_options']['invoqk_fallback_used'] = 1;
+		$o = new WC_Order( 41 );
+		$GLOBALS['invoqk_uploads'] = sys_get_temp_dir() . '/invoqk-reg-' . bin2hex( random_bytes( 4 ) );
+		\Invoqk\Fallback\Store::save( $o, '<x/>', 'RE-1', 'xrechnung' );
+		$hit = ( new Registry( new FakeAdapter( 'plugin', true, $this->file( 9 ) ), new \Invoqk\Sources\FallbackAdapter() ) )->detect( $o );
+		$this->assertSame( 'plugin', $hit['adapter']->id() );
+		exec( 'rm -rf ' . escapeshellarg( $GLOBALS['invoqk_uploads'] ) );
+	}
+
+	public function test_plugins_excludes_only_the_fallback(): void {
+		$a = new FakeAdapter( 'a' );
+		$r = new Registry( $a, new \Invoqk\Sources\FallbackAdapter() );
+		$this->assertSame( [ $a ], $r->plugins() );
+		$this->assertCount( 2, $r->all() );
+	}
+
+	public function test_default_puts_fallback_last_after_filter_adapters(): void {
+		add_filter( 'invoqk_source_adapters', fn( array $l ) => $l );
+		$all = Registry::default()->all();
+		$this->assertInstanceOf( \Invoqk\Sources\FallbackAdapter::class, end( $all ) );
+		$this->assertSame( 1, count( array_filter( $all, fn( $a ) => $a instanceof \Invoqk\Sources\FallbackAdapter ) ) );
+	}
 }

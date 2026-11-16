@@ -3,6 +3,7 @@ namespace Invoqk\Admin;
 
 use Invoqk\Archive\Actions;
 use Invoqk\B2g\Field;
+use Invoqk\Fallback\Seller;
 use Invoqk\Onboarding\State;
 use Invoqk\Onboarding\Wizard;
 use Invoqk\Guard\Hold;
@@ -24,6 +25,7 @@ final class SettingsPage {
 			if ( Limit::isPro() ) {
 				register_setting( 'invoqk', 'invoqk_guard_mode', [ 'sanitize_callback' => [ Hold::class, 'sanitizeMode' ], 'autoload' => false ] );
 				register_setting( 'invoqk', Field::OPTION, [ 'sanitize_callback' => [ Field::class, 'sanitizeMode' ] ] ); // autoloaded: read on every front-end request
+				register_setting( 'invoqk', Seller::OPTION, [ 'sanitize_callback' => [ Seller::class, 'sanitize' ], 'autoload' => false ] );
 			}
 		} );
 		// options.php checks the capability via this filter; the key is never echoed, so an empty or masked submit keeps the stored one.
@@ -43,6 +45,33 @@ final class SettingsPage {
 		if ( 'woocommerce_page_invoqk' === $hook ) {
 			wp_enqueue_style( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.css', INVOQK_FILE ), [], INVOQK_VERSION );
 		}
+	}
+
+	private static function fallbackSection(): string {
+		$s    = Seller::get();
+		$o    = Seller::OPTION;
+		$out  = '<h3>' . esc_html__( 'Fallback e-invoice', 'invoqk' ) . '</h3>';
+		$out .= '<div class="notice notice-info inline"><p>' . esc_html__( 'Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin.', 'invoqk' ) . '</p></div>';
+		$miss = Seller::missing();
+		if ( $miss ) {
+			$out .= '<div class="notice notice-warning inline"><p>' . esc_html__( 'Still missing:', 'invoqk' ) . ' '
+				. esc_html( implode( ', ', array_map( [ Seller::class, 'label' ], $miss ) ) ) . '</p></div>';
+		}
+		$out .= '<table class="form-table">';
+		foreach ( array_diff( array_keys( $s ), [ 'profile', 'nullsatz' ] ) as $k ) {
+			$id   = $o . '_' . $k;
+			$type = 'due_days' === $k ? 'number' : 'text';
+			$attr = 'due_days' === $k ? ' min="0" max="365"' : '';
+			$out .= '<tr><th scope="row"><label for="' . esc_attr( $id ) . '">' . esc_html( Seller::label( $k ) ) . '</label></th>'
+				. '<td><input type="' . $type . '" id="' . esc_attr( $id ) . '"' . $attr . ' name="' . esc_attr( $o . '[' . $k . ']' ) . '" value="' . esc_attr( (string) $s[ $k ] ) . '" class="regular-text"></td></tr>';
+		}
+		$out .= '<tr><th scope="row">' . esc_html( Seller::label( 'profile' ) ) . '</th><td>';
+		foreach ( [ 'xrechnung' => 'XRechnung', 'en16931' => 'EN 16931' ] as $v => $label ) {
+			$out .= '<label><input type="radio" name="' . esc_attr( $o . '[profile]' ) . '" value="' . esc_attr( $v ) . '"' . ( $v === $s['profile'] ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label><br>';
+		}
+		$out .= '</td></tr><tr><th scope="row"><label for="' . esc_attr( $o . '_nullsatz' ) . '">' . esc_html( Seller::label( 'nullsatz' ) ) . '</label></th><td><input type="checkbox" id="' . esc_attr( $o . '_nullsatz' ) . '" name="' . esc_attr( $o . '[nullsatz]' ) . '" value="1"'
+			. ( $s['nullsatz'] ? ' checked' : '' ) . '><p class="description">' . esc_html__( 'Small businesses under §19 UStG (Kleinunternehmer) are not supported.', 'invoqk' ) . '</p></td></tr></table>';
+		return $out;
 	}
 
 	public static function render(): void {
@@ -92,6 +121,9 @@ final class SettingsPage {
 			. '<td><input type="number" min="1" max="30" id="invoqk_archive_retention_years" name="invoqk_archive_retention_years" value="' . esc_attr( (string) Actions::retentionYears() ) . '" class="small-text">'
 			. '<p class="description">' . esc_html__( 'This is not tax advice. Check the retention period with your tax advisor.', 'invoqk' ) . '</p></td></tr>';
 		echo '</table>';
+		if ( $pro ) {
+			echo self::fallbackSection(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in fallbackSection
+		}
 		if ( false !== stripos( (string) ( $_SERVER['SERVER_SOFTWARE'] ?? '' ), 'nginx' ) ) {
 			echo '<div class="notice notice-warning inline"><p>'
 				. esc_html__( 'Your server ignores .htaccess. Add a rule that denies web access to uploads/invoqk-archive/, or set INVOQK_ARCHIVE_DIR outside the web root.', 'invoqk' )

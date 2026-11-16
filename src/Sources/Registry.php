@@ -17,8 +17,14 @@ final class Registry {
 				$list[] = new $class();
 			}
 		}
+		$list[] = new FallbackAdapter(); // last: any real plugin adapter wins detect()
 		$list = apply_filters( 'invoqk_source_adapters', $list );
 		return new self( ...array_values( array_filter( $list, fn( $a ) => $a instanceof SourceAdapter ) ) );
+	}
+
+	/** Adapters of real invoice plugins: everything but the built-in fallback generator. @return SourceAdapter[] */
+	public function plugins(): array {
+		return array_values( array_filter( $this->adapters, fn( $a ) => ! $a instanceof FallbackAdapter ) );
 	}
 
 	/** @return SourceAdapter[] */

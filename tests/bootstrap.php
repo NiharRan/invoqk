@@ -45,7 +45,39 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_billing_last_name(): string { return $this->last; }
 		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
+		public string $street = '';
+		public string $postcode = '';
+		public string $city = '';
+		public string $email = '';
+		public string $number = '';
+		public ?DateTimeImmutable $completed = null;
+		public ?DateTimeImmutable $paid = null;
+		public array $items = [];
+		public function get_billing_address_1(): string { return $this->street; }
+		public function get_billing_postcode(): string { return $this->postcode; }
+		public function get_billing_city(): string { return $this->city; }
+		public function get_billing_email(): string { return $this->email; }
+		public function get_order_number(): string { return '' !== $this->number ? $this->number : (string) $this->id; }
+		public function get_date_completed(): ?DateTimeImmutable { return $this->completed; }
+		public function get_date_paid(): ?DateTimeImmutable { return $this->paid; }
+		public function get_items( $types = 'line_item' ): array { return array_values( array_filter( $this->items, fn( $i ) => in_array( $i->type, (array) $types, true ) ) ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
+	}
+}
+
+// Shipping and fee items have no get_quantity() in every WooCommerce version; only the product item does.
+if ( ! class_exists( 'WC_Order_Item_Stub' ) ) {
+	class WC_Order_Item_Stub {
+		public function __construct( public string $name, public string $net, public string $tax, public string $type = 'line_item' ) {}
+		public function get_name(): string { return $this->name; }
+		public function get_total(): string { return $this->net; }
+		public function get_total_tax(): string { return $this->tax; }
+	}
+}
+if ( ! class_exists( 'WC_Order_Item_Product' ) ) {
+	class WC_Order_Item_Product extends WC_Order_Item_Stub {
+		public function __construct( string $name, string $net, string $tax, public int $qty = 1 ) { parent::__construct( $name, $net, $tax, 'line_item' ); }
+		public function get_quantity(): int { return $this->qty; }
 	}
 }
 
@@ -121,13 +153,14 @@ if ( ! function_exists( 'esc_html' ) ) {
 	function esc_html__( string $t, string $d = 'default' ): string { return esc_html( $t ); }
 }
 
+if ( ! defined( 'DB_NAME' ) ) { define( 'DB_NAME', 'wordpress' ); }
 if ( ! defined( 'INVOQK_VERSION' ) ) { define( 'INVOQK_VERSION', '0.1.0' ); }
 if ( ! defined( 'INVOQK_FILE' ) ) { define( 'INVOQK_FILE', dirname( __DIR__ ) . '/invoqk.php' ); }
 if ( ! defined( 'HOUR_IN_SECONDS' ) ) { define( 'HOUR_IN_SECONDS', 3600 ); }
 $GLOBALS['invoqk_options'] = [];
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( string $k, $d = false ) { return $GLOBALS['invoqk_options'][ $k ] ?? $d; }
-	function update_option( string $k, $v, $autoload = null ): bool { $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
+	function update_option( string $k, $v, $autoload = null ): bool { if ( ! empty( $GLOBALS['invoqk_fail_update'] ) ) { return false; } $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
 	function add_option( string $k, $v = '', $dep = '', $autoload = null ): bool { if ( isset( $GLOBALS['invoqk_options'][ $k ] ) ) { return false; } $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
 	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }
@@ -193,6 +226,9 @@ if ( ! function_exists( 'wp_die' ) ) {
 	function wp_enqueue_style( string $h, string $src = '', array $deps = [], $ver = false ): void { $GLOBALS['invoqk_styles'][ $h ] = $src; }
 	function wp_localize_script( string $h, string $n, array $d ): bool { $GLOBALS['invoqk_localized'][ $h ] = [ $n, $d ]; return true; }
 	function sanitize_text_field( $s ): string { return trim( strip_tags( (string) $s ) ); }
+	if ( ! function_exists( 'sanitize_email' ) ) {
+		function sanitize_email( $s ): string { return (string) filter_var( trim( (string) $s ), FILTER_SANITIZE_EMAIL ); }
+	}
 	function sanitize_key( $s ): string { return strtolower( preg_replace( '/[^a-zA-Z0-9_\-]/', '', (string) $s ) ); }
 	function get_userdata( $id ) { return (object) [ 'ID' => $id, 'display_name' => $GLOBALS['invoqk_user_name'] ?? 'T', 'user_email' => $GLOBALS['invoqk_user_email'] ?? '' ]; }
 	function esc_js( $s ): string { return str_replace( "'", "\\'", (string) $s ); }
@@ -232,9 +268,16 @@ if ( ! function_exists( 'wpo_ips_edi_is_available' ) ) {
 }
 
 if ( ! function_exists( 'wp_mkdir_p' ) ) {
-	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || mkdir( $d, 0777, true ); }
+	function wp_mkdir_p( string $d ): bool { return is_dir( $d ) || @mkdir( $d, 0777, true ); }
 }
 
 if ( ! function_exists( 'home_url' ) ) {
 	function home_url( string $path = '' ): string { return 'https://Shop.Example' . $path; }
+}
+
+if ( ! function_exists( 'wp_upload_dir' ) ) {
+	function wp_upload_dir(): array {
+		$base = $GLOBALS['invoqk_uploads'] ??= sys_get_temp_dir() . '/invoqk-uploads-' . getmypid();
+		return [ 'basedir' => $base, 'baseurl' => 'https://shop.example/uploads' ];
+	}
 }

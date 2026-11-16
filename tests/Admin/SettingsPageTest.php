@@ -161,6 +161,16 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'name="invoqk_leitweg_mode" value="always" checked', $this->page() );
 	}
 
+	public function test_fallback_nullsatz_is_labelled_zero_rated_once_with_kleinunternehmer_note(): void {
+		$this->reset( 'done' );
+		add_filter( 'invoqk_is_pro', fn() => true );
+		$h = $this->page();
+		$this->assertSame( 1, substr_count( $h, '0 % lines are zero-rated (Nullsatz), not tax-exempt' ) );
+		$this->assertStringContainsString( 'id="invoqk_fallback_seller_nullsatz" name="invoqk_fallback_seller[nullsatz]"', $h );
+		$this->assertStringContainsString( 'Small businesses under §19 UStG (Kleinunternehmer) are not supported.', $h );
+		$this->assertStringNotContainsString( 'Small business, no VAT charged', $h );
+	}
+
 	public function test_guard_mode_setting_registered_with_autoload_off(): void {
 		$GLOBALS['invoqk_actions']  = [];
 		$GLOBALS['invoqk_settings'] = [];

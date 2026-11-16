@@ -849,3 +849,180 @@ msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem
 #: src/B2g/Delivery.php
 msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
 msgstr "Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden."
+
+#: src/Fallback/Seller.php
+msgid "Company name"
+msgstr "Firmenname"
+
+#: src/Fallback/Seller.php
+msgid "Street and number"
+msgstr "Straße und Hausnummer"
+
+#: src/Fallback/Seller.php
+msgid "Postcode"
+msgstr "Postleitzahl"
+
+#: src/Fallback/Seller.php
+msgid "City"
+msgstr "Ort"
+
+#: src/Fallback/Seller.php
+msgid "VAT ID"
+msgstr "USt-IdNr."
+
+#: src/Fallback/Seller.php
+msgid "Tax number"
+msgstr "Steuernummer"
+
+#: src/Fallback/Seller.php
+msgid "Contact person"
+msgstr "Ansprechpartner"
+
+#: src/Fallback/Seller.php
+msgid "Contact phone"
+msgstr "Telefon des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "Contact email"
+msgstr "E-Mail des Ansprechpartners"
+
+#: src/Fallback/Seller.php
+msgid "IBAN"
+msgstr "IBAN"
+
+#: src/Fallback/Seller.php
+msgid "BIC"
+msgstr "BIC"
+
+#: src/Fallback/Seller.php
+msgid "Payment terms text"
+msgstr "Zahlungsbedingungen (Text)"
+
+#: src/Fallback/Seller.php
+msgid "Payment due (days)"
+msgstr "Zahlungsziel (Tage)"
+
+#: src/Fallback/Seller.php
+msgid "Invoice number pattern"
+msgstr "Muster der Rechnungsnummer"
+
+#: src/Fallback/Seller.php
+msgid "E-invoice profile"
+msgstr "E-Rechnungsprofil"
+
+#: src/Fallback/Seller.php
+msgid "0 % lines are zero-rated (Nullsatz), not tax-exempt"
+msgstr "0-%-Positionen sind Nullsatz (steuerpflichtig zu 0 %), keine Steuerbefreiung"
+
+#: src/Admin/SettingsPage.php
+msgid "Small businesses under §19 UStG (Kleinunternehmer) are not supported."
+msgstr "Kleinunternehmer nach §19 UStG werden nicht unterstützt."
+
+#: src/Fallback/Seller.php
+msgid "Fallback e-invoice"
+msgstr "Ersatz-E-Rechnung"
+
+#: src/Fallback/Seller.php
+msgid "Basic e-invoice for standard domestic orders. For complex tax cases, discounts or other currencies, use an invoice plugin."
+msgstr "Einfache E-Rechnung für normale Inlandsbestellungen. Nutze für komplexe Steuerfälle, Rabatte oder andere Währungen ein Rechnungsplugin."
+
+#: src/Fallback/Seller.php
+msgid "Still missing:"
+msgstr "Es fehlt noch:"
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is not in Germany. The fallback e-invoice is for domestic orders only."
+msgstr "Die Rechnungsadresse liegt nicht in Deutschland. Die Ersatz-E-Rechnung gibt es nur für Inlandsbestellungen."
+
+#: src/Fallback/Unsupported.php
+msgid "The order is not in euros. The fallback e-invoice supports EUR only."
+msgstr "Die Bestellung ist nicht in Euro. Die Ersatz-E-Rechnung unterstützt nur EUR."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a tax rate other than 19 % or 7 %. Use an invoice plugin for this order."
+msgstr "Die Bestellung hat einen anderen Steuersatz als 19 % oder 7 %. Nutze für diese Bestellung ein Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has a refund. Create the invoice with an invoice plugin."
+msgstr "Die Bestellung hat eine Erstattung. Erstelle die Rechnung mit einem Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The order total is zero or negative."
+msgstr "Der Bestellbetrag ist null oder negativ."
+
+#: src/Fallback/Unsupported.php
+msgid "The line amounts do not add up to the order total to the cent."
+msgstr "Die Positionsbeträge ergeben nicht centgenau die Bestellsumme."
+
+#: src/Fallback/Unsupported.php
+msgid "The billing address is incomplete (name, street, postcode, city and country are needed)."
+msgstr "Die Rechnungsadresse ist unvollständig (Name, Straße, PLZ, Ort und Land werden benötigt)."
+
+#: src/Fallback/Unsupported.php
+msgid "An XRechnung needs the customer email address, and it is missing."
+msgstr "Für eine XRechnung fehlt die E-Mail-Adresse des Kunden."
+
+#: src/Fallback/Unsupported.php
+msgid "An order line has no name."
+msgstr "Eine Bestellposition hat keine Bezeichnung."
+
+#: src/Fallback/Unsupported.php
+msgid "The order has lines with 0 % tax. This only works when “Nullsatz” is turned on in the settings."
+msgstr "Die Bestellung hat Positionen mit 0 % Steuer. Das geht nur, wenn in den Einstellungen „Nullsatz“ aktiviert ist."
+
+#: src/Fallback/Unsupported.php
+msgid "The selected e-invoice profile is not supported."
+msgstr "Das gewählte E-Rechnungsprofil wird nicht unterstützt."
+
+#: src/Fallback/Unsupported.php
+msgid "Orders with discount or negative lines are not supported. Use an invoice plugin."
+msgstr "Bestellungen mit Rabatt oder negativen Positionen werden nicht unterstützt. Nutze ein Rechnungsplugin."
+
+#: src/Fallback/Unsupported.php
+msgid "The fallback e-invoice does not support this order."
+msgstr "Die Ersatz-E-Rechnung unterstützt diese Bestellung nicht."
+
+#: src/Fallback/Generate.php
+msgid "An invoice is already being created for this order. Please try again in a moment."
+msgstr "Für diese Bestellung wird gerade eine Rechnung erstellt. Bitte versuche es gleich noch einmal."
+
+#: src/Fallback/Generate.php
+msgid "The invoice already exists: %s"
+msgstr "Die Rechnung existiert bereits: %s"
+
+#: src/Fallback/Generate.php
+msgid "The fallback e-invoice is not offered for this order."
+msgstr "Für diese Bestellung wird keine Ersatz-E-Rechnung angeboten."
+
+#: src/Fallback/Generate.php
+msgid "Missing seller data: %s"
+msgstr "Fehlende Verkäuferdaten: %s"
+
+#: src/Fallback/Generate.php
+msgid "The invoice could not be created. Nothing was saved."
+msgstr "Die Rechnung konnte nicht erstellt werden. Es wurde nichts gespeichert."
+
+#: src/Fallback/Generate.php
+msgid "Invoice %s created."
+msgstr "Rechnung %s erstellt."
+
+#: src/Fallback/Actions.php
+#. translators: 1: invoice number, 2: profile
+msgid "Basic e-invoice %1$s (%2$s)"
+msgstr "Einfache E-Rechnung %1$s (%2$s)"
+
+#: src/Fallback/Actions.php
+msgid "Download XML"
+msgstr "XML herunterladen"
+
+#: src/Fallback/Actions.php
+msgid "Complete these seller details to create a basic e-invoice:"
+msgstr "Ergänze diese Verkäuferangaben, um eine einfache E-Rechnung zu erstellen:"
+
+#: src/Fallback/Actions.php
+msgid "Open settings"
+msgstr "Einstellungen öffnen"
+
+#: src/Fallback/Actions.php
+msgid "Create basic e-invoice"
+msgstr "Einfache E-Rechnung erstellen"

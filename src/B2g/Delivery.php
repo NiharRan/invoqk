@@ -43,7 +43,7 @@ final class Delivery {
 		if ( $r ) {
 			return Registry::default()->get( $r->source );
 		}
-		$list = array_values( array_filter( Registry::default()->all(), static function ( $a ) {
+		$list = array_values( array_filter( Registry::default()->plugins(), static function ( $a ) {
 			try {
 				return $a->isAvailable();
 			} catch ( \Throwable $e ) {

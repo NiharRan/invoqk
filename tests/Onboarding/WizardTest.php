@@ -202,4 +202,17 @@ final class WizardTest extends TestCase {
 		$GLOBALS['invoqk_ajax'] = false;
 		$this->assertNotNull( Wizard::redirectTarget() ); // not consumed by the ajax request
 	}
+
+	public function test_step1_pro_without_plugin_shows_no_plugin_branch(): void {
+		try {
+			add_filter( 'invoqk_is_pro', fn() => true );
+			$GLOBALS['invoqk_edi'] = false; // WP Overnight stand-in off
+			$h = Wizard::render( 1 );
+			$this->assertStringContainsString( 'No invoice plugin found', $h );
+			$this->assertStringNotContainsString( 'Invoqk fallback', $h );
+			$this->assertStringNotContainsString( 'step=2', $h );
+		} finally {
+			unset( $GLOBALS['invoqk_edi'] );
+		}
+	}
 }

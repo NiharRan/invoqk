@@ -6,6 +6,7 @@ final class Plugin {
 		Jobs\Scheduler::boot();
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
+		Fallback\Mail::boot(); // mail runs in cron and on the front end
 		Archive\Hooks::boot();
 		Refund\Open::boot();
 		CreditNote\Detect::boot();
@@ -19,6 +20,7 @@ final class Plugin {
 			Admin\Revalidate::boot();
 			Admin\Override::boot();
 			Guard\Actions::boot();
+			Fallback\Actions::boot();
 			Admin\SettingsPage::boot();
 			Licensing\Notice::boot();
 			Refund\Dismiss::boot();
