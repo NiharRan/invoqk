@@ -913,7 +913,11 @@ msgid "E-invoice profile"
 msgstr ""
 
 #: src/Fallback/Seller.php
-msgid "Small business, no VAT charged"
+msgid "0 % lines are zero-rated (Nullsatz), not tax-exempt"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Small businesses under §19 UStG (Kleinunternehmer) are not supported."
 msgstr ""
 
 #: src/Fallback/Seller.php

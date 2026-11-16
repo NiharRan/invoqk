@@ -69,8 +69,8 @@ final class SettingsPage {
 		foreach ( [ 'xrechnung' => 'XRechnung', 'en16931' => 'EN 16931' ] as $v => $label ) {
 			$out .= '<label><input type="radio" name="' . esc_attr( $o . '[profile]' ) . '" value="' . esc_attr( $v ) . '"' . ( $v === $s['profile'] ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label><br>';
 		}
-		$out .= '</td></tr><tr><th scope="row">' . esc_html( Seller::label( 'nullsatz' ) ) . '</th><td><label><input type="checkbox" name="' . esc_attr( $o . '[nullsatz]' ) . '" value="1"'
-			. ( $s['nullsatz'] ? ' checked' : '' ) . '> ' . esc_html( Seller::label( 'nullsatz' ) ) . '</label></td></tr></table>';
+		$out .= '</td></tr><tr><th scope="row"><label for="' . esc_attr( $o . '_nullsatz' ) . '">' . esc_html( Seller::label( 'nullsatz' ) ) . '</label></th><td><input type="checkbox" id="' . esc_attr( $o . '_nullsatz' ) . '" name="' . esc_attr( $o . '[nullsatz]' ) . '" value="1"'
+			. ( $s['nullsatz'] ? ' checked' : '' ) . '><p class="description">' . esc_html__( 'Small businesses under §19 UStG (Kleinunternehmer) are not supported.', 'invoqk' ) . '</p></td></tr></table>';
 		return $out;
 	}
 

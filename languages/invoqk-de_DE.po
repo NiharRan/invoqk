@@ -911,8 +911,12 @@ msgid "E-invoice profile"
 msgstr "E-Rechnungsprofil"
 
 #: src/Fallback/Seller.php
-msgid "Small business, no VAT charged"
-msgstr "Kleinunternehmer, keine Umsatzsteuer berechnet"
+msgid "0 % lines are zero-rated (Nullsatz), not tax-exempt"
+msgstr "0-%-Positionen sind Nullsatz (steuerpflichtig zu 0 %), keine Steuerbefreiung"
+
+#: src/Admin/SettingsPage.php
+msgid "Small businesses under §19 UStG (Kleinunternehmer) are not supported."
+msgstr "Kleinunternehmer nach §19 UStG werden nicht unterstützt."
 
 #: src/Fallback/Seller.php
 msgid "Fallback e-invoice"

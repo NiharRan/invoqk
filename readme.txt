@@ -50,7 +50,8 @@ Plans and the trial: https://invoqk.com/plugin
 If no invoice plugin supplies an e-invoice, Invoqk can create a simple one itself: XML only, as XRechnung 3.0 or EN 16931 (ZUGFeRD XML). It is checked like any other invoice. Limits:
 
 * Only domestic (DE) orders in EUR
-* Tax rates 19 % and 7 %; 0 % only with the Nullsatz setting
+* Tax rates 19 % and 7 %; 0 % only with the Nullsatz setting (zero-rated, not tax-exempt)
+* Small businesses under §19 UStG (Kleinunternehmer) are not supported
 * Orders with a refund are refused
 * Totals must reconcile to the cent
 * Not supported: discounts that need a document-level allowance, multi-currency plugins, subscriptions with split periods, partial deliveries and advance payments

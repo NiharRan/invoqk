@@ -71,7 +71,7 @@ final class Seller {
 			'due_days'      => __( 'Payment due (days)', 'invoqk' ),
 			'number_format' => __( 'Invoice number pattern', 'invoqk' ),
 			'profile'       => __( 'E-invoice profile', 'invoqk' ),
-			'nullsatz'      => __( 'Small business, no VAT charged', 'invoqk' ),
+			'nullsatz'      => __( '0 % lines are zero-rated (Nullsatz), not tax-exempt', 'invoqk' ),
 		];
 		return $l[ $key ] ?? $key;
 	}
