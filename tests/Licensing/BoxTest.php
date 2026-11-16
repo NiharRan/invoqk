@@ -75,4 +75,17 @@ final class BoxTest extends TestCase {
 		$active = $this->lic( [ 'plan' => 'pro', 'valid_until' => 9999 ] );
 		$this->assertStringNotContainsString( 'name="code"', Box::html( $active, 1, '', 'a@x.de' ) );
 	}
+
+	public function test_plans_render_as_cards_and_every_form_has_a_nonce(): void {
+		$free = Box::html( $this->lic(), 1000 );
+		$this->assertSame( 3, substr_count( $free, 'class="invoqk-plan"' ) );
+		$paid = $this->lic( [ 'plan' => 'pro', 'valid_until' => 99999, 'seats_used' => 1, 'seats_max' => 1 ] );
+		$h    = Box::html( $paid, 1000 );
+		$this->assertSame( 0, substr_count( $h, 'invoqk-plan' ) );
+		$trial = Box::html( $this->lic( [ 'plan' => 'trial', 'valid_until' => 99999 ] ), 1000 );
+		$this->assertSame( 3, substr_count( $trial, 'class="invoqk-plan"' ) );
+		foreach ( [ $free, $h, $trial ] as $html ) {
+			$this->assertSame( substr_count( $html, '<form' ), substr_count( $html, 'name="_wpnonce"' ) );
+		}
+	}
 }

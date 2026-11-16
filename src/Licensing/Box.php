@@ -6,7 +6,7 @@ final class Box {
 	public static function html( array $l, int $now, string $flash = '', string $pendingEmail = '' ): string {
 		$active = License::activeAt( $l, $now );
 		$h      = '<div class="invoqk-box invoqk-license"><h2>' . esc_html__( 'License', 'invoqk' ) . '</h2>' . self::flash( $flash )
-			. '<p>' . esc_html( self::status( $l, $now, $active ) ) . '</p>';
+			. '<p class="invoqk-hero__verdict">' . esc_html( self::status( $l, $now, $active ) ) . '</p>';
 		if ( $active ) {
 			$h .= 'trial' === $l['plan'] ? '' : self::form( 'portal', __( 'Manage billing', 'invoqk' ) );
 			$h .= self::form( 'deactivate', __( 'Deactivate this site', 'invoqk' ) );
@@ -52,18 +52,19 @@ final class Box {
 			'pro3'   => [ 'Pro 3', '€149', _n( '%d shop', '%d shops', 3, 'invoqk' ), 3 ],
 			'agency' => [ 'Agency', '€399', _n( '%d shop', '%d shops', 25, 'invoqk' ), 25 ],
 		];
-		$h = '<table class="widefat"><tbody>';
+		$h = '<div class="invoqk-pricing">';
 		foreach ( $rows as $plan => [ $name, $price, $shops, $n ] ) {
-			$h .= '<tr><td>' . esc_html( $name ) . '</td><td>' . esc_html( $price . ' / ' . __( 'year', 'invoqk' ) ) . '</td><td>' . esc_html( sprintf( $shops, $n ) ) . '</td><td>'
-				. self::form( 'checkout', __( 'Buy', 'invoqk' ), '<input type="hidden" name="plan" value="' . esc_attr( $plan ) . '">' ) . '</td></tr>';
+			$h .= '<div class="invoqk-plan"><span class="invoqk-plan__name">' . esc_html( $name ) . '</span><span class="invoqk-plan__price">' . esc_html( $price )
+				. ' <small class="invoqk-muted">/ ' . esc_html__( 'year', 'invoqk' ) . '</small></span><span class="invoqk-muted">' . esc_html( sprintf( $shops, $n ) ) . '</span>'
+				. self::form( 'checkout', __( 'Buy', 'invoqk' ), '<input type="hidden" name="plan" value="' . esc_attr( $plan ) . '">', true ) . '</div>';
 		}
-		return $h . '</tbody></table>';
+		return $h . '</div>';
 	}
 
-	private static function form( string $action, string $button, string $extra = '' ): string {
+	private static function form( string $action, string $button, string $extra = '', bool $primary = false ): string {
 		return '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_license">'
 			. wp_nonce_field( 'invoqk_license', '_wpnonce', true, false ) . $extra
-			. '<button type="submit" class="button" name="license_action" value="' . esc_attr( $action ) . '">' . esc_html( $button ) . '</button></form>';
+			. '<button type="submit" class="button' . ( $primary ? ' button-primary' : '' ) . '" name="license_action" value="' . esc_attr( $action ) . '">' . esc_html( $button ) . '</button></form>';
 	}
 
 	private static function flash( string $code ): string {
