@@ -153,6 +153,7 @@ if ( ! function_exists( 'esc_html' ) ) {
 	function esc_html__( string $t, string $d = 'default' ): string { return esc_html( $t ); }
 }
 
+if ( ! defined( 'DB_NAME' ) ) { define( 'DB_NAME', 'wordpress' ); }
 if ( ! defined( 'INVOQK_VERSION' ) ) { define( 'INVOQK_VERSION', '0.1.0' ); }
 if ( ! defined( 'INVOQK_FILE' ) ) { define( 'INVOQK_FILE', dirname( __DIR__ ) . '/invoqk.php' ); }
 if ( ! defined( 'HOUR_IN_SECONDS' ) ) { define( 'HOUR_IN_SECONDS', 3600 ); }

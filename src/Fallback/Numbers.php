@@ -4,7 +4,7 @@ namespace Invoqk\Fallback;
 /** Gap-free invoice numbers for the fallback generator: one continuous counter, formatted by the seller's pattern. */
 final class Numbers {
 	public const COUNTER = 'invoqk_fallback_counter';
-	public const LOCK    = 'invoqk_fb_num';
+	public const LOCK    = 'fb_num';
 
 	public static function format( string $pattern, int $counter, int $year ): string {
 		$pattern = str_replace( '{YYYY}', sprintf( '%04d', $year ), $pattern );

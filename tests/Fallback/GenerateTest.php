@@ -1,6 +1,7 @@
 <?php
 use Invoqk\Detection\Result;
 use Invoqk\Fallback\Generate;
+use Invoqk\Fallback\Lock;
 use Invoqk\Fallback\Seller;
 use Invoqk\Fallback\Store;
 use Invoqk\Sources\FallbackAdapter;
@@ -51,7 +52,7 @@ final class GenerateTest extends TestCase {
 		$this->assertSame( $r['number'], Store::get( $this->o )['number'] );
 		$this->assertSame( 'invoqk_fallback', Result::fromOrder( $this->o )->source );
 		$this->assertSame( [ 'invoqk_validate_order' ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
-		$this->assertSame( "SELECT GET_LOCK( 'invoqk_fb_gen_42', 0 )", $this->db->queries[0] );
+		$this->assertSame( "SELECT GET_LOCK( '" . Lock::name( 'fb_gen_42' ) . "', 0 )", $this->db->queries[0] );
 		$this->assertSame( [], $this->db->held, 'locks released' );
 	}
 
@@ -84,24 +85,24 @@ final class GenerateTest extends TestCase {
 	}
 
 	public function test_second_concurrent_call_creates_nothing(): void {
-		$this->db->held['invoqk_fb_gen_42'] = 'other';
+		$this->db->held[ Lock::name( 'fb_gen_42' ) ] = 'other';
 		$r = Generate::run( 42 );
 		$this->assertFalse( $r['ok'] );
 		$this->assertStringContainsString( 'already being created', $r['message'] );
 		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
 		$this->assertNull( Store::get( $this->o ) );
-		$this->assertSame( [ 'invoqk_fb_gen_42' => 'other' ], $this->db->held, 'foreign lock stays' );
+		$this->assertSame( [ Lock::name( 'fb_gen_42' ) => 'other' ], $this->db->held, 'foreign lock stays' );
 		$this->assertDirectoryDoesNotExist( $GLOBALS['invoqk_uploads'] . '/invoqk-fallback' );
 	}
 
 	public function test_number_lock_held_elsewhere_creates_nothing_and_releases_generation_lock(): void {
-		$this->db->held['invoqk_fb_num'] = 'other';
+		$this->db->held[ Lock::name( 'fb_num' ) ] = 'other';
 		$r = Generate::run( 42 );
 		$this->assertFalse( $r['ok'] );
 		$this->assertNull( $r['number'] );
 		$this->assertArrayNotHasKey( 'invoqk_fallback_counter', $GLOBALS['invoqk_options'] );
 		$this->assertNull( Store::get( $this->o ) );
-		$this->assertSame( [ 'invoqk_fb_num' => 'other' ], $this->db->held );
+		$this->assertSame( [ Lock::name( 'fb_num' ) => 'other' ], $this->db->held );
 	}
 
 	public function test_plugin_invoice_created_after_the_box_was_shown_blocks_generation(): void {

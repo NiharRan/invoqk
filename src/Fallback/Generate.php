@@ -8,7 +8,7 @@ use Invoqk\Sources\Registry;
 final class Generate {
 	/** @return array{ok: bool, message: string, number: ?string} */
 	public static function run( int $orderId ): array {
-		$key = 'invoqk_fb_gen_' . $orderId;
+		$key = 'fb_gen_' . $orderId;
 		if ( ! Lock::acquire( $key ) ) {
 			return self::held( $orderId );
 		}

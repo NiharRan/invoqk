@@ -1,4 +1,5 @@
 <?php
+use Invoqk\Fallback\Lock;
 use Invoqk\Fallback\Numbers;
 use Invoqk\Tests\Fallback\LockDb;
 use PHPUnit\Framework\TestCase;
@@ -27,18 +28,18 @@ final class NumbersTest extends TestCase {
 		$this->assertSame( 'RE-2027-00003', Numbers::next( 2027 ) );
 		$this->assertSame( 3, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
 		$this->assertSame( [], $this->db->held, 'lock released' );
-		$this->assertSame( "SELECT GET_LOCK( 'invoqk_fb_num', 0 )", $this->db->queries[0] );
+		$this->assertSame( "SELECT GET_LOCK( '" . Lock::name( 'fb_num' ) . "', 0 )", $this->db->queries[0] );
 	}
 
 	public function test_next_refuses_while_another_connection_holds_the_lock(): void {
-		$this->db->held['invoqk_fb_num']                      = 'other';
+		$this->db->held[ Lock::name( 'fb_num' ) ]             = 'other';
 		$GLOBALS['invoqk_options']['invoqk_fallback_counter'] = 4;
 		try {
 			Numbers::next( 2027 );
 			$this->fail( 'expected RuntimeException' );
 		} catch ( \RuntimeException $e ) {
 			$this->assertSame( 4, $GLOBALS['invoqk_options']['invoqk_fallback_counter'] );
-			$this->assertSame( [ 'invoqk_fb_num' => 'other' ], $this->db->held, 'foreign lock stays' );
+			$this->assertSame( [ Lock::name( 'fb_num' ) => 'other' ], $this->db->held, 'foreign lock stays' );
 		}
 	}
 

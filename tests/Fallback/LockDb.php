@@ -3,7 +3,8 @@ namespace Invoqk\Tests\Fallback;
 
 /** $wpdb stand-in for MySQL named locks: $held maps a lock name to 'me' (this connection) or any other owner. */
 final class LockDb {
-	public array $held = [];
+	public string $prefix = 'wp_';
+	public array $held   = [];
 	public array $queries = [];
 
 	public function prepare( string $q, ...$a ): string {
