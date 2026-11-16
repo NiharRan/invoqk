@@ -157,4 +157,41 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( 'Export running', $h );
 		$this->assertStringNotContainsString( 'Export failed', $h );
 	}
+
+	public function test_header_state_classes(): void {
+		$this->assertStringContainsString( 'invoqk-state is-ok', Page::header( [ 'state' => 'ok', 'at' => 0 ], 0 ) );
+		$this->assertStringContainsString( 'invoqk-state is-bad', Page::header( [ 'state' => 'broken', 'brokenId' => 9, 'kind' => 'link', 'at' => 0 ], 0 ) );
+		$this->assertStringContainsString( 'invoqk-state is-idle', Page::header( [], 0 ) );
+		$this->assertStringContainsString( 'invoqk-statusbar', Page::header( [], 0 ) );
+	}
+
+	public function test_delete_controls_sit_in_collapsed_details(): void {
+		$h = Page::deleteControls();
+		$this->assertStringStartsWith( '<details class="invoqk-delete"', $h );
+		$this->assertStringNotContainsString( ' open', substr( $h, 0, 40 ) );
+		$this->assertStringEndsWith( '</details>', $h );
+		$this->assertStringContainsString( 'Delete old entries', $h );
+	}
+
+	public function test_status_is_a_pill_and_keeps_notes(): void {
+		$c = Page::cells( $this->row( [ 'validation_status' => 'passed' ] ), self::NOW );
+		$this->assertStringContainsString( 'invoqk-pill-status ok', $c['status'] );
+		$c = Page::cells( $this->row( [ 'validation_status' => 'failed', 'sent_confirmed' => 0 ] ), self::NOW );
+		$this->assertStringContainsString( 'invoqk-pill-status bad', $c['status'] );
+		$c = Page::cells( $this->row( [ 'validation_status' => '<b>x</b>', 'sent_confirmed' => 0 ] ), self::NOW );
+		$this->assertStringContainsString( 'invoqk-pill-status na', $c['status'] );
+		$this->assertStringNotContainsString( '<b>', $c['status'] );
+		$this->assertStringContainsString( 'Delivery unconfirmed', $c['status'] );
+	}
+
+	public function test_export_box_is_a_card(): void {
+		$this->assertStringContainsString( 'invoqk-card invoqk-export', Page::exportBox( [ 'state' => 'none' ], true, self::NOW ) );
+	}
+
+	public function test_free_empty_state_is_an_upgrade_card(): void {
+		$h = Page::upgradeCard();
+		$this->assertStringContainsString( 'invoqk-card', $h );
+		$this->assertStringContainsString( 'Available in Invoqk Pro.', $h );
+		$this->assertStringContainsString( 'Upgrade to Pro', $h );
+	}
 }
