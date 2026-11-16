@@ -60,6 +60,7 @@ final class SyncTest extends TestCase {
 	}
 
 	public function test_sources_never_list_the_fallback_but_do_list_plugins(): void {
+		$filters = $GLOBALS['invoqk_filters'] ?? [];
 		try {
 			$this->plan( 'agency' );
 			$GLOBALS['invoqk_options']['invoqk_fallback_used'] = 1;
@@ -69,6 +70,7 @@ final class SyncTest extends TestCase {
 			$this->assertSame( [ 'plugin_x' ], Sync::payload( 100000 )['sources'] );
 		} finally {
 			unset( $GLOBALS['invoqk_edi'] );
+			$GLOBALS['invoqk_filters'] = $filters;
 		}
 	}
 }
