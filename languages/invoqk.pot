@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-16T22:09:04+00:00\n"
+"POT-Creation-Date: 2026-11-16T22:14:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: invoqk\n"
@@ -163,12 +163,12 @@ msgid "Select turnover"
 msgstr ""
 
 #: src/Admin/Dashboard.php:102
-#: src/Onboarding/Wizard.php:140
+#: src/Onboarding/Wizard.php:142
 msgid "Over €800,000"
 msgstr ""
 
 #: src/Admin/Dashboard.php:102
-#: src/Onboarding/Wizard.php:140
+#: src/Onboarding/Wizard.php:142
 msgid "Up to €800,000"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgid "Save"
 msgstr ""
 
 #: src/Admin/Dashboard.php:106
-#: src/Onboarding/Wizard.php:149
+#: src/Onboarding/Wizard.php:153
 msgid "No legal or tax advice."
 msgstr ""
 
@@ -418,7 +418,7 @@ msgid "Invoices with errors are now held until you fix or release them."
 msgstr ""
 
 #: src/Admin/SettingsPage.php:161
-#: src/Onboarding/Wizard.php:146
+#: src/Onboarding/Wizard.php:150
 msgid "API key"
 msgstr ""
 
@@ -533,7 +533,7 @@ msgid "File not found."
 msgstr ""
 
 #: src/Archive/Actions.php:82
-#: src/Archive/Page.php:124
+#: src/Archive/Page.php:138
 msgid "DELETE"
 msgstr ""
 
@@ -546,80 +546,105 @@ msgid "Your Steuerberater export is ready for download:"
 msgstr ""
 
 #: src/Archive/Page.php:13
-#: src/Archive/Page.php:196
+#: src/Archive/Page.php:128
+#: src/Archive/Page.php:210
 msgid "Invoqk Archive"
 msgstr ""
 
-#: src/Archive/Page.php:46
+#: src/Archive/Page.php:48
 msgid "Delivery unconfirmed"
 msgstr ""
 
-#: src/Archive/Page.php:49
+#: src/Archive/Page.php:51
 msgid "deletable"
 msgstr ""
 
 #. translators: 1: date, 2: user name
-#: src/Archive/Page.php:56
+#: src/Archive/Page.php:58
 #, php-format
 msgid "Deleted on %1$s by %2$s"
 msgstr ""
 
-#: src/Archive/Page.php:97
+#: src/Archive/Page.php:99
 msgid "Credit note"
 msgstr ""
 
-#: src/Archive/Page.php:104
+#: src/Archive/Page.php:106
 msgid "Check running"
 msgstr ""
 
 #. translators: %s: date
-#: src/Archive/Page.php:106
+#: src/Archive/Page.php:108
 #, php-format
 msgid "Last check: %s, no changes detected"
 msgstr ""
 
 #. translators: 1: date, 2: entry id, 3: kind of change
-#: src/Archive/Page.php:108
+#: src/Archive/Page.php:110
 #, php-format
 msgid "Last check: %1$s, changes detected at entry #%2$d (%3$s)"
 msgstr ""
 
-#: src/Archive/Page.php:109
+#: src/Archive/Page.php:111
 msgid "No check run yet"
 msgstr ""
 
-#: src/Archive/Page.php:113
+#: src/Archive/Page.php:115
 msgid "Check archive"
 msgstr ""
 
+#: src/Archive/Page.php:117
+msgid "Storage"
+msgstr ""
+
 #. translators: %d: count
-#: src/Archive/Page.php:115
+#: src/Archive/Page.php:120
+msgid "Queue"
+msgstr ""
+
+#: src/Archive/Page.php:121
 #, php-format
 msgid "%d invoice waiting to be archived"
 msgid_plural "%d invoices waiting to be archived"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Archive/Page.php:127
+#: src/Archive/Page.php:123
+msgid "Integrity check"
+msgstr ""
+
+#: src/Archive/Page.php:129
+msgid "The archive stores every e-invoice you send. Available in Invoqk Pro."
+msgstr ""
+
+#: src/Archive/Page.php:130
+msgid "Upgrade to Pro"
+msgstr ""
+
+#: src/Archive/Page.php:139
+msgid "Delete old entries"
+msgstr ""
+
+#: src/Archive/Page.php:141
 msgid "Reason"
 msgstr ""
 
-#: src/Archive/Page.php:128
+#: src/Archive/Page.php:142
 msgid "Delete the selected archive entries? This cannot be undone."
 msgstr ""
 
-#: src/Archive/Page.php:128
+#: src/Archive/Page.php:142
 msgid "Delete selected"
 msgstr ""
 
 #. translators: %s: confirm word
-#: src/Archive/Page.php:130
+#: src/Archive/Page.php:144
 #, php-format
 msgid "Entries before the retention date are only deleted when you type %s and give a reason."
 msgstr ""
 
 #. translators: %d: count
-#: src/Archive/Page.php:139
+#: src/Archive/Page.php:153
 #, php-format
 msgid "%d entry deleted."
 msgid_plural "%d entries deleted."
@@ -627,114 +652,110 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: count
-#: src/Archive/Page.php:143
+#: src/Archive/Page.php:157
 #, php-format
 msgid "%d entry kept: before the retention date it needs the confirm word and a reason."
 msgid_plural "%d entries kept: before the retention date they need the confirm word and a reason."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Archive/Page.php:146
+#: src/Archive/Page.php:160
 msgid "Export started. It runs in the background."
 msgstr ""
 
-#: src/Archive/Page.php:147
+#: src/Archive/Page.php:161
 msgid "An export is already running."
 msgstr ""
 
-#: src/Archive/Page.php:148
+#: src/Archive/Page.php:162
 msgid "Choose a valid date range."
 msgstr ""
 
-#: src/Archive/Page.php:149
+#: src/Archive/Page.php:163
 msgid "The PHP zip extension is missing."
 msgstr ""
 
-#: src/Archive/Page.php:159
+#: src/Archive/Page.php:173
 msgid "Export for Steuerberater"
 msgstr ""
 
-#: src/Archive/Page.php:161
+#: src/Archive/Page.php:175
 msgid "The PHP zip extension is missing. Ask your host to enable it."
 msgstr ""
 
-#: src/Archive/Page.php:166
+#: src/Archive/Page.php:180
 msgid "Export range"
 msgstr ""
 
-#: src/Archive/Page.php:167
+#: src/Archive/Page.php:181
 msgid "This month"
 msgstr ""
 
-#: src/Archive/Page.php:168
+#: src/Archive/Page.php:182
 msgid "Last month"
 msgstr ""
 
-#: src/Archive/Page.php:175
+#: src/Archive/Page.php:189
 msgid "Export running. Reload this page later."
 msgstr ""
 
 #. translators: 1: invoice count, 2: first date, 3: last date
-#: src/Archive/Page.php:182
+#: src/Archive/Page.php:196
 #, php-format
 msgid "%1$d invoice, %2$s to %3$s"
 msgid_plural "%1$d invoices, %2$s to %3$s"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Archive/Page.php:186
+#: src/Archive/Page.php:200
 msgid "Export failed. Check the archive check, then try again."
 msgstr ""
 
-#: src/Archive/Page.php:203
-msgid "The archive stores every e-invoice you send. Available in Invoqk Pro."
-msgstr ""
-
-#: src/Archive/Page.php:204
-msgid "Upgrade to Pro"
-msgstr ""
-
-#: src/Archive/Page.php:213
-msgid "Only deletable"
-msgstr ""
-
-#: src/Archive/Page.php:214
-msgid "Filter"
-msgstr ""
-
-#: src/Archive/Page.php:223
-msgid "Number"
-msgstr ""
-
 #: src/Archive/Page.php:224
-msgid "Date"
-msgstr ""
-
-#: src/Archive/Page.php:225
-msgid "Customer"
+msgid "Search number or customer"
 msgstr ""
 
 #: src/Archive/Page.php:226
-msgid "Net"
+msgid "Only deletable"
 msgstr ""
 
 #: src/Archive/Page.php:227
+msgid "Filter"
+msgstr ""
+
+#: src/Archive/Page.php:236
+msgid "Number"
+msgstr ""
+
+#: src/Archive/Page.php:237
+msgid "Date"
+msgstr ""
+
+#: src/Archive/Page.php:238
+msgid "Customer"
+msgstr ""
+
+#: src/Archive/Page.php:239
+msgid "Net"
+msgstr ""
+
+#: src/Archive/Page.php:240
 msgid "VAT"
 msgstr ""
 
-#: src/Archive/Page.php:228
+#: src/Archive/Page.php:241
 msgid "Gross"
 msgstr ""
 
-#: src/Archive/Page.php:229
+#: src/Archive/Page.php:242
 msgid "Status"
 msgstr ""
 
-#: src/Archive/Page.php:230
+#: src/Archive/Page.php:243
 msgid "Files"
 msgstr ""
 
-#: src/Archive/Page.php:231
+#: src/Archive/Page.php:244
 msgid "Version"
 msgstr ""
 
@@ -1264,61 +1285,61 @@ msgstr ""
 msgid "Check"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:109
+#: src/Onboarding/Wizard.php:110
 msgid "Set up later"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:120
+#: src/Onboarding/Wizard.php:121
 msgid "We found your invoice plugin"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:123
+#: src/Onboarding/Wizard.php:124
 msgid "E-invoices (XRechnung/ZUGFeRD) are read from it."
 msgstr ""
 
-#: src/Onboarding/Wizard.php:126
+#: src/Onboarding/Wizard.php:127
 msgid "Continue"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:128
+#: src/Onboarding/Wizard.php:129
 msgid "No invoice plugin found"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:129
+#: src/Onboarding/Wizard.php:130
 msgid "These plugins are supported:"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:137
+#: src/Onboarding/Wizard.php:138
 msgid "What was your turnover last year?"
 msgstr ""
 
 #. translators: %s: date such as 1.1.2027
-#: src/Onboarding/Wizard.php:143
+#: src/Onboarding/Wizard.php:146
 #, php-format
 msgid "E-invoice mandatory from %s"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:146
+#: src/Onboarding/Wizard.php:151
 msgid "(only if none is set yet)"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:150
+#: src/Onboarding/Wizard.php:154
 msgid "Back"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:151
+#: src/Onboarding/Wizard.php:155
 msgid "Start first check"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:151
+#: src/Onboarding/Wizard.php:155
 msgid "Go to dashboard"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:164
+#: src/Onboarding/Wizard.php:168
 msgid "We are checking your latest B2B invoices"
 msgstr ""
 
-#: src/Onboarding/Wizard.php:167
+#: src/Onboarding/Wizard.php:171
 msgid "You can leave this page. The check keeps running in the background; the dashboard opens as soon as results are in."
 msgstr ""
 
