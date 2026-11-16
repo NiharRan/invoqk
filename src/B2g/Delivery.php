@@ -43,9 +43,9 @@ final class Delivery {
 		if ( $r ) {
 			return Registry::default()->get( $r->source );
 		}
-		$list = array_values( array_filter( Registry::default()->all(), static function ( $a ) {
+		$list = array_values( array_filter( Registry::default()->plugins(), static function ( $a ) {
 			try {
-				return ! $a instanceof \Invoqk\Sources\FallbackAdapter && $a->isAvailable(); // generated on demand, never the plugin that will be used
+				return $a->isAvailable();
 			} catch ( \Throwable $e ) {
 				return false;
 			}

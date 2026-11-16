@@ -36,7 +36,7 @@ final class Sync {
 		return [
 			'sent_at'   => $now,
 			'version'   => INVOQK_VERSION,
-			'sources'   => array_values( array_map( static fn( $a ) => $a->id(), array_filter( Registry::default()->all(), static fn( $a ) => $a->isAvailable() ) ) ),
+			'sources'   => array_values( array_map( static fn( $a ) => $a->id(), array_filter( Registry::default()->plugins(), static fn( $a ) => $a->isAvailable() ) ) ),
 			'counts'    => array_intersect_key( $r, array_flip( [ 'passed', 'failed', 'missing', 'unchecked', 'notRequired', 'required' ] ) ),
 			'score'     => $r['score'],
 			'capped'    => $r['capped'],

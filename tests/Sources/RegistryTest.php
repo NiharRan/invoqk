@@ -86,4 +86,18 @@ final class RegistryTest extends TestCase {
 		$this->assertSame( 'plugin', $hit['adapter']->id() );
 		exec( 'rm -rf ' . escapeshellarg( $GLOBALS['invoqk_uploads'] ) );
 	}
+
+	public function test_plugins_excludes_only_the_fallback(): void {
+		$a = new FakeAdapter( 'a' );
+		$r = new Registry( $a, new \Invoqk\Sources\FallbackAdapter() );
+		$this->assertSame( [ $a ], $r->plugins() );
+		$this->assertCount( 2, $r->all() );
+	}
+
+	public function test_default_puts_fallback_last_after_filter_adapters(): void {
+		add_filter( 'invoqk_source_adapters', fn( array $l ) => $l );
+		$all = Registry::default()->all();
+		$this->assertInstanceOf( \Invoqk\Sources\FallbackAdapter::class, end( $all ) );
+		$this->assertSame( 1, count( array_filter( $all, fn( $a ) => $a instanceof \Invoqk\Sources\FallbackAdapter ) ) );
+	}
 }

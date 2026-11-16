@@ -7,15 +7,22 @@ final class Store {
 	public const OPTION = 'invoqk_fallback_used';
 	private const FILE  = '#^[a-f0-9]{32}\.xml$#D';
 
+	/** Where the files live; creates nothing, so reads stay side-effect free. */
+	private static function base(): string {
+		return rtrim( (string) wp_upload_dir()['basedir'], '/' ) . '/invoqk-fallback';
+	}
+
+	/** Creates and protects the directory on first write. */
 	public static function dir(): string {
-		$dir = rtrim( (string) wp_upload_dir()['basedir'], '/' ) . '/invoqk-fallback';
+		$dir = self::base();
 		if ( ! is_dir( $dir ) ) {
 			wp_mkdir_p( $dir );
 		}
 		if ( ! is_dir( $dir ) ) {
 			throw new \RuntimeException( 'Could not create fallback directory.' );
 		}
-		foreach ( [ 'index.php' => '', '.htaccess' => "Require all denied\n<IfModule !mod_authz_core.c>Deny from all</IfModule>\n" ] as $name => $body ) {
+		$htaccess = "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\n";
+		foreach ( [ 'index.php' => '', '.htaccess' => $htaccess ] as $name => $body ) {
 			if ( ! is_file( "$dir/$name" ) && false === file_put_contents( "$dir/$name", $body ) ) {
 				throw new \RuntimeException( 'Could not write fallback protection file.' );
 			}
@@ -23,22 +30,27 @@ final class Store {
 		return $dir;
 	}
 
-	/** @throws \RuntimeException file first, meta last: a failure leaves no meta behind. */
+	/** @throws \RuntimeException file first, meta last: a failure removes the file and leaves no meta. */
 	public static function save( \WC_Order $o, string $xml, string $number, string $profile ): void {
-		$name = bin2hex( random_bytes( 16 ) ) . '.xml';
-		if ( false === file_put_contents( self::dir() . '/' . $name, $xml ) ) {
+		$path = self::dir() . '/' . bin2hex( random_bytes( 16 ) ) . '.xml';
+		if ( false === file_put_contents( $path, $xml ) ) {
 			throw new \RuntimeException( 'Could not write fallback invoice.' );
 		}
-		$o->update_meta_data( self::META, [
-			'number'  => $number,
-			'date'    => gmdate( 'Y-m-d' ),
-			'profile' => $profile,
-			'file'    => $name,
-			'hash'    => hash( 'sha256', $xml ),
-		] );
-		$o->save_meta_data(); // not save(): that fires woocommerce_update_order and order.updated webhooks
-		if ( ! get_option( self::OPTION ) ) {
-			update_option( self::OPTION, 1, true );
+		try {
+			if ( ! get_option( self::OPTION ) ) {
+				update_option( self::OPTION, 1, true );
+			}
+			$o->update_meta_data( self::META, [
+				'number'  => $number,
+				'date'    => gmdate( 'Y-m-d' ),
+				'profile' => $profile,
+				'file'    => basename( $path ),
+				'hash'    => hash( 'sha256', $xml ),
+			] );
+			$o->save_meta_data(); // not save(): that fires woocommerce_update_order and order.updated webhooks
+		} catch ( \Throwable $e ) {
+			@unlink( $path );
+			throw $e;
 		}
 	}
 
@@ -52,7 +64,7 @@ final class Store {
 		if ( ! is_string( $file ) || ! preg_match( self::FILE, $file ) ) {
 			return null;
 		}
-		$path = self::dir() . '/' . $file;
+		$path = self::base() . '/' . $file;
 		return is_file( $path ) ? $path : null;
 	}
 }

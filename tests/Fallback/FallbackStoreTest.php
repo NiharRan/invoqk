@@ -23,7 +23,9 @@ final class FallbackStoreTest extends TestCase {
 		$this->assertNotSame( '', $m['date'] );
 		$this->assertSame( '<x/>', file_get_contents( Store::path( $o ) ) );
 		$this->assertFileExists( Store::dir() . '/index.php' );
-		$this->assertStringContainsString( 'denied', file_get_contents( Store::dir() . '/.htaccess' ) );
+		$ht = file_get_contents( Store::dir() . '/.htaccess' );
+		$this->assertStringContainsString( "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>", $ht );
+		$this->assertStringContainsString( "<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>", $ht );
 		$this->assertTrue( (bool) get_option( 'invoqk_fallback_used' ) );
 		$this->assertSame( 1, $o->metaSaves );
 		$this->assertSame( 0, $o->saves );
@@ -52,5 +54,26 @@ final class FallbackStoreTest extends TestCase {
 			$this->assertNull( Store::get( $o ) );
 			$this->assertSame( 0, $o->metaSaves );
 		}
+	}
+
+	public function test_path_on_missing_folder_returns_null_and_creates_nothing(): void {
+		$this->assertNull( Store::path( new WC_Order( 9 ) ) );
+		$o = new WC_Order( 9 );
+		$o->update_meta_data( Store::META, [ 'file' => str_repeat( 'a', 32 ) . '.xml' ] );
+		$this->assertNull( Store::path( $o ) );
+		$this->assertDirectoryDoesNotExist( $GLOBALS['invoqk_uploads'] . '/invoqk-fallback' );
+	}
+
+	public function test_failed_meta_save_removes_the_file(): void {
+		$o = new class( 7 ) extends WC_Order {
+			public function save_meta_data(): void { throw new \RuntimeException( 'db down' ); }
+		};
+		try {
+			Store::save( $o, '<x/>', 'RE-1', 'xrechnung' );
+			$this->fail( 'expected exception' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertSame( 'db down', $e->getMessage() );
+		}
+		$this->assertSame( [], array_values( array_diff( scandir( Store::dir() ), [ '.', '..', 'index.php', '.htaccess' ] ) ) );
 	}
 }

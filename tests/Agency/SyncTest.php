@@ -58,4 +58,17 @@ final class SyncTest extends TestCase {
 		Sync::syncIfStale( 10 + License::GRACE + 1, $this->t() );
 		$this->assertSame( [], $this->calls );
 	}
+
+	public function test_sources_never_list_the_fallback_but_do_list_plugins(): void {
+		try {
+			$this->plan( 'agency' );
+			$GLOBALS['invoqk_options']['invoqk_fallback_used'] = 1;
+			$GLOBALS['invoqk_edi'] = false; // WP Overnight stand-in off
+			$this->assertSame( [], Sync::payload( 100000 )['sources'] );
+			add_filter( 'invoqk_source_adapters', fn( array $l ) => [ ...$l, new \Invoqk\Tests\Sources\FakeAdapter( 'plugin_x' ) ] );
+			$this->assertSame( [ 'plugin_x' ], Sync::payload( 100000 )['sources'] );
+		} finally {
+			unset( $GLOBALS['invoqk_edi'] );
+		}
+	}
 }

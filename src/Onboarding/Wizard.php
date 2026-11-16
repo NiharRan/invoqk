@@ -114,7 +114,7 @@ final class Wizard {
 	}
 
 	private static function step1(): string {
-		$found = array_filter( Registry::default()->all(), fn( $a ) => $a->isAvailable() );
+		$found = array_filter( Registry::default()->plugins(), fn( $a ) => $a->isAvailable() );
 		$h     = '<div class="invoqk-wizard">' . self::steps( 1 );
 		if ( $found ) {
 			$h .= '<h2>' . esc_html__( 'We found your invoice plugin', 'invoqk' ) . '</h2>';
