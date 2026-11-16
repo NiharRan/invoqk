@@ -2,3 +2,4 @@
 /.superpowers
 /vendor/
 .phpunit.result.cache
+/.env*

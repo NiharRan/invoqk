@@ -88,6 +88,7 @@ final class SettingsPage {
 			echo Dashboard::html( Readiness::get( get_locale() ), State::turnover(), '' !== Client::apiKey() ); // phpcs:ignore WordPress.Security.EscapeOutput
 		}
 		\Invoqk\Licensing\Actions::refreshIfStale( time() );
+		\Invoqk\Licensing\Actions::refreshOnOpen( time() );
 		echo \Invoqk\Licensing\Box::html( \Invoqk\Licensing\License::get(), time(), sanitize_key( (string) ( $_GET['invoqk_license'] ?? '' ) ), (string) get_option( \Invoqk\Licensing\Actions::TRIAL_PENDING, '' ) ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- read-only flash code; escaped in Box
 		echo '<div class="invoqk-box invoqk-settings"><h2>' . esc_html__( 'Settings', 'invoqk' ) . '</h2>';
 		echo '<div class="notice notice-info inline"><p>'

@@ -197,6 +197,15 @@ final class Actions {
 		}
 	}
 
+	/** Settings page opened with a key but no plan: a purchase made on the website (no checkout started here) shows up now, at most once a minute. */
+	public static function refreshOnOpen( int $now, ?callable $transport = null ): void {
+		if ( '' === Client::apiKey() || 'free' !== License::get()['plan'] || false !== get_transient( 'invoqk_open_check' ) ) {
+			return;
+		}
+		set_transient( 'invoqk_open_check', 1, 60 );
+		self::refresh( $now, $transport );
+	}
+
 	/** @return array{ok:bool,error:?string} */
 	private static function install( array $res, int $now, ?string $enteredKey = null ): array {
 		if ( 200 === $res['http'] && null !== $enteredKey && 'free' === ( $res['body']['plan'] ?? null ) ) {
