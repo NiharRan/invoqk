@@ -6,6 +6,7 @@ final class Hooks {
 	public static function boot(): void {
 		Capture::boot();
 		Entry::boot();
+		CreditNoteEntry::boot();
 		Actions::boot();
 		Page::boot();
 		Export::boot();

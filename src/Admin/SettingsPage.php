@@ -2,6 +2,7 @@
 namespace Invoqk\Admin;
 
 use Invoqk\Archive\Actions;
+use Invoqk\B2g\Field;
 use Invoqk\Onboarding\State;
 use Invoqk\Onboarding\Wizard;
 use Invoqk\Guard\Hold;
@@ -22,6 +23,7 @@ final class SettingsPage {
 			add_option( Actions::RETENTION_OPTION, 8, '', false ); // register_setting has no autoload argument; no-op when it exists
 			if ( Limit::isPro() ) {
 				register_setting( 'invoqk', 'invoqk_guard_mode', [ 'sanitize_callback' => [ Hold::class, 'sanitizeMode' ], 'autoload' => false ] );
+				register_setting( 'invoqk', Field::OPTION, [ 'sanitize_callback' => [ Field::class, 'sanitizeMode' ] ] ); // autoloaded: read on every front-end request
 			}
 		} );
 		// options.php checks the capability via this filter; the key is never echoed, so an empty or masked submit keeps the stored one.
@@ -79,6 +81,12 @@ final class SettingsPage {
 				echo '<label><input type="radio" name="invoqk_guard_mode" value="' . esc_attr( $v ) . '"' . ( $v === $mode ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label><br>';
 			}
 			echo '</td></tr>';
+			$lw = Field::mode();
+			echo '<tr><th scope="row">' . esc_html__( 'Ask for Leitweg-ID', 'invoqk' ) . '</th><td>';
+			foreach ( [ 'off' => __( 'Off', 'invoqk' ), 'always' => __( 'Always', 'invoqk' ), 'business' => __( 'Only for business customers (company name or VAT ID filled in)', 'invoqk' ) ] as $v => $label ) {
+				echo '<label><input type="radio" name="' . esc_attr( Field::OPTION ) . '" value="' . esc_attr( $v ) . '"' . ( $v === $lw ? ' checked' : '' ) . '> ' . esc_html( $label ) . '</label><br>';
+			}
+			echo '<p class="description">' . esc_html__( 'The block checkout always shows the field. Only the classic checkout can limit it to business customers.', 'invoqk' ) . '</p></td></tr>';
 		}
 		echo '<tr><th scope="row"><label for="invoqk_archive_retention_years">' . esc_html__( 'Archive retention (years)', 'invoqk' ) . '</label></th>'
 			. '<td><input type="number" min="1" max="30" id="invoqk_archive_retention_years" name="invoqk_archive_retention_years" value="' . esc_attr( (string) Actions::retentionYears() ) . '" class="small-text">'

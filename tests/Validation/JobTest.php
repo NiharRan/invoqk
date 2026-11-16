@@ -34,6 +34,7 @@ final class JobTest extends TestCase {
 			public function isAvailable(): bool { return $this->t->available; }
 			public function find( \WC_Order $o ): ?InvoiceFile { return null; }
 			public function read( \WC_Order $o, InvoiceFile $f ): ?string { ++$this->t->reads; if ( $this->t->throws ) { throw new \Error( 'LEAKY' ); } return $this->t->bytes(); }
+			public function findCreditNotes( \WC_Order $o ): array { return []; }
 		} ] );
 	}
 

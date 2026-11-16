@@ -3,19 +3,17 @@ namespace Invoqk\Archive;
 
 /** Pure helpers for the Steuerberater export: CSV lines and ZIP file names. */
 final class ExportFormat {
-	public const HEADER = [ 'Rechnungsnr', 'Datum', 'Kunde', 'Netto', 'USt', 'Brutto', 'Währung', 'Validierungsstatus', 'Version', 'Erneut gesendet' ];
+	public const HEADER = [ 'Rechnungsnr', 'Datum', 'Kunde', 'Netto', 'USt', 'Brutto', 'Währung', 'Validierungsstatus', 'Version', 'Erneut gesendet', 'Art', 'Bezug auf Rechnungsnr' ];
 
 	public static function header(): string {
 		return "\xEF\xBB\xBF" . implode( ';', self::HEADER ) . "\r\n";
 	}
 
-	public static function line( array $row ): string {
-		$customer = (string) ( $row['customer'] ?? '' );
-		if ( '' !== $customer && false !== strpos( "=+-@\t\r", $customer[0] ) ) {
-			$customer = "'" . $customer; // neutralise spreadsheet formulas
-		}
+	public static function line( array $row, string $parentNumber = '' ): string {
+		$customer = self::formula( (string) ( $row['customer'] ?? '' ) );
 		$money = static fn( $v ): string => null === $v || '' === $v ? '' : number_format( (float) $v, 2, ',', '' );
 		$date  = self::date( $row );
+		$cn    = 'credit_note' === ( $row['kind'] ?? 'invoice' );
 		return self::csv( [
 			(string) ( $row['invoice_number'] ?? '' ),
 			'' === $date ? '' : gmdate( 'd.m.Y', strtotime( $date . ' UTC' ) ),
@@ -26,8 +24,15 @@ final class ExportFormat {
 			(string) ( $row['currency'] ?? '' ),
 			(string) ( $row['validation_status'] ?? '' ),
 			(string) (int) ( $row['version'] ?? 1 ),
-			(int) ( $row['version'] ?? 1 ) > 1 ? 'ja' : '',
+			! $cn && (int) ( $row['version'] ?? 1 ) > 1 ? 'ja' : '',
+			$cn ? 'Gutschrift' : 'Rechnung',
+			$cn ? self::formula( $parentNumber ) : '',
 		] );
+	}
+
+	/** Neutralise spreadsheet formulas. */
+	private static function formula( string $v ): string {
+		return '' !== $v && false !== strpos( "=+-@\t\r", $v[0] ) ? "'" . $v : $v;
 	}
 
 	public static function date( array $row ): string {

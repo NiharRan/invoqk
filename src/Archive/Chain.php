@@ -6,9 +6,12 @@ final class Chain {
 	public static function hash( array $r ): string {
 		$money = fn( $k ) => isset( $r[ $k ] ) ? number_format( (float) $r[ $k ], 2, '.', '' ) : '';
 		$f     = fn( $k ) => (string) ( $r[ $k ] ?? '' );
-		return hash(
-			'sha256',
-			implode( '|', [ $f( 'prev_hash' ), $f( 'xml_hash' ), $f( 'pdf_hash' ), $f( 'order_id' ), $f( 'version' ), $f( 'invoice_number' ), $f( 'invoice_date' ), $money( 'gross' ), $money( 'vat' ), $f( 'sent_at' ) ] )
-		);
+		$fields = [ $f( 'prev_hash' ), $f( 'xml_hash' ), $f( 'pdf_hash' ), $f( 'order_id' ), $f( 'version' ), $f( 'invoice_number' ), $f( 'invoice_date' ), $money( 'gross' ), $money( 'vat' ), $f( 'sent_at' ) ];
+		// Appended only for non-invoice rows, so rows written before kind existed keep their hash.
+		if ( '' !== $f( 'kind' ) && 'invoice' !== $r['kind'] ) {
+			$fields[] = $r['kind'];
+			$fields[] = $f( 'parent_id' );
+		}
+		return hash( 'sha256', implode( '|', $fields ) );
 	}
 }

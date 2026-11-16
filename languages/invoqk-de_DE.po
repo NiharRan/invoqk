@@ -761,3 +761,91 @@ msgstr "Invoqk: Ihr Export ist fertig"
 #: src/Archive/Export.php
 msgid "Your Steuerberater export is ready for download:"
 msgstr "Ihr Export für die Steuerberatung steht zum Download bereit:"
+
+#: src/Refund/Dismiss.php
+msgid "Invoqk: no corrective e-invoice needed for refund #%1$d, set by %2$s."
+msgstr "Invoqk: Keine Korrektur-E-Rechnung für Erstattung #%1$d nötig, festgelegt von %2$s."
+
+#: src/Refund/Box.php
+msgid "No corrective e-invoice needed"
+msgstr "Keine Korrektur-E-Rechnung nötig"
+
+#: src/Refund/Box.php
+msgid "Corrective e-invoice open"
+msgstr "Korrektur-E-Rechnung offen"
+
+#: src/Refund/Notice.php
+msgid "Open first order"
+msgstr "Erste Bestellung öffnen"
+
+#: src/Refund/Notice.php
+msgid "%d order has a refund without a corrective e-invoice."
+msgid_plural "%d orders have a refund without a corrective e-invoice."
+msgstr[0] "%d Bestellung hat eine Erstattung ohne Korrektur-E-Rechnung."
+msgstr[1] "%d Bestellungen haben eine Erstattung ohne Korrektur-E-Rechnung."
+
+#: src/Archive/Page.php
+msgid "Credit note"
+msgstr "Gutschrift"
+
+#: src/CreditNote/Box.php
+msgid "Refund #%1$d: credit note %2$s"
+msgstr "Erstattung #%1$d: Gutschrift %2$s"
+
+#: src/CreditNote/Box.php
+msgid "refers to invoice %s"
+msgstr "bezieht sich auf Rechnung %s"
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID may only contain letters, digits and hyphens, for example 04011000-12345-67."
+msgstr "Die Leitweg-ID darf nur Buchstaben, Ziffern und Bindestriche enthalten, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The first part of the Leitweg-ID needs 2 to 12 digits and the optional middle part at most 30 characters, for example 04011000-12345-67."
+msgstr "Der erste Teil der Leitweg-ID braucht 2 bis 12 Ziffern, der optionale mittlere Teil höchstens 30 Zeichen, zum Beispiel 04011000-12345-67."
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
+msgstr "Die Leitweg-ID muss so aussehen: 04011000-12345-67. Ziffern, ein optionaler mittlerer Teil und eine zweistellige Prüfziffer, getrennt durch Bindestriche."
+
+#: src/B2g/Field.php, src/Admin/OrderBox.php
+msgid "Leitweg-ID / Buyer reference"
+msgstr "Leitweg-ID / Käuferreferenz"
+
+#: src/B2g/Field.php
+msgid "Only for orders with a company name or VAT ID."
+msgstr "Nur für Bestellungen mit Firmenname oder USt-IdNr."
+
+#: src/Admin/SettingsPage.php
+msgid "Ask for Leitweg-ID"
+msgstr "Leitweg-ID abfragen"
+
+#: src/Admin/SettingsPage.php
+msgid "Off"
+msgstr "Aus"
+
+#: src/Admin/SettingsPage.php
+msgid "Always"
+msgstr "Immer"
+
+#: src/Admin/SettingsPage.php
+msgid "Only for business customers (company name or VAT ID filled in)"
+msgstr "Nur für Geschäftskunden (Firmenname oder USt-IdNr. ausgefüllt)"
+
+#: src/Admin/SettingsPage.php
+msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
+msgstr "Der Block-Checkout zeigt das Feld immer an. Nur der klassische Checkout kann es auf Geschäftskunden beschränken."
+
+#: src/B2g/Delivery.php
+#, php-format
+msgid "%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht in das eingestellte E-Rechnungsformat schreiben. Wenn der Käufer eine Leitweg-ID braucht, stelle das E-Rechnungsformat in %1$s vor dem Versand auf UBL oder PEPPOL BIS um."
+
+#: src/B2g/Delivery.php
+#, php-format
+msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
+msgstr "%1$s kann die Leitweg-ID nicht automatisch übernehmen. Sie muss vor dem Versand der E-Rechnung in %1$s als Käuferreferenz eingetragen werden."
+
+#: src/B2g/Delivery.php
+msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
+msgstr "Es wurde kein Rechnungsplugin gefunden, das die Leitweg-ID automatisch übernimmt. Sie muss vor dem Versand der E-Rechnung im Rechnungsplugin als Käuferreferenz eingetragen werden."

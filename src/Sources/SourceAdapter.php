@@ -17,4 +17,12 @@ interface SourceAdapter {
 
 	/** The file's bytes. May build in memory for on-demand sources; never save, send or attach. */
 	public function read( \WC_Order $order, InvoiceFile $file ): ?string;
+
+	/**
+	 * Existing credit notes of the order, keyed by refund ID; `[]` when none. Never creates one.
+	 * `read()` gets the parent order and builds the credit note named by `$file->reference`.
+	 *
+	 * @return array<int, InvoiceFile>
+	 */
+	public function findCreditNotes( \WC_Order $order ): array;
 }

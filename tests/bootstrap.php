@@ -15,6 +15,8 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_id(): int { return $this->id; }
 		public function get_meta( string $k ) { return $this->meta[ $k ] ?? ''; }
 		public function update_meta_data( string $k, $v ): void { $this->meta[ $k ] = $v; }
+		public array $refunds = [];
+		public function get_refunds(): array { return $this->refunds; }
 		public int $saves = 0;
 		public int $metaSaves = 0;
 		public function save(): int { ++$this->saves; return $this->id; }
@@ -44,6 +46,15 @@ if ( ! class_exists( 'WC_Order' ) ) {
 		public function get_edit_order_url(): string { return admin_url( "admin.php?page=wc-orders&action=edit&id={$this->id}" ); }
 		public function delete_meta_data( string $k ): void { unset( $this->meta[ $k ] ); }
 		public function add_order_note( string $n ): int { $this->notes[] = $n; return count( $this->notes ); }
+	}
+}
+
+if ( ! class_exists( 'WC_Order_Refund' ) ) {
+	// A real refund is not a WC_Order; it only knows its parent.
+	class WC_Order_Refund {
+		public function __construct( public int $id = 1, public int $parent = 0 ) {}
+		public function get_id(): int { return $this->id; }
+		public function get_parent_id(): int { return $this->parent; }
 	}
 }
 
@@ -121,7 +132,15 @@ if ( ! function_exists( 'get_option' ) ) {
 	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }
 
-if ( ! class_exists( 'WP_Error' ) ) { class WP_Error {} }
+if ( ! class_exists( 'WP_Error' ) ) {
+	class WP_Error {
+		public array $errors = [];
+		public function __construct( $code = '', $message = '' ) { if ( '' !== $code ) { $this->add( $code, $message ); } }
+		public function add( $code, $message, $data = '' ): void { $this->errors[ $code ][] = $message; }
+		public function get_error_messages(): array { return array_merge( [], ...array_values( $this->errors ) ); }
+		public function has_errors(): bool { return (bool) $this->errors; }
+	}
+}
 if ( ! function_exists( 'is_wp_error' ) ) {
 	function is_wp_error( $v ): bool { return $v instanceof WP_Error; }
 	function wp_remote_post( string $url, array $args = [] ) { $GLOBALS['invoqk_http'][] = $url; return new WP_Error(); }
@@ -149,6 +168,8 @@ if ( ! function_exists( 'wp_date' ) ) {
 	function check_admin_referer( $a, $q = '_wpnonce' ) { $GLOBALS['invoqk_nonce_args'][ $a ] = $q; return $GLOBALS['invoqk_nonce_ok'] ?? true; }
 	function wp_safe_redirect( string $u ): bool { return true; }
 	function wp_get_referer() { return false; }
+	function wc_price( $n, array $a = [] ): string { return '<span>' . number_format( (float) $n, 2 ) . ( $a['currency'] ?? '' ) . '</span>'; }
+	function wp_strip_all_tags( string $s ): string { return strip_tags( $s ); }
 	function wp_nonce_url( string $u, $a = -1 ): string { return $u . '&_wpnonce=nonce-' . $a; }
 	function settings_errors(): void { $GLOBALS['invoqk_settings_errors'] = ( $GLOBALS['invoqk_settings_errors'] ?? 0 ) + 1; }
 	function wp_nonce_field( $a = -1, $n = '_wpnonce', $r = true, $e = true ) { return '<input type="hidden" name="' . $n . '" value="nonce" data-action="' . $a . '">'; }

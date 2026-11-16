@@ -136,7 +136,11 @@ final class Export {
 						throw new \RuntimeException( 'missing' );
 					}
 				}
-				$out .= ExportFormat::line( $row );
+				$parent = '';
+				if ( 'credit_note' === ( $row['kind'] ?? '' ) && ! empty( $row['parent_id'] ) ) {
+					$parent = (string) ( Archive::index()->find( (int) $row['parent_id'] )['invoice_number'] ?? '' );
+				}
+				$out .= ExportFormat::line( $row, $parent );
 				++$added;
 			}
 			// ZipArchive reads added files at close(), so a vanished file surfaces here.

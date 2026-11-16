@@ -11,4 +11,8 @@ final class BadgeTest extends TestCase {
 		}
 		$this->assertSame( '', Badge::html( 'none' ) );
 	}
+
+	public function test_refund_state(): void {
+		$this->assertStringContainsString( '<span>Corrective e-invoice open</span>', Badge::html( 'refund' ) );
+	}
 }

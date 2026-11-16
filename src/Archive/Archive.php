@@ -30,7 +30,7 @@ final class Archive {
 
 	/** One row shape for both indexes: ints as int, money as "12.50", null kept. */
 	public static function normalise( array $row ): array {
-		foreach ( [ 'id', 'order_id', 'version', 'sent_at', 'sent_confirmed', 'xml_size', 'pdf_size', 'deleted_at', 'deleted_by' ] as $k ) {
+		foreach ( [ 'id', 'order_id', 'version', 'sent_at', 'sent_confirmed', 'xml_size', 'pdf_size', 'deleted_at', 'deleted_by', 'parent_id' ] as $k ) {
 			if ( isset( $row[ $k ] ) ) {
 				$row[ $k ] = (int) $row[ $k ];
 			}

@@ -76,12 +76,25 @@ final class ExportTest extends TestCase {
 		[ $names, $z ] = $this->names( $id );
 		$this->assertSame( [ 'RE-1_v1.xml', 'RE-1_v2.pdf', 'RE-1_v2.xml', 'RE-3_v1.xml', 'index.csv' ], $names );
 		$csv = $z->getFromName( 'index.csv' );
-		$this->assertStringContainsString( ";1;\r\n", $csv );
-		$this->assertStringContainsString( ";2;ja\r\n", $csv );
+		$this->assertStringContainsString( ";1;;Rechnung;\r\n", $csv );
+		$this->assertStringContainsString( ";2;ja;Rechnung;\r\n", $csv );
 		$this->assertStringNotContainsString( 'RE-2', $csv );
 		$this->assertCount( 1, $this->mails );
 		$this->assertSame( 'boss@example.com', $this->mails[0][0] );
 		$this->assertFileDoesNotExist( Archive::storage()->exports() . "/$id.csv" );
+	}
+
+	public function test_zip_includes_credit_note_files_and_index_row(): void {
+		$inv = $this->add( 1, 1, '2024-03-01' );
+		$src = sys_get_temp_dir() . '/invoqk-e-cn.tmp';
+		file_put_contents( $src, 'cn' );
+		$this->ix->append( [ 'order_id' => 21, 'version' => 1, 'kind' => 'credit_note', 'parent_id' => $inv['id'], 'invoice_number' => 'GS-1', 'invoice_date' => '2024-03-05', 'gross' => '-119.00', 'sent_at' => 0, 'xml_key' => Archive::storage()->put( $src, 'xml', 1700000000 ) ], [ Chain::class, 'hash' ] );
+		unlink( $src );
+		$id = $this->begin();
+		Export::run( $id, 0, $this->mail() );
+		[ $names, $z ] = $this->names( $id );
+		$this->assertSame( [ 'GS-1_v1.xml', 'RE-1_v1.xml', 'index.csv' ], $names );
+		$this->assertStringContainsString( "GS-1;05.03.2024;;;;-119,00;;;1;;Gutschrift;RE-1\r\n", $z->getFromName( 'index.csv' ) );
 	}
 
 	public function test_tombstoned_rows_are_skipped(): void {

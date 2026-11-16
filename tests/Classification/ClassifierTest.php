@@ -60,6 +60,12 @@ final class ClassifierTest extends TestCase {
 		$this->assertSame( 'vat_id', $r['reason'] );
 	}
 
+	public function test_vat_keys_default_and_filter(): void {
+		$this->assertSame( [ '_billing_vat_id', '_billing_eu_vat_number', '_billing_vat_number', '_vat_number' ], Classifier::vatKeys() );
+		add_filter( 'invoqk_vat_id_meta_keys', fn( $k ) => array_merge( $k, [ '_my_vat' ] ) );
+		$this->assertContains( '_my_vat', Classifier::vatKeys() );
+	}
+
 	public function test_override_wins_and_survives_reclassification(): void {
 		$o = $this->order( 'DE', '', '', '500' );
 		Classifier::save( $o );

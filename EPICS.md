@@ -122,7 +122,7 @@ Open: EU trademark for Invoqk.
 
 ## E10: B2G & credit notes (P1, Pro)
 
-- F9: Leitweg-ID / buyer reference field at checkout (block and classic), written as BT-10.
+- F9: Leitweg-ID / buyer reference field at checkout (block and classic). Written as BT-10 for WP Overnight UBL and PEPPOL BIS; other formats and plugins get a notice.
 - F10: flag refunds on B2B orders needing a corrective e-invoice; validate it once created.
 
 ## E11: Agency dashboard (P1, Agency)

@@ -48,6 +48,16 @@ final class PageTest extends TestCase {
 		$this->assertStringContainsString( 'deletable', $c['status'] );
 	}
 
+	public function test_credit_note_row_links_to_parent_order(): void {
+		$GLOBALS['invoqk_orders'][7]  = new \WC_Order( 7 );
+		$GLOBALS['invoqk_orders'][11] = new \WC_Order_Refund( 11, 7 );
+		$c = Page::cells( $this->row( [ 'kind' => 'credit_note', 'order_id' => 11, 'invoice_number' => 'GS-1' ] ), self::NOW );
+		$this->assertStringContainsString( 'id=7"', $c['number'] );
+		$this->assertStringContainsString( 'GS-1</a>', $c['number'] );
+		$this->assertStringContainsString( 'Credit note', $c['number'] );
+		$this->assertSame( '', $c['version'] );
+	}
+
 	public function test_header_meter_and_verify_form(): void {
 		$h = Page::header( [ 'state' => 'ok', 'checked' => 3, 'at' => 0 ], (int) ( 1.2 * 1024 ** 3 ) );
 		$this->assertStringContainsString( '1,2 GB of 5 GB', $h );

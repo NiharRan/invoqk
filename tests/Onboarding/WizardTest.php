@@ -26,6 +26,7 @@ final class WizardTest extends TestCase {
 			public function isAvailable(): bool { return $this->a; }
 			public function find( \WC_Order $o ): ?\Invoqk\Sources\InvoiceFile { return null; }
 			public function read( \WC_Order $o, \Invoqk\Sources\InvoiceFile $f ): ?string { return null; }
+			public function findCreditNotes( \WC_Order $o ): array { return []; }
 		} ];
 	}
 

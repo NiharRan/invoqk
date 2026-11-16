@@ -761,3 +761,93 @@ msgstr ""
 #: src/Archive/Export.php
 msgid "Your Steuerberater export is ready for download:"
 msgstr ""
+
+#: src/Refund/Dismiss.php
+msgid "Invoqk: no corrective e-invoice needed for refund #%1$d, set by %2$s."
+msgstr ""
+
+#: src/Refund/Box.php
+msgid "No corrective e-invoice needed"
+msgstr ""
+
+#: src/Refund/Box.php
+msgid "Corrective e-invoice open"
+msgstr ""
+
+#: src/Refund/Notice.php
+msgid "Open first order"
+msgstr ""
+
+#: src/Refund/Notice.php
+msgid "%d order has a refund without a corrective e-invoice."
+msgid_plural "%d orders have a refund without a corrective e-invoice."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Archive/Page.php
+msgid "Credit note"
+msgstr ""
+
+#: src/CreditNote/Box.php
+msgid "Refund #%1$d: credit note %2$s"
+msgstr ""
+
+#: src/CreditNote/Box.php
+msgid "refers to invoice %s"
+msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID may only contain letters, digits and hyphens, for example 04011000-12345-67."
+msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The first part of the Leitweg-ID needs 2 to 12 digits and the optional middle part at most 30 characters, for example 04011000-12345-67."
+msgstr ""
+
+#: src/B2g/LeitwegId.php
+msgid "The Leitweg-ID must look like 04011000-12345-67: digits, an optional middle part, and a two-digit check number, separated by hyphens."
+msgstr ""
+
+#: src/B2g/Field.php, src/Admin/OrderBox.php
+msgid "Leitweg-ID / Buyer reference"
+msgstr ""
+
+#: src/B2g/Field.php
+msgid "Only for orders with a company name or VAT ID."
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Ask for Leitweg-ID"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Off"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Always"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "Only for business customers (company name or VAT ID filled in)"
+msgstr ""
+
+#: src/Admin/SettingsPage.php
+msgid "The block checkout always shows the field. Only the classic checkout can limit it to business customers."
+msgstr ""
+
+#: src/B2g/Delivery.php
+#. translators: %1$s: invoice plugin name
+#, php-format
+msgid "%1$s cannot write the Leitweg-ID into its current e-invoice format. If the buyer needs a Leitweg-ID, switch the e-invoice format in %1$s to UBL or PEPPOL BIS before the e-invoice is sent."
+msgstr ""
+
+#: src/B2g/Delivery.php
+#. translators: %1$s: invoice plugin name
+#, php-format
+msgid "%1$s cannot take the Leitweg-ID automatically. It must be entered in %1$s as the buyer reference before the e-invoice is sent."
+msgstr ""
+
+#: src/B2g/Delivery.php
+msgid "No invoice plugin that takes the Leitweg-ID automatically was found. It must be entered in your invoice plugin as the buyer reference before the e-invoice is sent."
+msgstr ""
