@@ -17,24 +17,30 @@ final class Numbers {
 		);
 	}
 
-	/** @throws \RuntimeException When another request holds the lock. */
+	/** @throws \RuntimeException When another request holds the lock or the counter cannot be saved. */
 	public static function next( ?int $year = null ): string {
-		// shortcut: option lock, not a DB transaction; upgrade to a dedicated table if two shops share a database
-		if ( ! add_option( self::LOCK, time(), '', false ) ) {
+		// shortcut: option lock, not a DB transaction; stale takeover is delete+add, so two requests that both see a >30 s old lock at the same instant can both enter; upgrade to a compare-and-delete on the options row or a dedicated table if that matters
+		$token = time() . ':' . bin2hex( random_bytes( 8 ) );
+		if ( ! add_option( self::LOCK, $token, '', false ) ) {
 			if ( time() - (int) get_option( self::LOCK, 0 ) <= self::STALE ) {
 				throw new \RuntimeException( 'Invoice number lock is held.' );
 			}
 			delete_option( self::LOCK );
-			if ( ! add_option( self::LOCK, time(), '', false ) ) {
+			if ( ! add_option( self::LOCK, $token, '', false ) ) {
 				throw new \RuntimeException( 'Invoice number lock is held.' );
 			}
 		}
 		try {
 			$counter = (int) get_option( self::COUNTER, 0 ) + 1;
-			update_option( self::COUNTER, $counter, false );
-			return self::format( (string) Seller::get()['number_format'], $counter, $year ?? (int) gmdate( 'Y' ) );
+			$number  = self::format( (string) Seller::get()['number_format'], $counter, $year ?? (int) wp_date( 'Y' ) );
+			if ( ! update_option( self::COUNTER, $counter, false ) ) {
+				throw new \RuntimeException( 'Invoice counter could not be saved.' );
+			}
+			return $number;
 		} finally {
-			delete_option( self::LOCK );
+			if ( get_option( self::LOCK ) === $token ) {
+				delete_option( self::LOCK );
+			}
 		}
 	}
 }

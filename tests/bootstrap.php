@@ -127,7 +127,7 @@ if ( ! defined( 'HOUR_IN_SECONDS' ) ) { define( 'HOUR_IN_SECONDS', 3600 ); }
 $GLOBALS['invoqk_options'] = [];
 if ( ! function_exists( 'get_option' ) ) {
 	function get_option( string $k, $d = false ) { return $GLOBALS['invoqk_options'][ $k ] ?? $d; }
-	function update_option( string $k, $v, $autoload = null ): bool { $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
+	function update_option( string $k, $v, $autoload = null ): bool { if ( ! empty( $GLOBALS['invoqk_fail_update'] ) ) { return false; } $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
 	function add_option( string $k, $v = '', $dep = '', $autoload = null ): bool { if ( isset( $GLOBALS['invoqk_options'][ $k ] ) ) { return false; } $GLOBALS['invoqk_options'][ $k ] = $v; return true; }
 	function delete_option( string $k ): bool { unset( $GLOBALS['invoqk_options'][ $k ] ); return true; }
 }
