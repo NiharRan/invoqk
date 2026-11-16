@@ -29,11 +29,13 @@ final class OrderBox {
 		}
 		if ( ! Classifier::isRequired( $order ) ) {
 			echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box(); a held order reclassified later still needs its links
+			echo \Invoqk\Fallback\Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box()
 			echo Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html(); a flag set before a later override stays dismissable
 			return; // no validation report, source or format for orders that need no e-invoice
 		}
 		echo Report::html( $order, get_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in Report
 		echo Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box()
+		echo \Invoqk\Fallback\Actions::box( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in box()
 		echo Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html()
 		echo \Invoqk\CreditNote\Box::html( $order ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in html()
 		$r = Result::fromOrder( $order );

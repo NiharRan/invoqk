@@ -19,6 +19,7 @@ final class Plugin {
 			Admin\Revalidate::boot();
 			Admin\Override::boot();
 			Guard\Actions::boot();
+			Fallback\Actions::boot();
 			Admin\SettingsPage::boot();
 			Licensing\Notice::boot();
 			Refund\Dismiss::boot();

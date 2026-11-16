@@ -997,3 +997,24 @@ msgstr "Die Rechnung konnte nicht erstellt werden. Es wurde nichts gespeichert."
 #: src/Fallback/Generate.php
 msgid "Invoice %s created."
 msgstr "Rechnung %s erstellt."
+
+#: src/Fallback/Actions.php
+#. translators: 1: invoice number, 2: profile
+msgid "Basic e-invoice %1$s (%2$s)"
+msgstr "Einfache E-Rechnung %1$s (%2$s)"
+
+#: src/Fallback/Actions.php
+msgid "Download XML"
+msgstr "XML herunterladen"
+
+#: src/Fallback/Actions.php
+msgid "Complete these seller details to create a basic e-invoice:"
+msgstr "Ergänze diese Verkäuferangaben, um eine einfache E-Rechnung zu erstellen:"
+
+#: src/Fallback/Actions.php
+msgid "Open settings"
+msgstr "Einstellungen öffnen"
+
+#: src/Fallback/Actions.php
+msgid "Create basic e-invoice"
+msgstr "Einfache E-Rechnung erstellen"

@@ -999,3 +999,24 @@ msgstr ""
 #: src/Fallback/Generate.php
 msgid "Invoice %s created."
 msgstr ""
+
+#: src/Fallback/Actions.php
+#. translators: 1: invoice number, 2: profile
+msgid "Basic e-invoice %1$s (%2$s)"
+msgstr ""
+
+#: src/Fallback/Actions.php
+msgid "Download XML"
+msgstr ""
+
+#: src/Fallback/Actions.php
+msgid "Complete these seller details to create a basic e-invoice:"
+msgstr ""
+
+#: src/Fallback/Actions.php
+msgid "Open settings"
+msgstr ""
+
+#: src/Fallback/Actions.php
+msgid "Create basic e-invoice"
+msgstr ""
