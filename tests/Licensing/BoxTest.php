@@ -33,6 +33,7 @@ final class BoxTest extends TestCase {
 		$this->assertStringContainsString( 'Pro', $h );
 		$this->assertStringContainsString( '1 of 1 shops', $h );
 		$this->assertStringContainsString( 'value="deactivate"', $h );
+		$this->assertStringContainsString( 'value="portal"', $h );
 		$this->assertStringNotContainsString( 'name="key"', $h );
 		$this->assertStringNotContainsString( 'value="checkout"', $h );
 		$this->assertStringNotContainsString( 'SECRET-KEY', $h );
@@ -41,6 +42,7 @@ final class BoxTest extends TestCase {
 	public function test_active_trial_shows_days_left_and_buy_table(): void {
 		$h = Box::html( $this->lic( [ 'plan' => 'trial', 'valid_until' => 1000 + 86400 * 4 - 1, 'trial_used' => true ] ), 1000 );
 		$this->assertStringContainsString( '4 days left', $h );
+		$this->assertStringNotContainsString( 'value="portal"', $h ); // a trial has no billing
 		$this->assertStringContainsString( 'value="checkout"', $h );
 		$this->assertStringContainsString( 'value="deactivate"', $h );
 	}

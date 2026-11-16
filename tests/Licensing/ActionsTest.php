@@ -199,6 +199,22 @@ final class ActionsTest extends TestCase {
 		$this->assertSame( [], $this->calls );
 	}
 
+	public function test_portal_returns_https_url_and_needs_a_key(): void {
+		$this->assertSame( 'no_key', Actions::portal( $this->t() )['error'] );
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
+		$this->reply( 200, [ 'url' => 'https://pay.example/portal' ] );
+		$this->assertSame( [ 'ok' => true, 'error' => null, 'url' => 'https://pay.example/portal' ], Actions::portal( $this->t() ) );
+		$this->assertStringEndsWith( '/api/v1/license/portal', $this->calls[0][0] );
+	}
+
+	public function test_portal_rejects_non_https_url_and_passes_api_errors(): void {
+		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
+		$this->reply( 200, [ 'url' => 'javascript:alert(1)' ] );
+		$this->assertSame( 'unknown', Actions::portal( $this->t() )['error'] );
+		$this->reply( 409, [ 'error' => 'no_license' ] );
+		$this->assertSame( 'no_license', Actions::portal( $this->t() )['error'] );
+	}
+
 	public function test_checkout_rejects_non_https_url(): void {
 		$GLOBALS['invoqk_options']['invoqk_api_key'] = 'sk_old';
 		foreach ( [ 'javascript:alert(1)', 'http://pay.example/c', '//pay.example/c' ] as $bad ) {

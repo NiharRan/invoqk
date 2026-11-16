@@ -8,6 +8,7 @@ final class Box {
 		$h      = '<div class="invoqk-box invoqk-license"><h2>' . esc_html__( 'License', 'invoqk' ) . '</h2>' . self::flash( $flash )
 			. '<p>' . esc_html( self::status( $l, $now, $active ) ) . '</p>';
 		if ( $active ) {
+			$h .= 'trial' === $l['plan'] ? '' : self::form( 'portal', __( 'Manage billing', 'invoqk' ) );
 			$h .= self::form( 'deactivate', __( 'Deactivate this site', 'invoqk' ) );
 		} else {
 			if ( '' !== $pendingEmail ) {
@@ -83,6 +84,8 @@ final class Box {
 			'invalid_email' => __( 'Enter a valid email address.', 'invoqk' ),
 			'account_exists' => __( 'An invoqk.com account with this email exists. Create an API key in your account and enter it below.', 'invoqk' ),
 			'no_license'  => __( 'The key is saved, but this account has no active plan. Buy a plan below.', 'invoqk' ),
+			'already_subscribed' => __( 'This account already has an Invoqk plugin license. Manage it with the link in your Lemon Squeezy receipt email.', 'invoqk' ),
+			'not_connected' => __( 'This key is not connected to this shop yet. Enter it in "License key" above and click Activate first.', 'invoqk' ),
 			'wrong_site'  => __( 'This key is already connected to another shop. Deactivate it there first.', 'invoqk' ),
 			'site_taken'  => __( 'Another key of your account is already connected to this shop.', 'invoqk' ),
 		];
