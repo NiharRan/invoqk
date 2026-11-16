@@ -215,4 +215,30 @@ final class WizardTest extends TestCase {
 			unset( $GLOBALS['invoqk_edi'] );
 		}
 	}
+
+	public function test_stepper_marks_current_and_done_steps(): void {
+		$h = Wizard::render( 2 );
+		$this->assertStringContainsString( 'class="invoqk-stepper"', $h );
+		$this->assertStringContainsString( 'class="is-done"', $h );
+		$this->assertStringContainsString( 'class="is-on"', $h );
+		$this->assertStringNotContainsString( 'class="invoqk-steps"', $h );
+	}
+
+	public function test_turnover_options_are_cards_with_dates_and_required(): void {
+		$h = Wizard::render( 2 );
+		$this->assertSame( 2, substr_count( $h, 'class="invoqk-choice"' ) );
+		$this->assertSame( 2, substr_count( $h, 'name="turnover"' ) );
+		$this->assertSame( 2, substr_count( $h, ' required' ) );
+		$this->assertStringContainsString( 'E-invoice mandatory from 1.1.2027', $h );
+		$this->assertStringContainsString( 'E-invoice mandatory from 1.1.2028', $h );
+		$this->assertStringNotContainsString( ' checked', $h );
+		State::setTurnover( 'under' );
+		$this->assertStringContainsString( 'value="under" required checked', Wizard::render( 2 ) );
+	}
+
+	public function test_skip_link_on_every_step_and_progress_bar_kept(): void {
+		$this->assertStringContainsString( 'invoqk_wizard_skip', Wizard::render( 1 ) );
+		$this->assertStringContainsString( 'invoqk_wizard_skip', Wizard::render( 2 ) );
+		$this->assertStringContainsString( 'id="invoqk-bar"', Wizard::progress() );
+	}
 }

@@ -41,7 +41,9 @@ final class Page {
 	/** @return array<string,string> Escaped HTML per column. */
 	public static function cells( array $row, int $now ): array {
 		$id     = (int) $row['id'];
-		$status = esc_html( (string) ( $row['validation_status'] ?? '' ) );
+		$raw    = (string) ( $row['validation_status'] ?? '' );
+		$tone   = [ 'passed' => 'ok', 'failed' => 'bad' ][ strtolower( $raw ) ] ?? 'na';
+		$status = '' === $raw ? '' : '<span class="invoqk-pill-status ' . $tone . '">' . esc_html( $raw ) . '</span>';
 		if ( isset( $row['sent_confirmed'] ) && 0 === (int) $row['sent_confirmed'] ) {
 			$status .= ' <em>' . esc_html__( 'Delivery unconfirmed', 'invoqk' ) . '</em>';
 		}
@@ -107,13 +109,25 @@ final class Page {
 			/* translators: 1: date, 2: entry id, 3: kind of change */
 			'broken'  => sprintf( __( 'Last check: %1$s, changes detected at entry #%2$d (%3$s)', 'invoqk' ), $at, (int) ( $verify['brokenId'] ?? 0 ), (string) ( $verify['kind'] ?? '' ) ),
 		][ $state ] ?? __( 'No check run yet', 'invoqk' );
-		$meter = Usage::label( $used );
+		$tone  = [ 'ok' => 'is-ok', 'broken' => 'is-bad' ][ $state ] ?? 'is-idle';
 		$form  = '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '"><input type="hidden" name="action" value="invoqk_archive_verify">'
 			. wp_nonce_field( 'invoqk_archive_verify', '_wpnonce', true, false )
 			. '<button class="button">' . esc_html__( 'Check archive', 'invoqk' ) . '</button></form>';
-		/* translators: %d: count */
-		$wait = $stuck > 0 ? '<p>' . esc_html( sprintf( _n( '%d invoice waiting to be archived', '%d invoices waiting to be archived', $stuck, 'invoqk' ), $stuck ) ) . '</p>' : '';
-		return '<div class="invoqk-archive-head"><p>' . esc_html( $meter ) . '</p>' . $wait . $form . '<p>' . esc_html( $msg ) . '</p></div>';
+		$h     = '<div class="invoqk-statusbar invoqk-archive-head">'
+			. '<div class="invoqk-stat"><span class="invoqk-stat__label">' . esc_html__( 'Storage', 'invoqk' ) . '</span><span class="invoqk-stat__value">' . esc_html( Usage::label( $used ) ) . '</span></div>';
+		if ( $stuck > 0 ) {
+			/* translators: %d: count */
+			$h .= '<div class="invoqk-stat"><span class="invoqk-stat__label">' . esc_html__( 'Queue', 'invoqk' ) . '</span><span class="invoqk-stat__value">'
+				. esc_html( sprintf( _n( '%d invoice waiting to be archived', '%d invoices waiting to be archived', $stuck, 'invoqk' ), $stuck ) ) . '</span></div>';
+		}
+		return $h . '<div class="invoqk-stat invoqk-state ' . $tone . '"><span class="invoqk-stat__label">' . esc_html__( 'Integrity check', 'invoqk' ) . '</span><span class="invoqk-stat__value">'
+			. esc_html( $msg ) . '</span>' . $form . '</div></div>';
+	}
+
+	public static function upgradeCard(): string {
+		return '<div class="invoqk-card"><h2 class="invoqk-card__title">' . esc_html__( 'Invoqk Archive', 'invoqk' ) . '</h2><p class="invoqk-card__hint">'
+			. esc_html__( 'The archive stores every e-invoice you send. Available in Invoqk Pro.', 'invoqk' ) . '</p><p><a class="button button-primary" href="'
+			. esc_url( Limit::upgradeUrl() ) . '">' . esc_html__( 'Upgrade to Pro', 'invoqk' ) . '</a></p></div>';
 	}
 
 	public static function checkbox( array $row ): string {
@@ -122,12 +136,12 @@ final class Page {
 
 	public static function deleteControls(): string {
 		$word = __( 'DELETE', 'invoqk' );
-		return '<input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', 'invoqk_delete_nonce', false, false )
+		return '<details class="invoqk-delete"><summary>' . esc_html__( 'Delete old entries', 'invoqk' ) . '</summary><input type="hidden" name="action" value="invoqk_archive_delete">' . wp_nonce_field( 'invoqk_archive_delete', 'invoqk_delete_nonce', false, false )
 			. '<p><input type="text" name="confirm" placeholder="' . esc_attr( $word ) . '"> '
 			. '<input type="text" name="reason" placeholder="' . esc_attr( __( 'Reason', 'invoqk' ) ) . '"> '
 			. '<button class="button" type="submit" onclick="return confirm(\'' . esc_attr( esc_js( __( 'Delete the selected archive entries? This cannot be undone.', 'invoqk' ) ) ) . '\')">' . esc_html__( 'Delete selected', 'invoqk' ) . '</button></p>'
 			/* translators: %s: confirm word */
-			. '<p class="description">' . esc_html( sprintf( __( 'Entries before the retention date are only deleted when you type %s and give a reason.', 'invoqk' ), $word ) ) . '</p>';
+			. '<p class="description">' . esc_html( sprintf( __( 'Entries before the retention date are only deleted when you type %s and give a reason.', 'invoqk' ), $word ) ) . '</p></details>';
 	}
 
 	public static function notice( array $get ): string {
@@ -156,7 +170,7 @@ final class Page {
 
 	/** Steuerberater export box: range form plus the state of the last export. */
 	public static function exportBox( array $state, bool $zip, int $now ): string {
-		$h = '<div class="invoqk-archive-export"><h2>' . esc_html__( 'Export for Steuerberater', 'invoqk' ) . '</h2>';
+		$h = '<div class="invoqk-card invoqk-export invoqk-archive-export"><h2 class="invoqk-card__title">' . esc_html__( 'Export for Steuerberater', 'invoqk' ) . '</h2>';
 		if ( ! $zip ) {
 			return $h . '<p>' . esc_html__( 'The PHP zip extension is missing. Ask your host to enable it.', 'invoqk' ) . '</p></div>';
 		}
@@ -193,22 +207,21 @@ final class Page {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
-		echo '<div class="wrap"><h1>' . esc_html__( 'Invoqk Archive', 'invoqk' ) . '</h1>';
+		echo '<div class="wrap invoqk-app"><h1>' . esc_html__( 'Invoqk Archive', 'invoqk' ) . '</h1>';
 		$now  = time();
 		$ix   = Archive::index();
 		$f    = self::filters( $_GET, $now ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only filters
 		$page = max( 1, absint( $_GET['paged'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$res  = $ix->search( $f, $page, 20 );
 		if ( ! Limit::isPro() && 0 === $ix->count() ) {
-			echo '<div class="notice notice-info inline"><p>' . esc_html__( 'The archive stores every e-invoice you send. Available in Invoqk Pro.', 'invoqk' )
-				. ' <a href="' . esc_url( Limit::upgradeUrl() ) . '">' . esc_html__( 'Upgrade to Pro', 'invoqk' ) . '</a></p></div></div>';
+			echo self::upgradeCard() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in upgradeCard()
 			return;
 		}
 		echo self::notice( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- counts only, escaped in notice()
 		echo self::header( Verify::result(), Usage::used(), Entry::stuck() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
 		echo self::exportBox( Export::state(), Export::available(), $now ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in exportBox()
-		echo '<form method="get"><input type="hidden" name="page" value="invoqk-archive">'
-			. '<input type="search" name="s" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
+		echo '<form method="get" class="invoqk-toolbar"><input type="hidden" name="page" value="invoqk-archive">'
+			. '<input type="search" name="s" placeholder="' . esc_attr( __( 'Search number or customer', 'invoqk' ) ) . '" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
 			. '<input type="date" name="from" value="' . esc_attr( $f['from'] ?? '' ) . '"> <input type="date" name="to" value="' . esc_attr( $f['to'] ?? '' ) . '"> '
 			. '<label><input type="checkbox" name="deletable" value="1"' . ( empty( $f['deletable'] ) ? '' : ' checked' ) . '> ' . esc_html__( 'Only deletable', 'invoqk' ) . '</label> '
 			. '<button class="button">' . esc_html__( 'Filter', 'invoqk' ) . '</button></form>';

@@ -289,4 +289,10 @@ final class SettingsPageTest extends TestCase {
 		$this->assertNotSame( INVOQK_VERSION, $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
 		$this->assertStringContainsString( INVOQK_VERSION, (string) $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
 	}
+
+	public function test_css_enqueued_on_archive_page(): void {
+		$GLOBALS['invoqk_styles'] = [];
+		SettingsPage::enqueue( 'woocommerce_page_invoqk-archive' );
+		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
+	}
 }
