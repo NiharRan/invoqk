@@ -130,7 +130,8 @@ final class SettingsPage {
 
 	public static function render(): void {
 		$tab = self::tab();
-		echo '<div class="wrap invoqk-app"><h1>Invoqk</h1>';
+		$sync = in_array( State::get(), [ 'running', 'done' ], true ) ? '<span class="invoqk-sync">' . esc_html__( 'Active Sync', 'invoqk' ) . '</span>' : '';
+		echo '<div class="wrap invoqk-app"><h1><span class="invoqk-word">Invoqk</span>' . $sync . '</h1>'; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped above
 		settings_errors();
 		echo self::tabs( $tab ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in tabs()
 		match ( $tab ) {

@@ -9,12 +9,12 @@ final class DashboardTest extends TestCase {
 
 	public function test_score_counts_and_bar_widths(): void {
 		$h = Dashboard::html( $this->data(), 'under', true );
-		$this->assertStringContainsString( '62 %', $h );
-		$this->assertStringContainsString( '13 of 21', $h );
+		$this->assertStringContainsString( '62%', $h );
 		$this->assertStringContainsString( 'width:62%', $h );
 		$this->assertStringContainsString( 'width:24%', $h );
 		$this->assertStringContainsString( 'width:14%', $h );
-		foreach ( [ 'invoqk-pill ok">13', 'invoqk-pill bad">5', 'invoqk-pill warn">3', 'invoqk-pill na">48' ] as $p ) {
+		$this->assertStringContainsString( 'width:10%', $h );
+		foreach ( [ '</i>13 valid', '</i>5 faulty', '</i>3 missing', '</i>2 unchecked' ] as $p ) {
 			$this->assertStringContainsString( $p, $h );
 		}
 		$this->assertStringNotContainsString( 'is-empty', $h );
@@ -25,7 +25,7 @@ final class DashboardTest extends TestCase {
 		$h = Dashboard::html( $this->data( [ 'required' => 0, 'passed' => 0, 'failed' => 0, 'missing' => 0, 'score' => null ] ), null, true );
 		$this->assertStringContainsString( 'invoqk-hero is-empty', $h );
 		$this->assertStringNotContainsString( '–', $h );
-		$this->assertStringNotContainsString( 'invoqk-pill', $h );
+		$this->assertStringNotContainsString( 'invoqk-legend', $h );
 		$this->assertStringContainsString( 'No B2B invoices found yet', $h );
 		$this->assertStringNotContainsString( 'NAN', $h );
 		$this->assertStringNotContainsString( 'width:', $h );
@@ -43,10 +43,15 @@ final class DashboardTest extends TestCase {
 		$this->assertStringContainsString( 'name="_wpnonce"', $h );
 	}
 
-	public function test_disclaimer_always_present(): void {
-		foreach ( [ 'over', 'under', null ] as $t ) {
-			$this->assertStringContainsString( 'No legal or tax advice.', Dashboard::html( $this->data(), $t, true ) );
-		}
+	public function test_no_disclaimer_clutter_on_dashboard(): void {
+		$this->assertStringNotContainsString( 'No legal or tax advice.', Dashboard::html( $this->data(), 'under', true ) );
+	}
+
+	public function test_turnover_control_is_two_radios_that_autosubmit(): void {
+		$h = Dashboard::html( $this->data(), 'over', true );
+		$this->assertSame( 2, substr_count( $h, 'name="band"' ) );
+		$this->assertStringContainsString( 'value="over" checked', $h );
+		$this->assertSame( 2, substr_count( $h, 'this.form.submit()' ) );
 	}
 
 	public function test_top_error_row_escaped_with_fix_link(): void {
@@ -59,14 +64,15 @@ final class DashboardTest extends TestCase {
 		$this->assertStringContainsString( '&lt;script&gt;', $h );
 		$this->assertStringContainsString( '5×', $h );
 		$this->assertStringContainsString( 'href="/f?a=1&amp;b=2"', $h );
-		$this->assertSame( 1, substr_count( $h, 'Fix →' ) );
+		$this->assertSame( 1, substr_count( $h, 'Fix in order →' ) );
+		$this->assertStringContainsString( 'title="Fix"', $h );
 	}
 
 	public function test_pro_cta_links_upgrade_url_and_labels_pro(): void {
 		$h = Dashboard::html( $this->data(), 'under', true );
 		$this->assertStringContainsString( 'href="' . esc_url( \Invoqk\Validation\Limit::upgradeUrl() ) . '"', $h );
 		$this->assertStringContainsString( 'Try Pro for 14 days', $h );
-		$this->assertSame( 2, substr_count( $h, 'invoqk-lock">PRO' ) );
+		$this->assertSame( 2, substr_count( $h, 'class="invoqk-chip"' ) );
 	}
 
 	public function test_no_upsell_while_pro_ui_is_off(): void {
@@ -98,6 +104,8 @@ final class DashboardTest extends TestCase {
 		$bad = Dashboard::html( $this->data( [ 'top' => $top ] ), 'under', true );
 		$this->assertStringContainsString( 'invoqk-hero is-bad', $bad );
 		$this->assertStringContainsString( 'class="button button-primary" href="/f"', $bad );
+		$this->assertStringContainsString( '5 e-invoices need fixing', $bad );
+		$this->assertStringContainsString( 'Fix errors', $bad );
 		$warn = Dashboard::html( $this->data( [ 'failed' => 0 ] ), 'under', true );
 		$this->assertStringContainsString( 'invoqk-hero is-warn', $warn );
 		$empty = Dashboard::html( $this->data( [ 'required' => 0, 'passed' => 0, 'failed' => 0, 'missing' => 0, 'score' => null ] ), null, true );

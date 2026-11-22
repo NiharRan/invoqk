@@ -69,6 +69,7 @@ final class Wizard {
 
 	public static function statusCallback(): void {
 		self::guard( true );
+		FirstReport::nudge();
 		wp_send_json( FirstReport::status() );
 	}
 
@@ -163,13 +164,13 @@ final class Wizard {
 		}
 		return $h . '<p class="invoqk-note">' . esc_html__( 'No legal or tax advice.', 'invoqk' ) . '</p><p class="invoqk-actions">'
 			. '<a href="' . esc_url( admin_url( 'admin.php?page=invoqk&invoqk_wizard=1' ) ) . '">' . esc_html__( 'Back', 'invoqk' ) . '</a>'
-			. '<button type="submit" class="button button-primary">' . ( null === get_option( 'invoqk_first_report', null ) ? esc_html__( 'Start first check', 'invoqk' ) : esc_html__( 'Go to dashboard', 'invoqk' ) ) . '</button>' . self::skipLink()
+			. '<button type="submit" class="button button-primary">' . ( ! ( State::firstReport()['ids'] ?? [] ) ? esc_html__( 'Start first check', 'invoqk' ) : esc_html__( 'Save and continue', 'invoqk' ) ) . '</button>' . self::skipLink()
 			. '</p></form></div>';
 	}
 
 	/** Step 3: progress bar, filled by assets/invoqk-admin.js. */
 	public static function progress(): string {
-		wp_enqueue_script( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.js', INVOQK_FILE ), [], INVOQK_VERSION, true );
+		wp_enqueue_script( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.js', INVOQK_FILE ), [], INVOQK_VERSION . '.' . (int) @filemtime( dirname( INVOQK_FILE ) . '/assets/invoqk-admin.js' ), true );
 		wp_localize_script( 'invoqk-admin', 'invoqkWizard', [
 			'ajaxUrl'      => admin_url( 'admin-ajax.php?action=invoqk_first_report_status' ),
 			'nonce'        => wp_create_nonce( self::NONCE ),

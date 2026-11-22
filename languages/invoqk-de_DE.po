@@ -414,8 +414,8 @@ msgid "Settings"
 msgstr "Einstellungen"
 
 #: src/Onboarding/Wizard.php
-msgid "Go to dashboard"
-msgstr "Zum Dashboard"
+msgid "Save and continue"
+msgstr "Speichern und weiter"
 
 #: src/Admin/Dashboard.php
 msgid "No API key is set yet."
@@ -1241,3 +1241,60 @@ msgstr "Alte Einträge löschen"
 msgid "Search number or customer"
 msgstr "Nummer oder Kunde suchen"
 
+#: src/Admin/Dashboard.php
+msgid "EN 16931 checked"
+msgstr "EN 16931 geprüft"
+
+#: src/Admin/Dashboard.php
+msgid "exempt (B2C)"
+msgstr "befreit (B2C)"
+
+#: src/Admin/Dashboard.php
+msgid "Requires immediate merchant verification"
+msgstr "Bitte zeitnah prüfen"
+
+#: src/Admin/Dashboard.php
+msgid "DE compliance"
+msgstr "DE-Compliance"
+
+#: src/Admin/Dashboard.php
+msgid "B2B mandatory"
+msgstr "B2B-Pflicht"
+
+#: src/Admin/Dashboard.php
+msgid "Mandatory e-invoicing for domestic B2B transactions under the German Growth Opportunities Act (%s)."
+msgstr "Pflicht zur E-Rechnung für inländische B2B-Umsätze nach dem Wachstumschancengesetz (%s)."
+
+#: src/Admin/Dashboard.php
+msgid "Previous calendar year revenue"
+msgstr "Umsatz im Vorjahr"
+
+#: src/Admin/Dashboard.php
+msgid "Standard regulatory guidance only."
+msgstr "Nur allgemeine gesetzliche Orientierung."
+
+#: src/Admin/Dashboard.php
+msgid "Update"
+msgstr "Aktualisieren"
+
+#: src/Admin/Dashboard.php
+msgid "Frequent validation failures in your recent WooCommerce orders"
+msgstr "Häufige Prüffehler in deinen letzten WooCommerce-Bestellungen"
+
+#: src/Admin/Dashboard.php
+msgid "Fix in order"
+msgstr "In Bestellung beheben"
+
+#: src/Admin/Dashboard.php
+msgid "Block non-compliant orders before the invoice goes out and keep an audit-proof invoice archive."
+msgstr "Blockiere nicht konforme Bestellungen, bevor die Rechnung rausgeht, und führe ein revisionssicheres Rechnungsarchiv."
+
+#: src/Admin/Dashboard.php
+msgid "EN 16931 · German Growth Opportunities Act (%1$s) · v%2$s"
+msgstr "EN 16931 · Wachstumschancengesetz (%1$s) · v%2$s"
+
+#: src/Admin/Dashboard.php
+msgid "%d issue pending"
+msgid_plural "%d issues pending"
+msgstr[0] "%d offenes Problem"
+msgstr[1] "%d offene Probleme"

@@ -24,12 +24,12 @@
 				bar.removeAttribute( 'value' ); // indeterminate: the scan has not picked invoices yet
 				count.textContent = c.scanning;
 			}
-			// first result, or job done with results that never complete
-			if ( ( s.done > 0 || s.state === 'done' ) && ! waitFrom ) {
+			// 90 s fallback starts at the first result, for checks that never complete
+			if ( s.done > 0 && ! waitFrom ) {
 				waitFrom = Date.now();
 			}
 			// total 0 while still running means the job has not saved its ids yet
-			if ( ( s.total === 0 && s.state !== 'running' ) || ( s.total > 0 && s.done >= s.total ) || ( s.state === 'done' && s.done > 0 ) || ( waitFrom && Date.now() - waitFrom >= 90000 ) ) {
+			if ( ( s.total === 0 && s.state !== 'running' ) || ( s.total > 0 && s.done >= s.total ) || ( waitFrom && Date.now() - waitFrom >= 90000 ) ) {
 				go();
 				return;
 			}

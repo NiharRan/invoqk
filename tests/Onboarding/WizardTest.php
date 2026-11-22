@@ -55,6 +55,7 @@ final class WizardTest extends TestCase {
 
 	public function test_finish_after_done_does_not_restart(): void {
 		Wizard::finish( [ 'turnover' => 'over' ] );
+		update_option( 'invoqk_first_report', [ 'ids' => [ 7 ], 'startedAt' => 1 ] ); // a report that found orders stays
 		$report = get_option( 'invoqk_first_report' );
 		State::set( 'done' );
 		$this->assertTrue( Wizard::finish( [ 'turnover' => 'under', 'api_key' => 'new' ] ) );
@@ -189,9 +190,11 @@ final class WizardTest extends TestCase {
 
 	public function test_step2_submit_says_go_to_dashboard_once_report_exists(): void {
 		$this->assertStringContainsString( 'Start first check', Wizard::render( 2 ) );
-		update_option( 'invoqk_first_report', [ 'ids' => [], 'startedAt' => 1 ] );
+		update_option( 'invoqk_first_report', [ 'ids' => [], 'startedAt' => 1 ] ); // empty report: the check can run again
+		$this->assertStringContainsString( 'Start first check', Wizard::render( 2 ) );
+		update_option( 'invoqk_first_report', [ 'ids' => [ 7 ], 'startedAt' => 1 ] );
 		$h = Wizard::render( 2 );
-		$this->assertStringContainsString( 'Go to dashboard', $h );
+		$this->assertStringContainsString( 'Save and continue', $h );
 		$this->assertStringNotContainsString( 'Start first check', $h );
 	}
 

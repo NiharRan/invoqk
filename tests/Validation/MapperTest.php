@@ -118,4 +118,13 @@ final class MapperTest extends TestCase {
 		$r = Mapper::map( 200, [ 'verdict' => 'pass', 'ruleSet' => 'junk' ], null, '', '' );
 		$this->assertSame( [], $r['ruleSet'] );
 	}
+
+	public function test_live_service_shape_valid_invalid_with_errors_and_warnings(): void {
+		$body = [ 'verdict' => 'invalid', 'errors' => [ [ 'id' => 'BR-06', 'text' => 'Seller name missing', 'bt' => [ 'BT-27' ], 'location' => '/Invoice', 'messageDe' => 'Name fehlt', 'fix' => 'seller-name' ] ], 'warnings' => [ [ 'id' => 'W1', 'text' => 'careful' ] ] ];
+		$r    = Mapper::map( 200, $body, null, 'h', '1' );
+		$this->assertSame( 'failed', $r['status'] );
+		$this->assertSame( [ 'BR-06', 'error', 'Seller name missing', 'seller-name' ], [ $r['issues'][0]['id'], $r['issues'][0]['severity'], $r['issues'][0]['message'], $r['issues'][0]['fix'] ] );
+		$this->assertSame( 'warning', $r['issues'][1]['severity'] );
+		$this->assertSame( 'passed', Mapper::map( 200, [ 'verdict' => 'valid' ], null, 'h', '1' )['status'] );
+	}
 }

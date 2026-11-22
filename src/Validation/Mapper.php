@@ -10,6 +10,7 @@ final class Mapper {
 	private const MAX_WAIT   = 21600;
 
 	public static function map( int $http, ?array $body, ?string $retryAfter, string $hash, string $ref ): array {
+		$body    = self::normalize( $body );
 		$verdict = is_array( $body ) ? ( $body['verdict'] ?? null ) : null;
 		if ( 200 === $http && in_array( $verdict, [ 'pass', 'fail' ], true ) ) {
 			$issues = [];
@@ -50,6 +51,22 @@ final class Mapper {
 			$r['error']['retryAfter'] = (int) $retryAfter;
 		}
 		return $r;
+	}
+
+	/** The live service says valid/invalid with errors[] and warnings[]; the record uses pass/fail with issues[]. */
+	private static function normalize( ?array $body ): ?array {
+		if ( ! is_array( $body ) || ! in_array( $body['verdict'] ?? null, [ 'valid', 'invalid' ], true ) ) {
+			return $body;
+		}
+		$issues = [];
+		foreach ( [ 'errors' => 'error', 'warnings' => 'warning' ] as $k => $sev ) {
+			foreach ( is_array( $body[ $k ] ?? null ) ? $body[ $k ] : [] as $i ) {
+				if ( is_array( $i ) ) {
+					$issues[] = [ 'severity' => $sev, 'message' => $i['text'] ?? null, 'xpath' => $i['location'] ?? null ] + $i;
+				}
+			}
+		}
+		return [ 'verdict' => 'valid' === $body['verdict'] ? 'pass' : 'fail', 'issues' => $issues ] + $body;
 	}
 
 	public static function error( string $code, int $http = 0, string $hash = '', string $ref = '' ): array {

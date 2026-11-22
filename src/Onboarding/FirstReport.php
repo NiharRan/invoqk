@@ -19,7 +19,8 @@ final class FirstReport {
 	}
 
 	public static function start(): bool {
-		if ( null !== get_option( 'invoqk_first_report', null ) ) {
+		// A finished report stays; an empty one (no B2B orders existed then) may be run again.
+		if ( 'running' === State::get() || ( State::firstReport()['ids'] ?? [] ) ) {
 			return false;
 		}
 		update_option( 'invoqk_first_report', [ 'ids' => [], 'startedAt' => time() ], false );
@@ -50,6 +51,17 @@ final class FirstReport {
 			}
 		} finally {
 			State::set( 'done' );
+		}
+	}
+
+	/** Runs one waiting Invoqk job. Local and low-traffic sites may not trigger Action Scheduler for minutes; the open progress page does it instead. */
+	public static function nudge(): void {
+		if ( ! class_exists( 'ActionScheduler' ) || ! class_exists( 'ActionScheduler_Store' ) ) {
+			return;
+		}
+		$ids = \ActionScheduler::store()->query_actions( [ 'group' => Scheduler::GROUP, 'status' => \ActionScheduler_Store::STATUS_PENDING, 'date' => as_get_datetime_object(), 'date_compare' => '<=', 'per_page' => 1, 'orderby' => 'date', 'order' => 'ASC' ] );
+		if ( $ids ) {
+			\ActionScheduler::runner()->process_action( (int) $ids[0], 'Invoqk progress page' );
 		}
 	}
 
