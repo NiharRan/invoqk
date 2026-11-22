@@ -166,12 +166,10 @@ final class JobTest extends TestCase {
 	}
 
 	public function test_force_calls_api_again_with_same_hash(): void {
-		$GLOBALS['invoqk_options']['invoqk_free_slots'] = range( 100, 118 );
 		$this->order();
 		$this->go();
 		$this->go( 1, 1, true );
 		$this->assertSame( 2, $this->calls );
-		$this->assertCount( 20, $GLOBALS['invoqk_options']['invoqk_free_slots'] );
 	}
 
 	public function test_changed_bytes_validate_again(): void {
@@ -221,22 +219,12 @@ final class JobTest extends TestCase {
 		}
 	}
 
-	public function test_limit_writes_limit_status_without_http(): void {
-		$GLOBALS['invoqk_options']['invoqk_free_slots'] = range( 100, 119 );
-		$o = $this->order();
-		$this->go();
-		$this->assertSame( 'limit', Record::get( $o )['status'] );
-		$this->assertSame( 0, $this->calls );
-	}
-
-	public function test_retry_after_outage_takes_no_second_slot(): void {
-		$GLOBALS['invoqk_options']['invoqk_free_slots'] = range( 100, 118 );
+	public function test_retry_after_outage_retries(): void {
 		$this->res = [ 503, [], '' ];
 		$o = $this->order();
 		$this->go();
 		$this->go( 1, 2 );
 		$this->assertSame( 'error', Record::get( $o )['status'] );
-		$this->assertCount( 20, $GLOBALS['invoqk_options']['invoqk_free_slots'] );
 		$this->assertSame( 2, $this->calls );
 	}
 

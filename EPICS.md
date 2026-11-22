@@ -57,7 +57,7 @@ Goal: thin PHP plugin that finds each order's e-invoice regardless of generator.
 Goal: merchant sees pass/fail per invoice and understands why.
 
 - Plugin sends XML to API, stores and shows result per order.
-- Free tier limit: last 20 invoices; Pro unlimited (enforced via license).
+- No validation limit: free for all. Pro adds guard, archive, export.
 - Each failed rule shows BT code, German sentence ("BT-10 Käuferreferenz fehlt") and where to fix it in WooCommerce.
 - Optional AI rewrite behind a toggle.
 - All error texts translatable.

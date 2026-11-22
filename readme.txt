@@ -27,14 +27,13 @@ Invoqk reads the invoice that these plugins already create. Today it detects inv
 = Free =
 
 * Detects the e-invoice file of each order and shows which plugin it came from
-* Checks up to 20 orders with the validation API (the free tier)
+* Checks every order with the validation API, with no order limit
 * Error messages in German, with a suggested fix
 * Classifies which orders need an e-invoice at all
 * Readiness dashboard and report
 
 = Pro (paid, 14-day trial without a card) =
 
-* Unlimited checks
 * Invoice guard: with WP Overnight, an invoice that failed the check is held back from customer emails until it is fixed or you release it
 * Archive: stores every e-invoice your shop sends, with a checksum chain to detect later changes
 * Export of the archive as a ZIP with an index file, for your Steuerberater
@@ -114,7 +113,7 @@ Only what is listed under External services: the e-invoice file of an order for 
 
 = What is free and what is paid? =
 
-Free covers detection, German error messages, the dashboard and checks for up to 20 orders. Pro is paid, with a 14-day trial, and adds unlimited checks, the invoice guard, the archive and the export. See https://invoqk.com/plugin.
+Free covers detection, validation of all orders, German error messages and the dashboard. Pro is paid, with a 14-day trial, and adds the invoice guard, the archive and the export. See https://invoqk.com/plugin.
 
 = What happens when my Pro plan ends? =
 

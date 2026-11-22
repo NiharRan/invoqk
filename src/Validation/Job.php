@@ -17,7 +17,7 @@ final class Job {
 		if ( ! $found || 'none' === $found->source || ! $found->file ) {
 			return;
 		}
-		if ( ! Classifier::isRequired( $order ) ) { // no API call, no Free slot for orders that need no e-invoice
+		if ( ! Classifier::isRequired( $order ) ) { // no API call for orders that need no e-invoice
 			return;
 		}
 		$file    = $found->file;
@@ -43,13 +43,6 @@ final class Job {
 			if ( ( $old['ref'] ?? '' ) !== $ref ) { // keep ref current so the Detector stops re-queuing this order
 				Record::put( $order, array_merge( $old, [ 'ref' => $ref ] ) );
 			}
-			return;
-		}
-		if ( ! Limit::allow( $orderId ) ) {
-			$r           = Mapper::error( 'limit', 0, $hash, $ref );
-			$r['status'] = 'limit';
-			$r['error']  = null;
-			self::finish( $order, $r, $attempt );
 			return;
 		}
 		$res = Client::post( $bytes, $file->mime, $transport );

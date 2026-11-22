@@ -3,7 +3,6 @@ namespace Invoqk\Admin;
 
 use Invoqk\Validation\FixMap;
 use Invoqk\Validation\IssueText;
-use Invoqk\Validation\Limit;
 use Invoqk\Validation\Mapper;
 use Invoqk\Validation\Record;
 
@@ -27,10 +26,6 @@ final class Report {
 		}
 		if ( 'error' === $status ) {
 			$out .= '<p>' . esc_html( self::errorText( $rec, (int) ( $rec['attempt'] ?? 1 ) ) ) . '</p>';
-		}
-		if ( 'limit' === $status ) {
-			$out .= '<p>' . esc_html( sprintf( __( 'Free includes %d invoices. With Pro you check them all.', 'invoqk' ), Limit::MAX ) )
-				. ' <a href="' . esc_url( Limit::upgradeUrl() ) . '">' . esc_html__( 'Upgrade', 'invoqk' ) . '</a></p>';
 		}
 		if ( in_array( $status, [ 'passed', 'failed' ], true ) ) {
 			$out .= self::issues( $o, $rec, $locale );

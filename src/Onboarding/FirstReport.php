@@ -22,7 +22,6 @@ final class FirstReport {
 		if ( null !== get_option( 'invoqk_first_report', null ) ) {
 			return false;
 		}
-		// Saved with the state so Limit::allow can exempt these orders from the first moment.
 		update_option( 'invoqk_first_report', [ 'ids' => [], 'startedAt' => time() ], false );
 		State::set( 'running' );
 		as_enqueue_async_action( self::HOOK, [], Scheduler::GROUP );
@@ -45,7 +44,6 @@ final class FirstReport {
 					}
 				}
 			}
-			// Ids first: validation must find them already exempt from the free limit.
 			update_option( 'invoqk_first_report', [ 'ids' => $keep, 'startedAt' => $start ], false );
 			foreach ( $keep as $id ) {
 				Scheduler::enqueueValidate( $id );

@@ -121,12 +121,7 @@ final class SchedulerTest extends TestCase {
 		$GLOBALS['invoqk_orders_result'] = [ 21, 22, 23, 24, 25, 26, 27 ];
 		$GLOBALS['invoqk_filters'] = [];
 		Scheduler::sweep();
-		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ], [ 27, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) );
-		$GLOBALS['invoqk_as'] = [];
-		add_filter( 'invoqk_is_pro', fn() => true );
-		Scheduler::sweep();
-		$this->assertSame( [ 22, 23, 24, 27 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
-		$GLOBALS['invoqk_filters'] = [];
+		$this->assertSame( [ [ 22, 1, false ], [ 23, 1, false ], [ 24, 1, false ], [ 27, 1, false ] ], array_column( $GLOBALS['invoqk_as'], 'args' ) ); // 24: legacy 'limit' record is requeued
 	}
 
 	private function activationSweep(): void {
@@ -143,15 +138,8 @@ final class SchedulerTest extends TestCase {
 		$GLOBALS['invoqk_filters'] = [];
 	}
 
-	public function test_sweep_skips_orders_older_than_activation_on_free(): void {
+	public function test_sweep_validates_orders_older_than_activation(): void {
 		$this->activationSweep();
-		Scheduler::sweep();
-		$this->assertSame( [ 32 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
-	}
-
-	public function test_sweep_validates_old_orders_on_pro(): void {
-		$this->activationSweep();
-		add_filter( 'invoqk_is_pro', fn() => true );
 		Scheduler::sweep();
 		$this->assertSame( [ 31, 32 ], array_column( array_column( $GLOBALS['invoqk_as'], 'args' ), 0 ) );
 		$GLOBALS['invoqk_filters'] = [];
@@ -175,26 +163,18 @@ final class SchedulerTest extends TestCase {
 		Scheduler::handle( $id, 1, fn() => ( new \Invoqk\Detection\Detector( $reg ) )->run( $id ) );
 	}
 
-	public function test_sweep_detect_of_pre_activation_order_takes_no_free_slot(): void {
+	public function test_sweep_detect_of_pre_activation_order_validates(): void {
 		$this->preActivationUndetected( 41 );
 		$this->sweepAndDetect( 41 );
-		$this->assertNotContains( Scheduler::VALIDATE, array_column( $GLOBALS['invoqk_as'], 'hook' ) );
-	}
-
-	public function test_sweep_detect_of_pre_activation_order_validates_on_pro(): void {
-		$this->preActivationUndetected( 42 );
-		add_filter( 'invoqk_is_pro', fn() => true );
-		$this->sweepAndDetect( 42 );
 		$this->assertContains( Scheduler::VALIDATE, array_column( $GLOBALS['invoqk_as'], 'hook' ) );
-		$GLOBALS['invoqk_filters'] = [];
 	}
 
-	public function test_wpo_save_of_pre_activation_order_skips_validate_on_free(): void {
+	public function test_wpo_save_of_pre_activation_order_validates(): void {
 		$o = $this->preActivationUndetected( 43 );
 		$GLOBALS['invoqk_actions'] = [];
 		Scheduler::boot();
 		do_action( 'wpo_wcpdf_save_document', new stdClass(), $o );
-		$this->assertSame( [ Scheduler::DETECT ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
+		$this->assertSame( [ Scheduler::DETECT, Scheduler::VALIDATE ], array_column( $GLOBALS['invoqk_as'], 'hook' ) );
 	}
 
 	public function test_first_report_order_requeued_after_key_entered_despite_activation(): void {

@@ -83,12 +83,6 @@ final class ReportTest extends TestCase {
 		$this->assertStringContainsString( 'and 40 more', $h );
 	}
 
-	public function test_limit_report_has_upgrade_link(): void {
-		$h = Report::html( $this->order( [ 'status' => 'limit' ] ), 'de_DE' );
-		$this->assertStringContainsString( 'Upgrade</a>', $h );
-		$this->assertStringContainsString( 'Free includes 20 invoices', $h );
-	}
-
 	public function test_report_makes_no_http_or_adapter_calls(): void {
 		$GLOBALS['invoqk_filters'] = [];
 		add_filter( 'invoqk_source_adapters', fn() => $this->fail( 'adapter' ) );

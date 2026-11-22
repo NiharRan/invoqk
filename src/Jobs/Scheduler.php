@@ -8,7 +8,6 @@ use Invoqk\Onboarding\State;
 use Invoqk\Sources\Registry;
 use Invoqk\Validation\Client;
 use Invoqk\Validation\Job;
-use Invoqk\Validation\Limit;
 use Invoqk\Validation\Record;
 
 final class Scheduler {
@@ -73,18 +72,7 @@ final class Scheduler {
 
 	private static function enqueueBoth( \WC_Order $order ): void {
 		self::enqueue( $order->get_id() );
-		if ( self::autoValidates( $order ) ) {
-			self::enqueueValidate( $order->get_id() );
-		}
-	}
-
-	/** Automatic validation may spend a free slot: Free skips orders from before activation, except first-report ones (Limit-exempt). */
-	public static function autoValidates( \WC_Order $order ): bool {
-		if ( Limit::isPro() || in_array( $order->get_id(), State::firstReport()['ids'] ?? [], true ) ) {
-			return true;
-		}
-		$created = $order->get_date_created()?->getTimestamp();
-		return ! $created || $created >= State::activatedAt();
+		self::enqueueValidate( $order->get_id() );
 	}
 
 	public static function enqueueValidate( int $orderId, bool $force = false ): void {
@@ -96,10 +84,7 @@ final class Scheduler {
 
 	/** Whether the sweep should queue validation for this order (it has a file). */
 	private static function needsValidation( \WC_Order $order, string $status ): bool {
-		if ( ! self::autoValidates( $order ) ) {
-			return false;
-		}
-		if ( 'pending' === $status || ( 'limit' === $status && Limit::isPro() ) ) {
+		if ( 'pending' === $status || 'limit' === $status ) { // 'limit': legacy records from the old free cap
 			return true;
 		}
 		if ( 'error' !== $status ) {

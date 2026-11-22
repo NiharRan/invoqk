@@ -7,7 +7,7 @@ use Invoqk\Jobs\Scheduler;
 use Invoqk\Sources\InvoiceFile;
 use Invoqk\Sources\Registry;
 
-/** Background validation of one credit note (Pro only, not counted against Free slots). Logs order/refund id, status and HTTP code only. */
+/** Background validation of one credit note (Pro only). Logs order/refund id, status and HTTP code only. */
 final class CreditNoteJob {
 	public static function handle( int $orderId, int $refundId, int $attempt = 1, ?callable $transport = null ): void {
 		if ( ! Limit::isPro() ) {
