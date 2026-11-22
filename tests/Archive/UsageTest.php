@@ -53,7 +53,7 @@ final class UsageTest extends TestCase {
 		Usage::check( $this->mail() );
 		$this->assertCount( 1, $this->mails );
 		$this->assertSame( 'Invoqk: archive at 80 %', $this->mails[0][0] );
-		$this->assertStringContainsString( 'invoqk-archive', $this->mails[0][1] );
+		$this->assertStringContainsString( 'tab=archive', $this->mails[0][1] );
 		$this->assertSame( 80, get_option( 'invoqk_archive_warned' ) );
 		$this->fill( Usage::LIMIT + 1 );
 		Usage::check( $this->mail() );

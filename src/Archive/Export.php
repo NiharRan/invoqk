@@ -41,7 +41,7 @@ final class Export {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
 		$code = self::begin( $_POST, get_current_user_id(), time() ); // phpcs:ignore WordPress.Security.NonceVerification -- checked above
-		wp_safe_redirect( admin_url( 'admin.php?page=invoqk-archive&export=' . $code ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=invoqk&tab=archive&export=' . $code ) );
 		exit;
 	}
 
@@ -204,7 +204,7 @@ final class Export {
 			$mail(
 				$to,
 				__( 'Invoqk: your export is ready', 'invoqk' ),
-				__( 'Your Steuerberater export is ready for download:', 'invoqk' ) . "\n" . admin_url( 'admin.php?page=invoqk-archive' )
+				__( 'Your Steuerberater export is ready for download:', 'invoqk' ) . "\n" . admin_url( 'admin.php?page=invoqk&tab=archive' )
 			);
 		} catch ( \Throwable $e ) {
 			wc_get_logger()->error( 'archive export mail failed: ' . get_class( $e ), [ 'source' => 'invoqk' ] );

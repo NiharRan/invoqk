@@ -303,9 +303,18 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( INVOQK_VERSION, (string) $GLOBALS['invoqk_style_ver']['invoqk-admin'] );
 	}
 
-	public function test_css_enqueued_on_archive_page(): void {
-		$GLOBALS['invoqk_styles'] = [];
-		SettingsPage::enqueue( 'woocommerce_page_invoqk-archive' );
-		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_styles'] );
+	public function test_archive_tab_in_tab_bar_when_pro_ui_on(): void {
+		$this->reset( 'done' );
+		$this->assertStringContainsString( 'tab=archive', $this->page( 'archive' ) );
+	}
+
+	public function test_archive_tab_hidden_while_pro_ui_is_off(): void {
+		$this->reset( 'done' );
+		$GLOBALS['invoqk_filters']['invoqk_pro_ui'] = [ static fn() => false ];
+		try {
+			$this->assertStringNotContainsString( 'tab=archive', $this->page( 'archive' ) );
+		} finally {
+			unset( $GLOBALS['invoqk_filters']['invoqk_pro_ui'] );
+		}
 	}
 }

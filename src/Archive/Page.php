@@ -5,14 +5,6 @@ use Invoqk\Validation\Limit;
 
 /** Archive admin page: menu, render, and the pure helpers that carry the logic. */
 final class Page {
-	public static function boot(): void {
-		add_action( 'admin_menu', [ self::class, 'menu' ] );
-	}
-
-	public static function menu(): void {
-		add_submenu_page( 'woocommerce', 'Invoqk Archiv', __( 'Invoqk Archive', 'invoqk' ), 'manage_woocommerce', 'invoqk-archive', [ self::class, 'render' ] );
-	}
-
 	private static function date( $v ): ?string {
 		$v = (string) $v;
 		$d = \DateTime::createFromFormat( '!Y-m-d', $v );
@@ -207,20 +199,19 @@ final class Page {
 		if ( ! current_user_can( 'manage_woocommerce' ) ) {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
-		echo '<div class="wrap invoqk-app"><h1>' . esc_html__( 'Invoqk Archive', 'invoqk' ) . '</h1>';
 		$now  = time();
 		$ix   = Archive::index();
 		$f    = self::filters( $_GET, $now ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only filters
 		$page = max( 1, absint( $_GET['paged'] ?? 0 ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$res  = $ix->search( $f, $page, 20 );
 		if ( ! Limit::isPro() && 0 === $ix->count() ) {
-			echo self::upgradeCard() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in upgradeCard()
+			echo self::upgradeCard(); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in upgradeCard()
 			return;
 		}
 		echo self::notice( $_GET ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput -- counts only, escaped in notice()
 		echo self::header( Verify::result(), Usage::used(), Entry::stuck() ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in header()
 		echo self::exportBox( Export::state(), Export::available(), $now ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in exportBox()
-		echo '<form method="get" class="invoqk-toolbar"><input type="hidden" name="page" value="invoqk-archive">'
+		echo '<form method="get" class="invoqk-toolbar"><input type="hidden" name="page" value="invoqk"><input type="hidden" name="tab" value="archive">'
 			. '<input type="search" name="s" placeholder="' . esc_attr( __( 'Search number or customer', 'invoqk' ) ) . '" value="' . esc_attr( $f['q'] ?? '' ) . '"> '
 			. '<input type="date" name="from" value="' . esc_attr( $f['from'] ?? '' ) . '"> <input type="date" name="to" value="' . esc_attr( $f['to'] ?? '' ) . '"> '
 			. '<label><input type="checkbox" name="deletable" value="1"' . ( empty( $f['deletable'] ) ? '' : ' checked' ) . '> ' . esc_html__( 'Only deletable', 'invoqk' ) . '</label> '
@@ -260,6 +251,5 @@ final class Page {
 		echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">' . self::deleteControls(); // phpcs:ignore WordPress.Security.EscapeOutput
 		$table->display();
 		echo '</form>';
-		echo '</div>';
 	}
 }

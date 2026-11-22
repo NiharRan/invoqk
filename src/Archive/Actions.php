@@ -16,7 +16,7 @@ final class Actions {
 			wp_die( '', '', [ 'response' => 403 ] );
 		}
 		Verify::start();
-		wp_safe_redirect( admin_url( 'admin.php?page=invoqk-archive' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=invoqk&tab=archive' ) );
 		exit;
 	}
 
@@ -65,7 +65,7 @@ final class Actions {
 		$confirm = sanitize_text_field( wp_unslash( $_POST['confirm'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$reason  = sanitize_text_field( wp_unslash( $_POST['reason'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification
 		$r       = self::delete( $ids, get_current_user_id(), $confirm, $reason, time() );
-		wp_safe_redirect( admin_url( 'admin.php?page=invoqk-archive&deleted=' . $r['deleted'] . '&refused=' . $r['refused'] ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=invoqk&tab=archive&deleted=' . $r['deleted'] . '&refused=' . $r['refused'] ) );
 		exit;
 	}
 

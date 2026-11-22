@@ -42,7 +42,7 @@ final class SettingsPage {
 	}
 
 	public static function enqueue( string $hook ): void {
-		if ( in_array( $hook, [ 'woocommerce_page_invoqk', 'woocommerce_page_invoqk-archive' ], true ) ) {
+		if ( in_array( $hook, [ 'woocommerce_page_invoqk' ], true ) ) {
 			wp_enqueue_style( 'invoqk-admin', plugins_url( 'assets/invoqk-admin.css', INVOQK_FILE ), [], INVOQK_VERSION . '.' . (int) @filemtime( dirname( INVOQK_FILE ) . '/assets/invoqk-admin.css' ) ); // file time busts caches when the CSS changes
 		}
 	}
@@ -110,12 +110,13 @@ final class SettingsPage {
 	/** The active tab; anything unknown falls back to the overview. */
 	public static function tab(): string {
 		$t = sanitize_key( (string) ( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only routing
-		return in_array( $t, [ 'settings', 'license' ], true ) && ( 'settings' === $t || Limit::proUi() ) ? $t : 'overview';
+		return 'settings' === $t || ( in_array( $t, [ 'archive', 'license' ], true ) && Limit::proUi() ) ? $t : 'overview';
 	}
 
 	public static function tabs( string $active ): string {
 		$labels = [ 'overview' => __( 'Overview', 'invoqk' ), 'settings' => __( 'Settings', 'invoqk' ) ];
 		if ( Limit::proUi() ) {
+			$labels['archive'] = __( 'Archive', 'invoqk' );
 			$labels['license'] = __( 'License', 'invoqk' );
 		}
 		$h      = '<nav class="invoqk-tabs" aria-label="Invoqk">';
@@ -132,7 +133,12 @@ final class SettingsPage {
 		echo '<div class="wrap invoqk-app"><h1>Invoqk</h1>';
 		settings_errors();
 		echo self::tabs( $tab ); // phpcs:ignore WordPress.Security.EscapeOutput -- escaped in tabs()
-		'settings' === $tab ? self::renderSettings() : ( 'license' === $tab ? self::renderLicense() : self::renderOverview() );
+		match ( $tab ) {
+			'settings' => self::renderSettings(),
+			'license'  => self::renderLicense(),
+			'archive'  => \Invoqk\Archive\Page::render(),
+			default    => self::renderOverview(),
+		};
 		echo '</div>';
 	}
 

@@ -39,7 +39,7 @@ final class Usage {
 					get_option( 'admin_email' ),
 					/* translators: %d: percent */
 					sprintf( __( 'Invoqk: archive at %d %%', 'invoqk' ), $level ),
-					self::label( $used ) . "\n" . admin_url( 'admin.php?page=invoqk-archive' )
+					self::label( $used ) . "\n" . admin_url( 'admin.php?page=invoqk&tab=archive' )
 				);
 			} catch ( \Throwable $e ) {
 				$ok = false;

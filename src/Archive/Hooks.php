@@ -8,7 +8,6 @@ final class Hooks {
 		Entry::boot();
 		CreditNoteEntry::boot();
 		Actions::boot();
-		Page::boot();
 		Export::boot();
 		add_action( Verify::HOOK, static fn( $afterId, $prevHash ) => Verify::run( (int) $afterId, (string) $prevHash ), 10, 2 );
 		add_action( 'admin_notices', static function (): void {
