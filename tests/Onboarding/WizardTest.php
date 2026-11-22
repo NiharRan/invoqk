@@ -160,7 +160,7 @@ final class WizardTest extends TestCase {
 		$this->assertStringContainsString( 'invoqk-progress', $h );
 		$this->assertArrayHasKey( 'invoqk-admin', $GLOBALS['invoqk_scripts'] );
 		$d = $GLOBALS['invoqk_localized']['invoqk-admin'][1];
-		$this->assertSame( [ 'ajaxUrl', 'nonce', 'dashboardUrl' ], array_keys( $d ) );
+		$this->assertSame( [ 'ajaxUrl', 'nonce', 'dashboardUrl', 'scanning', 'checked' ], array_keys( $d ) );
 	}
 
 	public function test_redirect_target_and_consumed(): void {

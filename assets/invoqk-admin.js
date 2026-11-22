@@ -17,8 +17,13 @@
 				throw new Error( 'status ' + r.status ); // falls through to the reschedule below
 			}
 			const s = await r.json();
-			bar.value = s.total ? Math.round( 100 * s.done / s.total ) : 0;
-			count.textContent = s.done + ' / ' + s.total;
+			if ( s.total ) {
+				bar.value = Math.round( 100 * s.done / s.total );
+				count.textContent = c.checked.replace( '%1$d', s.done ).replace( '%2$d', s.total );
+			} else if ( s.state === 'running' ) {
+				bar.removeAttribute( 'value' ); // indeterminate: the scan has not picked invoices yet
+				count.textContent = c.scanning;
+			}
 			// first result, or job done with results that never complete
 			if ( ( s.done > 0 || s.state === 'done' ) && ! waitFrom ) {
 				waitFrom = Date.now();
