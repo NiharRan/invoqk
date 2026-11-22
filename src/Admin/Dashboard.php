@@ -17,7 +17,7 @@ final class Dashboard {
 		}
 		$h .= '<div class="invoqk-grid">' . self::readiness( $d ) . self::deadline( $turnover ) . '</div>';
 		$h .= self::top( $d['top'] );
-		if ( Limit::isPro() ) {
+		if ( Limit::proUi() && Limit::isPro() ) {
 			$h .= '<p class="invoqk-muted">' . esc_html( sprintf( __( 'Archive: %s', 'invoqk' ), Usage::label( Usage::used() ) ) ) . '</p>';
 		}
 		return $h . self::pro() . self::footer() . '</div>';
