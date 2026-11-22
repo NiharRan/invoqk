@@ -220,6 +220,19 @@ final class SettingsPageTest extends TestCase {
 		$this->assertStringContainsString( 'invoqk-dash', $h );
 	}
 
+	public function test_license_tab_hidden_while_pro_ui_is_off(): void {
+		$this->reset( 'done' );
+		$GLOBALS['invoqk_filters']['invoqk_pro_ui'] = [ static fn() => false ];
+		try {
+			$h = $this->page( 'license' );
+			$this->assertStringNotContainsString( 'tab=license', $h );
+			$this->assertStringNotContainsString( 'Start 14-day trial', $h );
+			$this->assertStringContainsString( 'invoqk-dash', $h );
+		} finally {
+			unset( $GLOBALS['invoqk_filters']['invoqk_pro_ui'] );
+		}
+	}
+
 	public function test_tab_bar_links_and_active_state(): void {
 		$this->reset( 'done' );
 		foreach ( [ 'settings' => 'Settings', 'license' => 'License' ] as $slug => $label ) {

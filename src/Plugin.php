@@ -7,11 +7,13 @@ final class Plugin {
 		Onboarding\FirstReport::boot();
 		Guard\Guard::boot();
 		Fallback\Mail::boot(); // mail runs in cron and on the front end
-		Archive\Hooks::boot();
 		Refund\Open::boot();
 		CreditNote\Detect::boot();
-		Licensing\Actions::boot();
-		Agency\Sync::boot();
+		if ( Validation\Limit::proUi() ) {
+			Archive\Hooks::boot();
+			Licensing\Actions::boot();
+			Agency\Sync::boot();
+		}
 		B2g\Field::boot(); // checkout is front end
 		Sources\WpOvernightAdapter::boot(); // WP Overnight builds EDI for emails and downloads too, not only in admin
 		if ( is_admin() ) {
@@ -22,7 +24,7 @@ final class Plugin {
 			Guard\Actions::boot();
 			Fallback\Actions::boot();
 			Admin\SettingsPage::boot();
-			Licensing\Notice::boot();
+			Validation\Limit::proUi() && Licensing\Notice::boot();
 			Refund\Dismiss::boot();
 			Refund\Notice::boot();
 			Onboarding\Wizard::boot();

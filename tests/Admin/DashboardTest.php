@@ -69,6 +69,15 @@ final class DashboardTest extends TestCase {
 		$this->assertSame( 2, substr_count( $h, 'invoqk-lock">PRO' ) );
 	}
 
+	public function test_no_upsell_while_pro_ui_is_off(): void {
+		$GLOBALS['invoqk_filters']['invoqk_pro_ui'] = [ static fn() => false ];
+		try {
+			$this->assertStringNotContainsString( 'invoqk-pro', Dashboard::html( $this->data(), 'under', true ) );
+		} finally {
+			unset( $GLOBALS['invoqk_filters']['invoqk_pro_ui'] );
+		}
+	}
+
 	public function test_pro_site_has_no_upsell(): void {
 		$GLOBALS['invoqk_filters']['invoqk_is_pro'] = [ static fn() => true ];
 		\Invoqk\Archive\Archive::$index = new \Invoqk\Tests\Archive\MemoryIndex();

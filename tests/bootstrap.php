@@ -155,6 +155,7 @@ if ( ! function_exists( 'esc_html' ) ) {
 
 if ( ! defined( 'DB_NAME' ) ) { define( 'DB_NAME', 'wordpress' ); }
 if ( ! defined( 'INVOQK_VERSION' ) ) { define( 'INVOQK_VERSION', '0.1.0' ); }
+if ( ! defined( 'INVOQK_PRO_UI' ) ) { define( 'INVOQK_PRO_UI', true ); } // tests cover the Pro screens; the hidden state is tested through the invoqk_pro_ui filter
 if ( ! defined( 'INVOQK_FILE' ) ) { define( 'INVOQK_FILE', dirname( __DIR__ ) . '/invoqk.php' ); }
 if ( ! defined( 'HOUR_IN_SECONDS' ) ) { define( 'HOUR_IN_SECONDS', 3600 ); }
 $GLOBALS['invoqk_options'] = [];

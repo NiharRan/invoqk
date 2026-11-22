@@ -22,9 +22,9 @@ Invoqk finds the e-invoice (XRechnung, ZUGFeRD, Factur-X, UBL or CII) that your 
 * Germanized Pro (planned)
 * German Market (planned)
 
-Invoqk reads the invoice that these plugins already create. Today it detects invoices from WP Overnight only. It does not create invoices from these plugins; only the Pro fallback below can create a simple e-invoice. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
+Invoqk reads the invoice that these plugins already create. Today it detects invoices from WP Overnight only. It does not create or change invoices. Developers can add more sources, see `ADAPTERS.md` in the plugin repository.
 
-= Free =
+= Features =
 
 * Detects the e-invoice file of each order and shows which plugin it came from
 * Checks every order with the validation API, with no order limit
@@ -32,50 +32,19 @@ Invoqk reads the invoice that these plugins already create. Today it detects inv
 * Classifies which orders need an e-invoice at all
 * Readiness dashboard and report
 
-= Pro (paid, 14-day trial without a card) =
-
-* Invoice guard: with WP Overnight, an invoice that failed the check is held back from customer emails until it is fixed or you release it
-* Archive: stores every e-invoice your shop sends, with a checksum chain to detect later changes
-* Export of the archive as a ZIP with an index file, for your Steuerberater
-* Refunds on orders that need an e-invoice are flagged until a credit note exists. Credit notes from the paid WP Overnight Professional extension are meant to be found, checked and archived; this is not yet verified against that extension (the free WP Overnight plugin creates no credit notes)
-* Optional Leitweg-ID field at checkout. With WP Overnight it is written into UBL and PEPPOL BIS invoices; for its other e-invoice formats you are told to switch the format to UBL or PEPPOL BIS, and with other invoice plugins to enter it there as the buyer reference
-
-If Pro ends, the guard and new archiving stop. Your existing archive stays readable and exportable.
-
-Plans and the trial: https://invoqk.com/plugin
-
-= Fallback e-invoice (Pro) =
-
-If no invoice plugin supplies an e-invoice, Invoqk can create a simple one itself: XML only, as XRechnung 3.0 or EN 16931 (ZUGFeRD XML). It is checked like any other invoice. Limits:
-
-* Only domestic (DE) orders in EUR
-* Tax rates 19 % and 7 %; 0 % only with the Nullsatz setting (zero-rated, not tax-exempt)
-* Small businesses under §19 UStG (Kleinunternehmer) are not supported
-* Orders with a refund are refused
-* Totals must reconcile to the cent
-* Not supported: discounts that need a document-level allowance or negative lines (discount fees), multi-currency plugins, subscriptions with split periods, partial deliveries and advance payments
-* No hybrid PDF: ZUGFeRD is XML only
-* Credit notes are not created by the fallback
-
 = Requirements =
 
 WordPress 6.5+, WooCommerce, PHP 8.1+, and one of the supported invoice plugins. Works with High-Performance Order Storage (HPOS) and the block checkout.
 
 = External services =
 
-This plugin connects to the Invoqk service at https://invoqk.com. Nothing is sent until you add an API key or start a trial. The service is operated by Invoqk.
+This plugin connects to the Invoqk service at https://invoqk.com. Nothing is sent until you add an API key. The service is operated by Invoqk.
 
 **1. Invoice validation API** (`https://invoqk.com/api/v1/einvoice/validate`)
 
 * What is sent: the e-invoice file of an order (XML or PDF), as created by your invoice plugin, plus your API key and your shop's domain name. The file contains the data on the invoice, such as buyer and seller names, addresses, and line items.
 * When: in the background after an order changes status or an invoice is created, and when you choose to check or re-check an order in the admin. Failed requests are retried a few times. Orders that need no e-invoice are not sent. Unchanged invoices are not sent again.
 * What comes back: pass or fail and a list of issues, which the plugin turns into German messages and stores with the order.
-
-**2. License and trial API** (`https://invoqk.com/api/v1/license/...`)
-
-* What is sent: your shop's domain name (host of the site URL) and, as appropriate, your API key (to activate, check, deactivate or buy a plan), or the email address you enter and the 6-digit code you receive when starting the free trial.
-* When: when you start a trial, enter a key, deactivate, or choose a plan, and about once a day in the background while a paid or trial plan is active (every few minutes for up to 3 days after you start a checkout), to keep the plan status current.
-* What comes back: the plan, trial or renewal dates, a per-shop API key, or the checkout link for the plan you chose.
 
 Invoqk does not send invoice contents anywhere else, and the plugin does not write invoice contents or your key to logs.
 
@@ -90,7 +59,7 @@ The plugin is written in English and ships with German. Other languages can be c
 
 1. Install and activate WooCommerce, and one of the supported invoice plugins.
 2. Upload the plugin to `/wp-content/plugins/invoqk`, or install it from the Plugins screen, and activate it.
-3. Open WooCommerce > Invoqk and follow the setup steps. To check invoices you need an Invoqk API key. Start the 14-day Pro trial from the Invoqk settings, or enter your key.
+3. Open WooCommerce > Invoqk and follow the setup steps. To check invoices you need an Invoqk API key. Enter it in the Invoqk settings.
 4. The first report shows how ready your recent orders are.
 
 == Frequently Asked Questions ==
@@ -109,15 +78,7 @@ No. A passed check means the invoice had no issues in our check, nothing more.
 
 = What data leaves my shop? =
 
-Only what is listed under External services: the e-invoice file of an order for the check, and license data (shop domain, API key, trial email). See the terms and privacy policy linked there.
-
-= What is free and what is paid? =
-
-Free covers detection, validation of all orders, German error messages and the dashboard. Pro is paid, with a 14-day trial, and adds the invoice guard, the archive and the export. See https://invoqk.com/plugin.
-
-= What happens when my Pro plan ends? =
-
-The guard and new archiving stop. Existing archive entries stay readable and exportable. Invoices already held stay visible.
+Only what is listed under External services: the e-invoice file of an order for the check, your API key and your shop's domain name. See the terms and privacy policy linked there.
 
 = Does it work without WooCommerce? =
 
@@ -135,7 +96,7 @@ WP Overnight PDF Invoices is supported today. Support for Germanized Pro is plan
 == Changelog ==
 
 = 0.1.0 =
-* First release: e-invoice detection, validation, German error messages, readiness dashboard, invoice guard, archive and Steuerberater export, license and 14-day trial.
+* First release: e-invoice detection, validation, German error messages and readiness dashboard.
 
 == Upgrade Notice ==
 

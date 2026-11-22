@@ -20,7 +20,7 @@ final class LimitsDocTest extends TestCase {
 
 	/** @return array<string, array{string}> */
 	public static function readmes(): array {
-		return [ 'README.md' => [ 'README.md' ], 'readme.txt' => [ 'readme.txt' ] ];
+		return [ 'README.md' => [ 'README.md' ] ]; // readme.txt omits the fallback while Pro is hidden (INVOQK_PRO_UI)
 	}
 
 	/** @dataProvider readmes */

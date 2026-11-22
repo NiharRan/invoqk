@@ -120,7 +120,7 @@ final class Dashboard {
 	}
 
 	private static function pro(): string {
-		if ( Limit::isPro() ) {
+		if ( Limit::isPro() || ! Limit::proUi() ) {
 			return '';
 		}
 		return '<div class="invoqk-box invoqk-pro"><div><strong>' . esc_html__( 'Stop errors before the invoice goes out', 'invoqk' )

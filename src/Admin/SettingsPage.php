@@ -106,16 +106,18 @@ final class SettingsPage {
 			. esc_html__( 'Small businesses under §19 UStG (Kleinunternehmer) are not supported.', 'invoqk' ) . '</p></div>';
 	}
 
-	private const TABS = [ 'overview' => 'Overview', 'settings' => 'Settings', 'license' => 'License' ];
 
 	/** The active tab; anything unknown falls back to the overview. */
 	public static function tab(): string {
 		$t = sanitize_key( (string) ( $_GET['tab'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification -- read-only routing
-		return isset( self::TABS[ $t ] ) ? $t : 'overview';
+		return in_array( $t, [ 'settings', 'license' ], true ) && ( 'settings' === $t || Limit::proUi() ) ? $t : 'overview';
 	}
 
 	public static function tabs( string $active ): string {
-		$labels = [ 'overview' => __( 'Overview', 'invoqk' ), 'settings' => __( 'Settings', 'invoqk' ), 'license' => __( 'License', 'invoqk' ) ];
+		$labels = [ 'overview' => __( 'Overview', 'invoqk' ), 'settings' => __( 'Settings', 'invoqk' ) ];
+		if ( Limit::proUi() ) {
+			$labels['license'] = __( 'License', 'invoqk' );
+		}
 		$h      = '<nav class="invoqk-tabs" aria-label="Invoqk">';
 		foreach ( $labels as $slug => $label ) {
 			$on  = $slug === $active;
